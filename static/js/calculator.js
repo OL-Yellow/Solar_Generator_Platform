@@ -34,16 +34,32 @@ const APPLIANCES = {
 class SolarCalculator {
     constructor() {
         this.currentStep = 1;
-        this.totalSteps = 5; // Updated to 5 steps
+        this.totalSteps = 5;
         this.initializeEventListeners();
     }
 
     initializeEventListeners() {
+        // Wait for DOM to be fully loaded
         document.addEventListener('DOMContentLoaded', () => {
             this.updateProgress();
             this.setupStepNavigation();
             this.setupApplianceControls();
             this.setupCalculationTriggers();
+            this.setupDeleteButtons();
+        });
+    }
+
+    setupDeleteButtons() {
+        // Add event listeners to existing delete buttons
+        const deleteButtons = document.querySelectorAll('.delete-appliance');
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const applianceItem = button.closest('.appliance-item');
+                if (applianceItem) {
+                    applianceItem.remove();
+                    this.updateTotalPower();
+                }
+            });
         });
     }
 
@@ -64,7 +80,7 @@ class SolarCalculator {
             }
         });
 
-        // Setup appliance select handlers - adjusted for new structure
+        // Setup appliance select handlers
         document.addEventListener('change', (e) => {
             if (e.target.matches('.appliance-select')) {
                 const watts = APPLIANCES[e.target.value] || 0;
@@ -167,7 +183,6 @@ class SolarCalculator {
             });
         }
     }
-
 
     updateProgress() {
         const progressBar = document.querySelector('.progress-bar');
@@ -282,17 +297,26 @@ class SolarCalculator {
     }
 }
 
+// Initialize calculator
+const calculator = new SolarCalculator();
+
+// Function to add new appliance row
 function addApplianceRow() {
     const applianceList = document.querySelector('.appliance-list');
-    const newApplianceItem = document.createElement('div');
-    newApplianceItem.className = 'appliance-item';
-    newApplianceItem.innerHTML = `
-        <select class="form-select appliance-select mb-3" required>
-            <option value="">Select Appliance</option>
-            ${Object.keys(APPLIANCES).map(appliance => 
-                `<option value="${appliance}">${appliance}</option>`
-            ).join('')}
-        </select>
+    const newApplianceRow = document.createElement('div');
+    newApplianceRow.className = 'appliance-item';
+    newApplianceRow.innerHTML = `
+        <div class="d-flex justify-content-between align-items-start mb-2">
+            <select class="form-select appliance-select mb-3" required>
+                <option value="">Select Appliance</option>
+                ${Object.keys(APPLIANCES).map(appliance => 
+                    `<option value="${appliance}">${appliance}</option>`
+                ).join('')}
+            </select>
+            <button type="button" class="btn btn-sm btn-outline-danger delete-appliance" title="Remove appliance">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
 
         <div class="appliance-controls">
             <div class="control-group">
@@ -319,7 +343,6 @@ function addApplianceRow() {
 
             <div class="d-flex justify-content-between align-items-center mt-3">
                 <button type="button" class="btn btn-sm backup-toggle" data-state="no">No</button>
-                <button type="button" class="btn btn-sm btn-danger delete-appliance">Delete</button>
                 <div class="text-end">
                     <span class="watts-value">0</span>
                     <small class="d-block text-muted daily-kwh">0.00 kWh/day</small>
@@ -327,10 +350,10 @@ function addApplianceRow() {
             </div>
         </div>
     `;
-    applianceList.appendChild(newApplianceItem);
+    applianceList.appendChild(newApplianceRow);
 
     // Add event listeners to new inputs
-    const select = newApplianceItem.querySelector('.appliance-select');
+    const select = newApplianceRow.querySelector('.appliance-select');
     select.addEventListener('change', (e) => {
         const watts = APPLIANCES[e.target.value] || 0;
         const item = e.target.closest('.appliance-item');
@@ -338,15 +361,16 @@ function addApplianceRow() {
         calculator.updateAppliancePower(item);
     });
 
-    const quantityBtns = newApplianceItem.querySelectorAll('.quantity-btn');
+    const quantityBtns = newApplianceRow.querySelectorAll('.quantity-btn');
     quantityBtns.forEach(btn => btn.addEventListener('click', (e) => calculator.handleQuantityButton(e.target)));
 
-    const hoursBtns = newApplianceItem.querySelectorAll('.hours-btn');
+    const hoursBtns = newApplianceRow.querySelectorAll('.hours-btn');
     hoursBtns.forEach(btn => btn.addEventListener('click', (e) => calculator.handleHoursButton(e.target)));
 
-    const backupToggle = newApplianceItem.querySelector('.backup-toggle');
+    const backupToggle = newApplianceRow.querySelector('.backup-toggle');
     if (backupToggle) backupToggle.addEventListener('click', (e) => calculator.handleBackupToggle(e.target));
-    const deleteButton = newApplianceItem.querySelector('.delete-appliance');
+
+    const deleteButton = newApplianceRow.querySelector('.delete-appliance');
     deleteButton.addEventListener('click', (e) => {
         const applianceItem = e.target.closest('.appliance-item');
         if (applianceItem) {
@@ -356,10 +380,7 @@ function addApplianceRow() {
     });
 }
 
-
-
+// Update sun hours when location changes
 document.getElementById('location').addEventListener('change', function() {
     document.getElementById('sun-hours').value = this.value;
 });
-
-const calculator = new SolarCalculator();
