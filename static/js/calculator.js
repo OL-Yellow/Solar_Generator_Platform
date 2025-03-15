@@ -273,7 +273,8 @@ function addApplianceRow() {
     `;
 
     const newRow = template.firstElementChild;
-    applianceList.appendChild(newRow);
+    const addButton = applianceList.querySelector('button[onclick="addApplianceRow()"]');
+    applianceList.insertBefore(newRow, addButton);
 
     // Add event listeners to the new row
     const calculator = window.calculator;
