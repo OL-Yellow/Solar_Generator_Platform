@@ -7,7 +7,7 @@ def get_system_recommendations(user_data):
     """Get AI-powered solar system recommendations using Claude."""
     try:
         client = Anthropic(api_key=os.environ['ANTHROPIC_API_KEY'])
-        
+
         # Format the user data into a detailed prompt
         prompt = f"""Based on the following information about a Nigerian property's energy needs, provide specific recommendations for a solar power system. Include panel size, battery capacity, and system specifications:
 
@@ -55,12 +55,15 @@ Provide recommendations in this format:
                 }
             ]
         )
-        
+
+        # Extract the text content from the response
+        recommendations = message.content[0].text if isinstance(message.content, list) else message.content
+
         return {
             'success': True,
-            'recommendations': message.content
+            'recommendations': str(recommendations)  # Ensure the content is a string
         }
-        
+
     except Exception as e:
         logging.error(f"Error getting AI recommendations: {str(e)}")
         return {
