@@ -1,6 +1,7 @@
 import os
-from flask import Flask, render_template, request, session, redirect, url_for, flash
+from flask import Flask, render_template, request, session, redirect, url_for, flash, jsonify
 import logging
+from utils.ai_recommendations import get_system_recommendations
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -29,6 +30,21 @@ def index():
 def calculator():
     return render_template('calculator.html', locations=NIGERIA_LOCATIONS)
 
+@app.route('/get_recommendations', methods=['POST'])
+def get_recommendations():
+    try:
+        user_data = request.json
+        result = get_system_recommendations(user_data)
+
+        if result['success']:
+            return jsonify(result)
+        else:
+            return jsonify({'error': 'Failed to get recommendations'}), 500
+
+    except Exception as e:
+        logging.error(f"Error in get_recommendations: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/submit_lead', methods=['POST'])
 def submit_lead():
     lead_data = {
@@ -39,12 +55,12 @@ def submit_lead():
         'system_size': request.form.get('system_size'),
         'estimated_savings': request.form.get('estimated_savings')
     }
-    
+
     # Validate required fields
     if not all([lead_data['name'], lead_data['phone'], lead_data['email']]):
         flash('Please fill in all required fields', 'error')
         return redirect(url_for('calculator'))
-    
+
     leads.append(lead_data)
     flash('Thank you! We will contact you soon.', 'success')
     return redirect(url_for('calculator'))

@@ -101,7 +101,7 @@ class SolarCalculator {
     updateAppliancePower() {
         let totalPower = 0;
         const applianceRows = document.querySelectorAll('.appliance-row');
-        
+
         applianceRows.forEach(row => {
             const watts = parseFloat(row.querySelector('.watts').value) || 0;
             const hours = parseFloat(row.querySelector('.hours').value) || 0;
@@ -115,45 +115,96 @@ class SolarCalculator {
 
     calculateResults() {
         // Get form values
-        const location = document.getElementById('location').value;
-        const sunHours = parseFloat(document.getElementById('sun-hours').value);
-        const dailyEnergy = parseFloat(document.getElementById('total-daily-power').textContent);
-        const backupDays = parseFloat(document.getElementById('backup-days').value) || 1;
-        const generatorFuel = parseFloat(document.getElementById('generator-fuel').value) || 0;
-        const generatorMaintenance = parseFloat(document.getElementById('generator-maintenance').value) || 0;
+        const userData = {
+            location: document.getElementById('location').value,
+            user_type: document.getElementById('user-type').value,
+            generator_size: parseFloat(document.getElementById('generator-size').value) || 0,
+            generator_fuel: parseFloat(document.getElementById('generator-fuel').value) || 0,
+            daily_energy: parseFloat(document.getElementById('total-daily-power').textContent) || 0,
+            backup_days: parseFloat(document.getElementById('backup-days').value) || 1,
+            budget_range: document.getElementById('budget-range').value
+        };
 
-        // Calculate system requirements
-        const panelCapacity = (dailyEnergy * 1.3) / sunHours;
-        const batteryCapacity = dailyEnergy * 1.5 * backupDays;
+        // Show loading state
+        document.getElementById('calculate-btn').disabled = true;
+        document.getElementById('calculate-btn').innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Getting Recommendations...';
 
-        // Calculate costs
-        const panelCost = panelCapacity * PANEL_COST_PER_KW;
-        const batteryCost = batteryCapacity * BATTERY_COST_PER_KWH;
-        const installationCost = (panelCost + batteryCost) * INSTALLATION_COST_PERCENTAGE;
-        const totalSystemCost = panelCost + batteryCost + installationCost;
+        // Call the AI recommendations endpoint
+        fetch('/get_recommendations', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(userData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Parse and display the AI recommendations
+                const recommendations = data.recommendations;
 
-        // Calculate savings
-        const monthlyFuelCost = generatorFuel * DIESEL_PRICE_PER_LITER;
-        const monthlyMaintenance = generatorMaintenance / 12;
-        const currentMonthlyCost = monthlyFuelCost + monthlyMaintenance;
-        const monthlySavings = currentMonthlyCost - (totalSystemCost / 120); // Assuming 10-year lifespan
-        const paybackPeriod = totalSystemCost / monthlySavings;
+                // Update results section with AI recommendations
+                document.getElementById('results-section').innerHTML = `
+                    <div class="results-card">
+                        <h3 class="mb-4">AI-Powered Solar Solution Recommendations</h3>
+                        <div class="recommendation-text">
+                            ${recommendations}
+                        </div>
+                    </div>
 
-        // Update results
-        this.displayResults({
-            systemSize: panelCapacity.toFixed(2),
-            batterySize: batteryCapacity.toFixed(2),
-            totalCost: totalSystemCost.toFixed(2),
-            monthlySavings: monthlySavings.toFixed(2),
-            paybackPeriod: paybackPeriod.toFixed(1),
-            currentCost: currentMonthlyCost.toFixed(2)
+                    <!-- Lead Capture Form -->
+                    <div class="results-card">
+                        <h3 class="mb-4">Get Detailed Quote</h3>
+                        <form action="/submit_lead" method="POST" class="needs-validation" novalidate>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="name" class="form-label">Full Name</label>
+                                    <input type="text" class="form-control" id="name" name="name" required>
+                                    <div class="invalid-feedback">Please enter your name.</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="phone" class="form-label">Phone Number</label>
+                                    <input type="tel" class="form-control" id="phone" name="phone" required>
+                                    <div class="invalid-feedback">Please enter a valid phone number.</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="email" class="form-label">Email Address</label>
+                                    <input type="email" class="form-control" id="email" name="email" required>
+                                    <div class="invalid-feedback">Please enter a valid email address.</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="contact-time" class="form-label">Best Time to Contact</label>
+                                    <select class="form-select" id="contact-time" name="contact_time" required>
+                                        <option value="">Choose time...</option>
+                                        <option value="morning">Morning (9AM - 12PM)</option>
+                                        <option value="afternoon">Afternoon (12PM - 4PM)</option>
+                                        <option value="evening">Evening (4PM - 7PM)</option>
+                                    </select>
+                                    <div class="invalid-feedback">Please select a contact time.</div>
+                                </div>
+                            </div>
+                            <input type="hidden" id="lead-system-size" name="system_size" value="AI Recommendation">
+                            <input type="hidden" id="lead-estimated-savings" name="estimated_savings" value="Custom">
+                            <button type="submit" class="btn btn-solar mt-4">Get Quote</button>
+                        </form>
+                    </div>
+                `;
+
+                // Show results section
+                document.getElementById('results-section').classList.remove('d-none');
+            } else {
+                alert('Error getting recommendations. Please try again.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error getting recommendations. Please try again.');
+        })
+        .finally(() => {
+            // Reset button state
+            document.getElementById('calculate-btn').disabled = false;
+            document.getElementById('calculate-btn').innerHTML = 'Calculate Results';
         });
-
-        // Show results section
-        document.getElementById('results-section').classList.remove('d-none');
-        
-        // Create ROI chart
-        this.createROIChart(totalSystemCost, monthlySavings);
     }
 
     displayResults(results) {
@@ -173,7 +224,7 @@ class SolarCalculator {
         const ctx = document.getElementById('roi-chart').getContext('2d');
         const months = Array.from({length: 121}, (_, i) => i);
         const savings = months.map(month => month * monthlySavings);
-        
+
         new Chart(ctx, {
             type: 'line',
             data: {
