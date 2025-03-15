@@ -1,6 +1,7 @@
 // Constants for calculations
-const PANEL_COST_PER_KW = 250000; // NGN
-const BATTERY_COST_PER_KWH = 200000; // NGN
+const PANEL_COST_PER_KW = 350000;  // NGN per kW
+const BATTERY_COST_PER_KWH = 150000;  // NGN per kWh
+const INVERTER_BASE_COST = 150000;  // Base cost for small inverter
 const INSTALLATION_COST_PERCENTAGE = 0.15;
 const DIESEL_PRICE_PER_LITER = 650; // NGN
 
@@ -235,9 +236,9 @@ class SolarCalculator {
 // Removed duplicate APPLIANCES constant
 
 // Constants for quick system cost estimation
-const PANEL_COST_PER_KW = 350000;  // Naira per kW
-const BATTERY_COST_PER_KWH = 150000;  // Naira per kWh
-const INVERTER_BASE_COST = 150000;  // Base cost for small inverter
+const PANEL_COST_PER_KW_2 = 350000;  // Naira per kW
+const BATTERY_COST_PER_KWH_2 = 150000;  // Naira per kWh
+const INVERTER_BASE_COST_2 = 150000;  // Base cost for small inverter
 
 // Initialize calculator when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
@@ -261,9 +262,9 @@ function updateQuickEstimate() {
     const batterySizeKWH = Math.max(2, dailyEnergy * 0.7);
 
     // Calculate estimated costs
-    const panelCost = systemSizeKW * PANEL_COST_PER_KW;
-    const batteryCost = batterySizeKWH * BATTERY_COST_PER_KWH;
-    const inverterCost = INVERTER_BASE_COST + (systemSizeKW * 20000);
+    const panelCost = systemSizeKW * PANEL_COST_PER_KW_2;
+    const batteryCost = batterySizeKWH * BATTERY_COST_PER_KWH_2;
+    const inverterCost = INVERTER_BASE_COST_2 + (systemSizeKW * 20000);
 
     // Total system cost
     const totalCost = panelCost + batteryCost + inverterCost;
