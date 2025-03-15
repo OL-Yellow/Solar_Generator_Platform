@@ -71,42 +71,102 @@ Return ONLY a JSON object with these exact keys (include units in the values):
         try:
             recommendations_data = json.loads(response_text)
 
-            # Format the recommendations in HTML
+            # Format currency values
+            estimated_cost = recommendations_data['financial']['estimated_cost'].replace('₦', '')
+            monthly_savings = recommendations_data['financial']['monthly_savings'].replace('₦', '')
+
+            # Format the recommendations in HTML with proper styling
             html_recommendations = f"""
-                <div class="mb-4">
-                    <h4>Solar Panel System</h4>
-                    <ul class="list-unstyled">
-                        <li><strong>Total Capacity:</strong> {recommendations_data['solar_system']['total_capacity']}</li>
-                        <li><strong>Number of Panels:</strong> {recommendations_data['solar_system']['num_panels']}</li>
-                        <li><strong>Panel Type:</strong> {recommendations_data['solar_system']['panel_type']}</li>
-                    </ul>
+                <div class="results-card mb-4">
+                    <div class="row g-4">
+                        <div class="col-12 col-md-6">
+                            <div class="recommendation-section">
+                                <h4 class="section-title">Solar Panel System</h4>
+                                <div class="specification-list">
+                                    <div class="spec-item">
+                                        <span class="spec-label">Total Capacity:</span>
+                                        <span class="spec-value">{recommendations_data['solar_system']['total_capacity']}</span>
+                                    </div>
+                                    <div class="spec-item">
+                                        <span class="spec-label">Number of Panels:</span>
+                                        <span class="spec-value">{recommendations_data['solar_system']['num_panels']}</span>
+                                    </div>
+                                    <div class="spec-item">
+                                        <span class="spec-label">Panel Type:</span>
+                                        <span class="spec-value">{recommendations_data['solar_system']['panel_type']}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <div class="recommendation-section">
+                                <h4 class="section-title">Battery System</h4>
+                                <div class="specification-list">
+                                    <div class="spec-item">
+                                        <span class="spec-label">Total Capacity:</span>
+                                        <span class="spec-value">{recommendations_data['battery_system']['total_capacity']}</span>
+                                    </div>
+                                    <div class="spec-item">
+                                        <span class="spec-label">Battery Type:</span>
+                                        <span class="spec-value">{recommendations_data['battery_system']['battery_type'].title()}</span>
+                                    </div>
+                                    <div class="spec-item">
+                                        <span class="spec-label">Configuration:</span>
+                                        <span class="spec-value">{recommendations_data['battery_system']['configuration']}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="mb-4">
-                    <h4>Battery System</h4>
-                    <ul class="list-unstyled">
-                        <li><strong>Total Capacity:</strong> {recommendations_data['battery_system']['total_capacity']}</li>
-                        <li><strong>Battery Type:</strong> {recommendations_data['battery_system']['battery_type']}</li>
-                        <li><strong>Configuration:</strong> {recommendations_data['battery_system']['configuration']}</li>
-                    </ul>
+                <div class="results-card mb-4">
+                    <div class="row g-4">
+                        <div class="col-12">
+                            <div class="recommendation-section">
+                                <h4 class="section-title">Financial Analysis</h4>
+                                <div class="specification-list">
+                                    <div class="spec-item">
+                                        <span class="spec-label">Estimated Cost:</span>
+                                        <span class="spec-value">₦{estimated_cost}</span>
+                                    </div>
+                                    <div class="spec-item">
+                                        <span class="spec-label">Monthly Savings:</span>
+                                        <span class="spec-value">₦{monthly_savings}</span>
+                                    </div>
+                                    <div class="spec-item">
+                                        <span class="spec-label">Payback Period:</span>
+                                        <span class="spec-value">{recommendations_data['financial']['payback_period']}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="mb-4">
-                    <h4>Financial Analysis</h4>
-                    <ul class="list-unstyled">
-                        <li><strong>Estimated Cost:</strong> {recommendations_data['financial']['estimated_cost']}</li>
-                        <li><strong>Monthly Savings:</strong> {recommendations_data['financial']['monthly_savings']}</li>
-                        <li><strong>Payback Period:</strong> {recommendations_data['financial']['payback_period']}</li>
-                    </ul>
-                </div>
-
-                <div class="mb-4">
-                    <h4>Installation Details</h4>
-                    <ul class="list-unstyled">
-                        <li><strong>Mounting Type:</strong> {recommendations_data['installation']['mounting']}</li>
-                        <li><strong>Required Area:</strong> {recommendations_data['installation']['estimated_area']}</li>
-                        <li><strong>Additional Notes:</strong> {recommendations_data['installation']['additional_notes']}</li>
-                    </ul>
+                <div class="results-card">
+                    <div class="row g-4">
+                        <div class="col-12">
+                            <div class="recommendation-section">
+                                <h4 class="section-title">Installation Details</h4>
+                                <div class="specification-list">
+                                    <div class="spec-item">
+                                        <span class="spec-label">Mounting Type:</span>
+                                        <span class="spec-value">{recommendations_data['installation']['mounting'].title()}</span>
+                                    </div>
+                                    <div class="spec-item">
+                                        <span class="spec-label">Required Area:</span>
+                                        <span class="spec-value">{recommendations_data['installation']['estimated_area']}</span>
+                                    </div>
+                                    <div class="spec-item installation-notes">
+                                        <span class="spec-label">Additional Notes:</span>
+                                        <p class="spec-value notes-text">{recommendations_data['installation']['additional_notes']}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             """
 
