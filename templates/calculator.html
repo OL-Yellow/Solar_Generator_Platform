@@ -74,89 +74,49 @@
                     <thead>
                         <tr>
                             <th>Appliance</th>
+                            <th>Hours / Day</th>
+                            <th>Back-up?</th>
                             <th>Watts</th>
-                            <th>Quantity</th>
-                            <th>Hours/Day</th>
-                            <th>Daily kWh</th>
                         </tr>
                     </thead>
                     <tbody>
                         <!-- Pre-filled appliance rows with selected default appliances -->
                         <tr class="appliance-row">
                             <td>
-                                <select class="form-select appliance-select" required>
+                                <select class="form-select appliance-select mb-2" required>
                                     <option value="">Select Appliance</option>
                                     {% for appliance in ['LED Lights', 'Ceiling Fan', 'Standing Fan', 'Smartphone Charger', 'Laptop', 'Desktop Computer', 'TV (32-inch LED)', 'TV (43-inch LED)', 'TV (55-inch LED)', 'Small Refrigerator', 'Large Refrigerator', 'Chest Freezer', 'Air Conditioner (1HP)', 'Air Conditioner (1.5HP)', 'Air Conditioner (2HP)', 'Electric Iron', 'Microwave', 'Electric Kettle', 'Water Dispenser', 'Security Lights', 'CCTV System', 'Small Water Pump', 'Large Water Pump'] %}
                                         <option value="{{ appliance }}" {% if appliance == 'LED Lights' %}selected{% endif %}>{{ appliance }}</option>
                                     {% endfor %}
                                 </select>
+                                <div class="d-flex align-items-center">
+                                    <small class="text-muted me-2">Quantity:</small>
+                                    <button type="button" class="btn btn-sm btn-outline-light quantity-btn" data-action="decrease">-</button>
+                                    <span class="quantity-value mx-2">1</span>
+                                    <button type="button" class="btn btn-sm btn-outline-light quantity-btn" data-action="increase">+</button>
+                                </div>
                             </td>
-                            <td><input type="number" class="form-control watts" value="10" readonly></td>
-                            <td><input type="number" class="form-control quantity" value="8" min="1" required></td>
-                            <td><input type="number" class="form-control hours" value="12" min="0" max="24" required></td>
-                            <td><span class="daily-kwh">0.96</span></td>
-                        </tr>
-                        <tr class="appliance-row">
                             <td>
-                                <select class="form-select appliance-select" required>
-                                    <option value="">Select Appliance</option>
-                                    {% for appliance in ['LED Lights', 'Ceiling Fan', 'Standing Fan', 'Smartphone Charger', 'Laptop', 'Desktop Computer', 'TV (32-inch LED)', 'TV (43-inch LED)', 'TV (55-inch LED)', 'Small Refrigerator', 'Large Refrigerator', 'Chest Freezer', 'Air Conditioner (1HP)', 'Air Conditioner (1.5HP)', 'Air Conditioner (2HP)', 'Electric Iron', 'Microwave', 'Electric Kettle', 'Water Dispenser', 'Security Lights', 'CCTV System', 'Small Water Pump', 'Large Water Pump'] %}
-                                        <option value="{{ appliance }}" {% if appliance == 'Ceiling Fan' %}selected{% endif %}>{{ appliance }}</option>
-                                    {% endfor %}
-                                </select>
+                                <div class="d-flex align-items-center">
+                                    <button type="button" class="btn btn-sm btn-outline-light hours-btn" data-action="decrease">-</button>
+                                    <span class="hours-value mx-2">6</span>
+                                    <button type="button" class="btn btn-sm btn-outline-light hours-btn" data-action="increase">+</button>
+                                </div>
                             </td>
-                            <td><input type="number" class="form-control watts" value="75" readonly></td>
-                            <td><input type="number" class="form-control quantity" value="4" min="1" required></td>
-                            <td><input type="number" class="form-control hours" value="16" min="0" max="24" required></td>
-                            <td><span class="daily-kwh">4.80</span></td>
-                        </tr>
-                        <tr class="appliance-row">
                             <td>
-                                <select class="form-select appliance-select" required>
-                                    <option value="">Select Appliance</option>
-                                    {% for appliance in ['LED Lights', 'Ceiling Fan', 'Standing Fan', 'Smartphone Charger', 'Laptop', 'Desktop Computer', 'TV (32-inch LED)', 'TV (43-inch LED)', 'TV (55-inch LED)', 'Small Refrigerator', 'Large Refrigerator', 'Chest Freezer', 'Air Conditioner (1HP)', 'Air Conditioner (1.5HP)', 'Air Conditioner (2HP)', 'Electric Iron', 'Microwave', 'Electric Kettle', 'Water Dispenser', 'Security Lights', 'CCTV System', 'Small Water Pump', 'Large Water Pump'] %}
-                                        <option value="{{ appliance }}" {% if appliance == 'Laptop' %}selected{% endif %}>{{ appliance }}</option>
-                                    {% endfor %}
-                                </select>
+                                <button type="button" class="btn btn-sm backup-toggle active" data-state="yes">Yes</button>
                             </td>
-                            <td><input type="number" class="form-control watts" value="65" readonly></td>
-                            <td><input type="number" class="form-control quantity" value="2" min="1" required></td>
-                            <td><input type="number" class="form-control hours" value="8" min="0" max="24" required></td>
-                            <td><span class="daily-kwh">1.04</span></td>
-                        </tr>
-                        <tr class="appliance-row">
                             <td>
-                                <select class="form-select appliance-select" required>
-                                    <option value="">Select Appliance</option>
-                                    {% for appliance in ['LED Lights', 'Ceiling Fan', 'Standing Fan', 'Smartphone Charger', 'Laptop', 'Desktop Computer', 'TV (32-inch LED)', 'TV (43-inch LED)', 'TV (55-inch LED)', 'Small Refrigerator', 'Large Refrigerator', 'Chest Freezer', 'Air Conditioner (1HP)', 'Air Conditioner (1.5HP)', 'Air Conditioner (2HP)', 'Electric Iron', 'Microwave', 'Electric Kettle', 'Water Dispenser', 'Security Lights', 'CCTV System', 'Small Water Pump', 'Large Water Pump'] %}
-                                        <option value="{{ appliance }}" {% if appliance == 'TV (32-inch LED)' %}selected{% endif %}>{{ appliance }}</option>
-                                    {% endfor %}
-                                </select>
+                                <span class="watts-value">10</span>
+                                <small class="d-block text-muted daily-kwh">0.06 kWh/day</small>
                             </td>
-                            <td><input type="number" class="form-control watts" value="50" readonly></td>
-                            <td><input type="number" class="form-control quantity" value="2" min="1" required></td>
-                            <td><input type="number" class="form-control hours" value="6" min="0" max="24" required></td>
-                            <td><span class="daily-kwh">0.60</span></td>
                         </tr>
-                        <tr class="appliance-row">
-                            <td>
-                                <select class="form-select appliance-select" required>
-                                    <option value="">Select Appliance</option>
-                                    {% for appliance in ['LED Lights', 'Ceiling Fan', 'Standing Fan', 'Smartphone Charger', 'Laptop', 'Desktop Computer', 'TV (32-inch LED)', 'TV (43-inch LED)', 'TV (55-inch LED)', 'Small Refrigerator', 'Large Refrigerator', 'Chest Freezer', 'Air Conditioner (1HP)', 'Air Conditioner (1.5HP)', 'Air Conditioner (2HP)', 'Electric Iron', 'Microwave', 'Electric Kettle', 'Water Dispenser', 'Security Lights', 'CCTV System', 'Small Water Pump', 'Large Water Pump'] %}
-                                        <option value="{{ appliance }}" {% if appliance == 'Large Refrigerator' %}selected{% endif %}>{{ appliance }}</option>
-                                    {% endfor %}
-                                </select>
-                            </td>
-                            <td><input type="number" class="form-control watts" value="250" readonly></td>
-                            <td><input type="number" class="form-control quantity" value="1" min="1" required></td>
-                            <td><input type="number" class="form-control hours" value="24" min="0" max="24" required></td>
-                            <td><span class="daily-kwh">6.00</span></td>
-                        </tr>
+                        
                     </tbody>
                     <tfoot>
                         <tr>
-                            <td colspan="4" class="text-end"><strong>Total Daily Power:</strong></td>
-                            <td><span id="total-daily-power">13.40</span> kWh</td>
+                            <td colspan="3" class="text-end"><strong>Total Daily Power:</strong></td>
+                            <td><span id="total-daily-power">0.06</span> kWh</td>
                         </tr>
                     </tfoot>
                 </table>
@@ -267,20 +227,38 @@ function addApplianceRow() {
     newRow.className = 'appliance-row';
     newRow.innerHTML = `
         <td>
-            <select class="form-select appliance-select" required>
+            <select class="form-select appliance-select mb-2" required>
                 <option value="">Select Appliance</option>
-                <!-- Add options here dynamically or from a separate data source -->
+                {% for appliance in ['LED Lights', 'Ceiling Fan', 'Standing Fan', 'Smartphone Charger', 'Laptop', 'Desktop Computer', 'TV (32-inch LED)', 'TV (43-inch LED)', 'TV (55-inch LED)', 'Small Refrigerator', 'Large Refrigerator', 'Chest Freezer', 'Air Conditioner (1HP)', 'Air Conditioner (1.5HP)', 'Air Conditioner (2HP)', 'Electric Iron', 'Microwave', 'Electric Kettle', 'Water Dispenser', 'Security Lights', 'CCTV System', 'Small Water Pump', 'Large Water Pump'] %}
+                    <option value="{{ appliance }}">{{ appliance }}</option>
+                {% endfor %}
             </select>
+            <div class="d-flex align-items-center">
+                <small class="text-muted me-2">Quantity:</small>
+                <button type="button" class="btn btn-sm btn-outline-light quantity-btn" data-action="decrease">-</button>
+                <span class="quantity-value mx-2">1</span>
+                <button type="button" class="btn btn-sm btn-outline-light quantity-btn" data-action="increase">+</button>
+            </div>
         </td>
-        <td><input type="number" class="form-control watts" min="0" required></td>
-        <td><input type="number" class="form-control quantity" value="1" min="1" required></td>
-        <td><input type="number" class="form-control hours" min="0" max="24" required></td>
-        <td><span class="daily-kwh">0.00</span></td>
+        <td>
+            <div class="d-flex align-items-center">
+                <button type="button" class="btn btn-sm btn-outline-light hours-btn" data-action="decrease">-</button>
+                <span class="hours-value mx-2">6</span>
+                <button type="button" class="btn btn-sm btn-outline-light hours-btn" data-action="increase">+</button>
+            </div>
+        </td>
+        <td>
+            <button type="button" class="btn btn-sm backup-toggle" data-state="no">No</button>
+        </td>
+        <td>
+            <span class="watts-value">0</span>
+            <small class="d-block text-muted daily-kwh">0.00 kWh/day</small>
+        </td>
     `;
     tbody.appendChild(newRow);
 
     // Add event listeners to new inputs
-    const inputs = newRow.querySelectorAll('input, select');
+    const inputs = newRow.querySelectorAll('input, select, button');
     inputs.forEach(input => {
         input.addEventListener('change', () => calculator.updateAppliancePower());
     });

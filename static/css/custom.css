@@ -94,3 +94,50 @@ body {
         height: 300px;
     }
 }
+
+/* Add to existing CSS */
+.backup-toggle {
+    min-width: 60px;
+    background-color: var(--bs-gray-700);
+    border: 1px solid var(--bs-gray-600);
+}
+
+.backup-toggle.active {
+    background-color: var(--bs-success);
+    border-color: var(--bs-success);
+}
+
+.quantity-btn, .hours-btn {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .table td {
+        padding: 1rem 0.5rem;
+    }
+
+    .appliance-select {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+
+    .quantity-value, .hours-value {
+        min-width: 24px;
+        text-align: center;
+    }
+
+    .watts-value {
+        font-size: 1.1rem;
+        font-weight: bold;
+    }
+
+    .daily-kwh {
+        font-size: 0.8rem;
+    }
+}
