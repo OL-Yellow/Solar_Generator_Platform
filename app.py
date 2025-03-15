@@ -3,8 +3,8 @@ from flask import Flask, render_template, request, session, redirect, url_for, f
 import logging
 from utils.ai_recommendations import get_system_recommendations
 
-# Configure logging
-logging.basicConfig(level=logging.DEBUG)
+# Configure logging with more details
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "dev_key_123")
@@ -33,13 +33,26 @@ def calculator():
 @app.route('/get_recommendations', methods=['POST'])
 def get_recommendations():
     try:
-        user_data = request.json
-        result = get_system_recommendations(user_data)
+        logging.debug("Received recommendation request")
+        if not request.is_json:
+            logging.error("Request is not JSON format")
+            return jsonify({'error': 'Request must be JSON'}), 400
 
-        if result['success']:
+        user_data = request.get_json()
+        logging.debug(f"Received user data: {user_data}")
+
+        if not user_data:
+            logging.error("No data in request")
+            return jsonify({'error': 'No data provided'}), 400
+
+        result = get_system_recommendations(user_data)
+        logging.debug(f"Got recommendations result: {result}")
+
+        if result.get('success'):
             return jsonify(result)
         else:
-            return jsonify({'error': 'Failed to get recommendations'}), 500
+            logging.error(f"Failed to get recommendations: {result.get('error')}")
+            return jsonify({'error': 'Failed to get recommendations', 'details': result.get('error')}), 500
 
     except Exception as e:
         logging.error(f"Error in get_recommendations: {str(e)}")
