@@ -8,93 +8,90 @@ const DIESEL_PRICE_PER_LITER = 650; // NGN
 const APPLIANCES = {
     'LED Lights': 10,
     'Ceiling Fan': 75,
-    'Standing Fan': 50,
-    'Smartphone Charger': 10,
+    'Standing Fan': 60,
+    'Smartphone Charger': 5,
     'Laptop': 65,
     'Desktop Computer': 150,
     'TV (32-inch LED)': 50,
-    'TV (43-inch LED)': 100,
-    'TV (55-inch LED)': 150,
+    'TV (43-inch LED)': 80,
+    'TV (55-inch LED)': 120,
     'Small Refrigerator': 150,
     'Large Refrigerator': 250,
-    'Chest Freezer': 300,
-    'Air Conditioner (1HP)': 750,
-    'Air Conditioner (1.5HP)': 1100,
-    'Air Conditioner (2HP)': 1500,
+    'Chest Freezer': 200,
+    'Air Conditioner (1HP)': 1000,
+    'Air Conditioner (1.5HP)': 1500,
+    'Air Conditioner (2HP)': 2000,
     'Electric Iron': 1000,
-    'Microwave': 800,
-    'Electric Kettle': 1500,
+    'Microwave': 1000,
+    'Electric Kettle': 1000,
     'Water Dispenser': 100,
-    'Security Lights': 30,
-    'CCTV System': 50,
-    'Small Water Pump': 750,
-    'Large Water Pump': 1500
+    'Security Lights': 50,
+    'CCTV System': 100,
+    'Small Water Pump': 200,
+    'Large Water Pump': 500
 };
 
 class SolarCalculator {
     constructor() {
         this.currentStep = 1;
         this.totalSteps = 5;
-        this.bindEvents();
+        this.init();
+    }
+
+    init() {
         this.updateProgress();
+        this.bindEvents();
     }
 
     bindEvents() {
-        // Next button handler
         document.querySelectorAll('.btn-next').forEach(button => {
-            button.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.nextStep();
-            });
+            button.addEventListener('click', () => this.nextStep());
         });
 
-        // Previous button handler
         document.querySelectorAll('.btn-prev').forEach(button => {
-            button.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.previousStep();
-            });
+            button.addEventListener('click', () => this.previousStep());
         });
 
-        // Calculate button handler
         const calculateBtn = document.getElementById('calculate-btn');
         if (calculateBtn) {
-            calculateBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                console.log('Calculate button clicked');
-                this.calculateResults();
-            });
+            calculateBtn.addEventListener('click', () => this.calculateResults());
         }
 
-        // Appliance controls
-        document.addEventListener('click', (e) => {
-            if (e.target.matches('.quantity-btn')) {
-                this.handleQuantityButton(e.target);
-            } else if (e.target.matches('.hours-btn')) {
-                this.handleHoursButton(e.target);
-            } else if (e.target.matches('.backup-toggle')) {
-                this.handleBackupToggle(e.target);
-            }
+        document.querySelectorAll('.appliance-select').forEach(select => {
+            select.addEventListener('change', (e) => this.updateAppliancePower(e.target.closest('.appliance-item')));
         });
 
-        // Appliance select changes
-        document.addEventListener('change', (e) => {
-            if (e.target.matches('.appliance-select')) {
-                const watts = APPLIANCHES[e.target.value] || 0;
+        document.querySelectorAll('.quantity-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
                 const item = e.target.closest('.appliance-item');
-                item.querySelector('.watts-value').textContent = watts;
+                const valueSpan = item.querySelector('.quantity-value');
+                const currentValue = parseInt(valueSpan.textContent);
+                if (e.target.dataset.action === 'increase') {
+                    valueSpan.textContent = currentValue + 1;
+                } else {
+                    valueSpan.textContent = Math.max(1, currentValue - 1);
+                }
                 this.updateAppliancePower(item);
-            }
+            });
         });
-    }
 
-    updateProgress() {
-        const progressBar = document.querySelector('.progress-bar');
-        if (progressBar) {
-            const progress = (this.currentStep / this.totalSteps) * 100;
-            progressBar.style.width = `${progress}%`;
-            progressBar.setAttribute('aria-valuenow', progress);
-        }
+        document.querySelectorAll('.hours-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const item = e.target.closest('.appliance-item');
+                const valueSpan = item.querySelector('.hours-value');
+                const currentValue = parseInt(valueSpan.textContent);
+                if (e.target.dataset.action === 'increase') {
+                    valueSpan.textContent = Math.min(24, currentValue + 1);
+                } else {
+                    valueSpan.textContent = Math.max(1, currentValue - 1);
+                }
+                this.updateAppliancePower(item);
+            });
+        });
+
+        document.querySelectorAll('.backup-toggle').forEach(btn => {
+            btn.addEventListener('click', (e) => this.handleBackupToggle(e.target));
+        });
     }
 
     nextStep() {
@@ -123,34 +120,13 @@ class SolarCalculator {
         }
     }
 
-    handleQuantityButton(button) {
-        const item = button.closest('.appliance-item');
-        const quantitySpan = item.querySelector('.quantity-value');
-        let quantity = parseInt(quantitySpan.textContent);
-
-        if (button.dataset.action === 'increase') {
-            quantity = Math.min(quantity + 1, 99);
-        } else {
-            quantity = Math.max(quantity - 1, 1);
+    updateProgress() {
+        const progressBar = document.querySelector('.progress-bar');
+        if (progressBar) {
+            const progress = (this.currentStep / this.totalSteps) * 100;
+            progressBar.style.width = `${progress}%`;
+            progressBar.setAttribute('aria-valuenow', progress);
         }
-
-        quantitySpan.textContent = quantity;
-        this.updateAppliancePower(item);
-    }
-
-    handleHoursButton(button) {
-        const item = button.closest('.appliance-item');
-        const hoursSpan = item.querySelector('.hours-value');
-        let hours = parseInt(hoursSpan.textContent);
-
-        if (button.dataset.action === 'increase') {
-            hours = Math.min(hours + 1, 24);
-        } else {
-            hours = Math.max(hours - 1, 0);
-        }
-
-        hoursSpan.textContent = hours;
-        this.updateAppliancePower(item);
     }
 
     handleBackupToggle(button) {
@@ -166,153 +142,117 @@ class SolarCalculator {
     }
 
     updateAppliancePower(item) {
-        const watts = parseInt(item.querySelector('.watts-value').textContent) || 0;
-        const hours = parseInt(item.querySelector('.hours-value').textContent) || 0;
+        const select = item.querySelector('.appliance-select');
+        const watts = APPLIANCES[select.value] || 0;
         const quantity = parseInt(item.querySelector('.quantity-value').textContent) || 1;
+        const hours = parseInt(item.querySelector('.hours-value').textContent) || 6;
+        const kwh = (watts * quantity * hours) / 1000;
 
-        const dailyKwh = (watts * hours * quantity) / 1000;
-        item.querySelector('.daily-kwh').textContent = `${dailyKwh.toFixed(2)} kWh/day`;
-
+        item.querySelector('.watts-value').textContent = watts;
+        item.querySelector('.daily-kwh').textContent = kwh.toFixed(2) + ' kWh/day';
         this.updateTotalPower();
     }
 
     updateTotalPower() {
         let totalPower = 0;
-        document.querySelectorAll('.appliance-item').forEach(item => {
-            const watts = parseInt(item.querySelector('.watts-value').textContent) || 0;
-            const hours = parseInt(item.querySelector('.hours-value').textContent) || 0;
-            const quantity = parseInt(item.querySelector('.quantity-value').textContent) || 1;
-            totalPower += (watts * hours * quantity) / 1000;
+        document.querySelectorAll('.daily-kwh').forEach(element => {
+            const value = parseFloat(element.textContent.replace(' kWh/day', '')) || 0;
+            totalPower += value;
         });
-
         document.getElementById('total-daily-power').textContent = totalPower.toFixed(2);
     }
 
     calculateResults() {
+        // TODO: Implement calculation logic
         console.log('Calculating results...');
-        const userData = {
-            location: document.getElementById('location').value,
-            user_type: document.getElementById('user-type').value,
-            generator_size: parseFloat(document.getElementById('generator-size').value) || 0,
-            generator_fuel: parseFloat(document.getElementById('generator-fuel').value) || 0,
-            daily_energy: parseFloat(document.getElementById('total-daily-power').textContent) || 0,
-            backup_days: parseFloat(document.getElementById('backup-days').value) || 1,
-            budget_range: document.getElementById('budget-range').value
-        };
-
-        console.log('User data:', userData);
-        const calculateBtn = document.getElementById('calculate-btn');
-        calculateBtn.disabled = true;
-        calculateBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Getting Recommendations...';
-
-        fetch('/get_recommendations', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(userData)
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Received response:', data);
-            if (data.success) {
-                document.getElementById('results-section').innerHTML = data.recommendations;
-                const step4 = document.getElementById('step4');
-                const step5 = document.getElementById('step5');
-                step4.classList.add('d-none');
-                step5.classList.remove('d-none');
-                this.currentStep = 5;
-                this.updateProgress();
-            } else {
-                alert('Error getting recommendations. Please try again.');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error getting recommendations. Please try again.');
-        })
-        .finally(() => {
-            calculateBtn.disabled = false;
-            calculateBtn.innerHTML = 'Calculate Results';
-        });
+        this.nextStep();
     }
 }
 
-// Function to add new appliance row
+// Initialize calculator when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    window.calculator = new SolarCalculator();
+});
+
+// Add appliance row function
 function addApplianceRow() {
     const applianceList = document.querySelector('.appliance-list');
-    const newApplianceRow = document.createElement('div');
-    newApplianceRow.className = 'appliance-item';
-    newApplianceRow.innerHTML = `
-        <div class="d-flex justify-content-between align-items-start mb-2">
-            <select class="form-select appliance-select mb-3" required>
-                <option value="">Select Appliance</option>
-                ${Object.keys(APPLIANCES).map(appliance => 
-                    `<option value="${appliance}">${appliance}</option>`
-                ).join('')}
-            </select>
-            <button type="button" class="btn btn-sm btn-outline-danger delete-appliance" title="Remove appliance">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-
-        <div class="appliance-controls">
-            <div class="control-group">
-                <div class="d-flex align-items-center justify-content-between w-100">
-                    <div class="d-flex flex-column align-items-center">
-                        <small class="text-muted me-2">#</small>
-                        <div class="btn-group">
-                            <button type="button" class="btn btn-sm btn-outline-light quantity-btn" data-action="decrease">-</button>
-                            <span class="quantity-value mx-2">1</span>
-                            <button type="button" class="btn btn-sm btn-outline-light quantity-btn" data-action="increase">+</button>
+    const template = document.createElement('div');
+    template.innerHTML = `
+        <div class="appliance-item">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <select class="form-select appliance-select mb-3" required>
+                    <option value="">Select Appliance</option>
+                    ${Object.keys(APPLIANCES).map(appliance => 
+                        `<option value="${appliance}">${appliance}</option>`
+                    ).join('')}
+                </select>
+                <button type="button" class="btn btn-sm btn-outline-danger delete-appliance" title="Remove appliance">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="appliance-controls">
+                <div class="control-group">
+                    <div class="d-flex align-items-center justify-content-between w-100">
+                        <div class="d-flex flex-column align-items-center">
+                            <small class="text-muted me-2">#</small>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-sm btn-outline-light quantity-btn" data-action="decrease">-</button>
+                                <span class="quantity-value mx-2">1</span>
+                                <button type="button" class="btn btn-sm btn-outline-light quantity-btn" data-action="increase">+</button>
+                            </div>
                         </div>
-                    </div>
-
-                    <div class="d-flex flex-column align-items-center">
-                        <small class="text-muted me-2">Hours / Day</small>
-                        <div class="btn-group">
-                            <button type="button" class="btn btn-sm btn-outline-light hours-btn" data-action="decrease">-</button>
-                            <span class="hours-value mx-2">6</span>
-                            <button type="button" class="btn btn-sm btn-outline-light hours-btn" data-action="increase">+</button>
+                        <div class="d-flex flex-column align-items-center">
+                            <small class="text-muted me-2">Hours / Day</small>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-sm btn-outline-light hours-btn" data-action="decrease">-</button>
+                                <span class="hours-value mx-2">6</span>
+                                <button type="button" class="btn btn-sm btn-outline-light hours-btn" data-action="increase">+</button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <div class="d-flex justify-content-between align-items-center mt-3">
-                <button type="button" class="btn btn-sm backup-toggle" data-state="no">No</button>
-                <div class="text-end">
-                    <span class="watts-value">0</span>
-                    <small class="d-block text-muted daily-kwh">0.00 kWh/day</small>
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <button type="button" class="btn btn-sm backup-toggle" data-state="no">No</button>
+                    <div class="text-end">
+                        <span class="watts-value">0</span>
+                        <small class="d-block text-muted daily-kwh">0.00 kWh/day</small>
+                    </div>
                 </div>
             </div>
         </div>
     `;
-    applianceList.appendChild(newApplianceRow);
 
-    // Add event listeners
-    const select = newApplianceRow.querySelector('.appliance-select');
-    select.addEventListener('change', (e) => {
-        const watts = APPLIANCES[e.target.value] || 0;
-        const item = e.target.closest('.appliance-item');
-        item.querySelector('.watts-value').textContent = watts;
-        calculator.updateAppliancePower(item);
+    const newRow = template.firstElementChild;
+    applianceList.appendChild(newRow);
+
+    // Add event listeners to the new row
+    const calculator = window.calculator;
+    newRow.querySelector('.appliance-select').addEventListener('change', () => 
+        calculator.updateAppliancePower(newRow)
+    );
+
+    newRow.querySelectorAll('.quantity-btn, .hours-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const valueSpan = e.target.parentElement.querySelector(
+                e.target.classList.contains('quantity-btn') ? '.quantity-value' : '.hours-value'
+            );
+            const currentValue = parseInt(valueSpan.textContent);
+            if (e.target.dataset.action === 'increase') {
+                valueSpan.textContent = Math.min(24, currentValue + 1);
+            } else {
+                valueSpan.textContent = Math.max(1, currentValue - 1);
+            }
+            calculator.updateAppliancePower(newRow);
+        });
     });
 
-    const deleteButton = newApplianceRow.querySelector('.delete-appliance');
-    deleteButton.addEventListener('click', () => {
-        applianceList.removeChild(newApplianceRow);
+    newRow.querySelector('.backup-toggle').addEventListener('click', (e) => 
+        calculator.handleBackupToggle(e.target)
+    );
+
+    newRow.querySelector('.delete-appliance').addEventListener('click', () => {
+        newRow.remove();
         calculator.updateTotalPower();
     });
 }
-
-// Initialize calculator when DOM is ready
-let calculator;
-document.addEventListener('DOMContentLoaded', () => {
-    calculator = new SolarCalculator();
-    window.calculator = calculator;  // Make it globally accessible
-    // Update sun hours when location changes
-    document.getElementById('location').addEventListener('change', function() {
-        document.getElementById('sun-hours').value = this.value;
-    });
-});
