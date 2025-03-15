@@ -317,8 +317,8 @@ function addApplianceRow() {
     `;
 
     const newRow = template.firstElementChild;
-    const totalPower = applianceList.querySelector('.total-power');
-    applianceList.insertBefore(newRow, totalPower);
+    const totalPowerSection = applianceList.querySelector('.total-power');
+    applianceList.insertBefore(newRow, totalPowerSection);
     initializeApplianceRow(newRow);
 }
 
