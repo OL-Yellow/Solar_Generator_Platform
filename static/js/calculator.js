@@ -317,8 +317,8 @@ function addApplianceRow() {
     `;
 
     const newRow = template.firstElementChild;
-    const addButton = applianceList.querySelector('.add-appliance-container');
-    applianceList.insertBefore(newRow, addButton);
+    const totalPower = applianceList.querySelector('.total-power');
+    applianceList.insertBefore(newRow, totalPower);
     initializeApplianceRow(newRow);
 }
 
