@@ -80,43 +80,6 @@ body {
     margin: 2rem 0;
 }
 
-/* Mobile Responsiveness */
-@media (max-width: 768px) {
-    .hero-section {
-        padding: 4rem 0;
-    }
-
-    .step-container {
-        padding: 1rem;
-    }
-
-    .chart-container {
-        height: 300px;
-    }
-    .table td {
-        padding: 1rem 0.5rem;
-    }
-
-    .appliance-select {
-        width: 100%;
-        margin-bottom: 0.5rem;
-    }
-
-    .quantity-value, .hours-value {
-        min-width: 24px;
-        text-align: center;
-    }
-
-    .watts-value {
-        font-size: 1.1rem;
-        font-weight: bold;
-    }
-
-    .daily-kwh {
-        font-size: 0.8rem;
-    }
-}
-
 /* Appliance List Styles */
 .appliance-list {
     display: flex;
@@ -207,6 +170,41 @@ body {
 
 /* Mobile Optimizations */
 @media (max-width: 768px) {
+    .hero-section {
+        padding: 4rem 0;
+    }
+
+    .step-container {
+        padding: 1rem;
+    }
+
+    .chart-container {
+        height: 300px;
+    }
+
+    .table td {
+        padding: 1rem 0.5rem;
+    }
+
+    .appliance-select {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+
+    .quantity-value, .hours-value {
+        min-width: 24px;
+        text-align: center;
+    }
+
+    .watts-value {
+        font-size: 1.1rem;
+        font-weight: bold;
+    }
+
+    .daily-kwh {
+        font-size: 0.8rem;
+    }
+
     .control-group {
         padding: 1rem;
     }
