@@ -52,9 +52,22 @@ class SolarCalculator {
             button.addEventListener('click', () => this.previousStep());
         });
 
+        // Calculator form handling
+        const calcForm = document.getElementById('calculator-form');
+        if (calcForm) {
+            calcForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.calculateResults();
+            });
+        }
+
+        // Bind calculate button if it exists
         const calculateBtn = document.getElementById('calculate-btn');
         if (calculateBtn) {
-            calculateBtn.addEventListener('click', () => this.calculateResults());
+            calculateBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.calculateResults();
+            });
         }
 
         document.querySelectorAll('.appliance-select').forEach(select => {
@@ -95,25 +108,27 @@ class SolarCalculator {
     }
 
     nextStep() {
-        const currentStep = document.getElementById(`step${this.currentStep}`);
-        const nextStep = document.getElementById(`step${this.currentStep + 1}`);
+        if (this.currentStep < this.totalSteps) {
+            const currentStepElement = document.getElementById(`step${this.currentStep}`);
+            const nextStepElement = document.getElementById(`step${this.currentStep + 1}`);
 
-        if (currentStep && nextStep) {
-            currentStep.classList.add('d-none');
-            nextStep.classList.remove('d-none');
-            this.currentStep++;
-            this.updateProgress();
+            if (currentStepElement && nextStepElement) {
+                currentStepElement.classList.add('d-none');
+                nextStepElement.classList.remove('d-none');
+                this.currentStep++;
+                this.updateProgress();
+            }
         }
     }
 
     previousStep() {
         if (this.currentStep > 1) {
-            const currentStep = document.getElementById(`step${this.currentStep}`);
-            const prevStep = document.getElementById(`step${this.currentStep - 1}`);
+            const currentStepElement = document.getElementById(`step${this.currentStep}`);
+            const prevStepElement = document.getElementById(`step${this.currentStep - 1}`);
 
-            if (currentStep && prevStep) {
-                currentStep.classList.add('d-none');
-                prevStep.classList.remove('d-none');
+            if (currentStepElement && prevStepElement) {
+                currentStepElement.classList.add('d-none');
+                prevStepElement.classList.remove('d-none');
                 this.currentStep--;
                 this.updateProgress();
             }
@@ -163,20 +178,17 @@ class SolarCalculator {
     }
 
     async calculateResults() {
-        console.log('Calculating results...');
-        
-        // Gather user data
-        const userData = {
-            location: document.getElementById('location').value,
-            user_type: document.getElementById('user-type').value,
-            generator_size: document.getElementById('generator-size').value,
-            generator_fuel: document.getElementById('generator-fuel').value,
-            daily_energy: document.getElementById('total-daily-power').textContent,
-            backup_days: document.getElementById('backup-days').value,
-            budget_range: document.getElementById('budget-range').value
-        };
-
         try {
+            const userData = {
+                location: document.getElementById('location')?.value || '',
+                user_type: document.getElementById('user-type')?.value || '',
+                generator_size: document.getElementById('generator-size')?.value || '',
+                generator_fuel: document.getElementById('generator-fuel')?.value || '',
+                daily_energy: document.getElementById('total-daily-power')?.textContent || '',
+                backup_days: document.getElementById('backup-days')?.value || '',
+                budget_range: document.getElementById('budget-range')?.value || ''
+            };
+
             const response = await fetch('/get_recommendations', {
                 method: 'POST',
                 headers: {
@@ -191,14 +203,11 @@ class SolarCalculator {
 
             const data = await response.json();
             if (data.success) {
-                // Insert the HTML recommendations into the results section
-                document.getElementById('results-section').innerHTML = data.recommendations;
-                
-                // Update lead form hidden fields
-                document.getElementById('lead-system-size').value = document.getElementById('system-size').textContent;
-                document.getElementById('lead-estimated-savings').value = document.getElementById('monthly-savings').textContent;
-                
-                this.nextStep();
+                const resultsSection = document.getElementById('results-section');
+                if (resultsSection) {
+                    resultsSection.innerHTML = data.recommendations;
+                    this.nextStep();
+                }
             } else {
                 alert('Failed to get recommendations: ' + data.error);
             }
@@ -211,7 +220,7 @@ class SolarCalculator {
 
 // Initialize calculator when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    window.calculator = new SolarCalculator();
+    const calculator = new SolarCalculator();
 });
 
 // Add appliance row function
