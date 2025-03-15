@@ -269,7 +269,15 @@ function initializeApplianceRow(applianceRow) {
 }
 
 function addApplianceRow() {
+    // Ensure calculator is initialized
+    const calculator = window.calculator;
+    if (!calculator) {
+        console.error('Calculator not initialized');
+        return;
+    }
+
     const applianceList = document.querySelector('.appliance-list');
+    const addButton = applianceList.querySelector('button[onclick="addApplianceRow()"]');
     const template = document.createElement('div');
     template.innerHTML = `
         <div class="appliance-item">
@@ -317,8 +325,16 @@ function addApplianceRow() {
     `;
 
     const newRow = template.firstElementChild;
-    const totalPowerSection = applianceList.querySelector('.total-power');
-    applianceList.insertBefore(newRow, totalPowerSection);
+    applianceList.insertBefore(newRow, addButton);
+
+    // Initialize with direct calculator reference
+    const deleteBtn = newRow.querySelector('.delete-appliance');
+    deleteBtn.addEventListener('click', () => {
+        newRow.remove();
+        calculator.updateTotalPower();
+    });
+
+    // Initialize other controls
     initializeApplianceRow(newRow);
 }
 
