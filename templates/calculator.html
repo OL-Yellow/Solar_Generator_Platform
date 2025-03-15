@@ -508,7 +508,11 @@ const calculator = {
         // Calculate button
         const calculateBtn = document.getElementById('calculate-btn');
         if (calculateBtn) {
-            calculateBtn.addEventListener('click', () => this.calculateResults());
+            calculateBtn.addEventListener('click', (event) => {
+                event.preventDefault();
+                console.log('Calculate clicked');
+                window.calculator.calculateResults();
+            });
         }
 
         // Delete buttons

@@ -61,20 +61,10 @@ class SolarCalculator {
         if (calculateBtn) {
             calculateBtn.addEventListener('click', (e) => {
                 e.preventDefault();
+                console.log('Calculate button clicked');
                 this.calculateResults();
             });
         }
-
-        // Delete buttons
-        document.querySelectorAll('.delete-appliance').forEach(button => {
-            button.addEventListener('click', () => {
-                const applianceItem = button.closest('.appliance-item');
-                if (applianceItem) {
-                    applianceItem.remove();
-                    this.updateTotalPower();
-                }
-            });
-        });
 
         // Appliance controls
         document.addEventListener('click', (e) => {
@@ -90,7 +80,7 @@ class SolarCalculator {
         // Appliance select changes
         document.addEventListener('change', (e) => {
             if (e.target.matches('.appliance-select')) {
-                const watts = APPLIANCES[e.target.value] || 0;
+                const watts = APPLIANCHES[e.target.value] || 0;
                 const item = e.target.closest('.appliance-item');
                 item.querySelector('.watts-value').textContent = watts;
                 this.updateAppliancePower(item);
@@ -199,6 +189,7 @@ class SolarCalculator {
     }
 
     calculateResults() {
+        console.log('Calculating results...');
         const userData = {
             location: document.getElementById('location').value,
             user_type: document.getElementById('user-type').value,
@@ -209,6 +200,7 @@ class SolarCalculator {
             budget_range: document.getElementById('budget-range').value
         };
 
+        console.log('User data:', userData);
         const calculateBtn = document.getElementById('calculate-btn');
         calculateBtn.disabled = true;
         calculateBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Getting Recommendations...';
@@ -222,6 +214,7 @@ class SolarCalculator {
         })
         .then(response => response.json())
         .then(data => {
+            console.log('Received response:', data);
             if (data.success) {
                 document.getElementById('results-section').innerHTML = data.recommendations;
                 const step4 = document.getElementById('step4');
@@ -317,7 +310,7 @@ function addApplianceRow() {
 let calculator;
 document.addEventListener('DOMContentLoaded', () => {
     calculator = new SolarCalculator();
-
+    window.calculator = calculator;  // Make it globally accessible
     // Update sun hours when location changes
     document.getElementById('location').addEventListener('change', function() {
         document.getElementById('sun-hours').value = this.value;
