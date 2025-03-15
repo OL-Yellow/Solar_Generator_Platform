@@ -34,7 +34,7 @@ const APPLIANCES = {
 class SolarCalculator {
     constructor() {
         this.currentStep = 1;
-        this.totalSteps = 4;
+        this.totalSteps = 5; // Updated to 5 steps
         this.initializeEventListeners();
     }
 
@@ -254,6 +254,14 @@ class SolarCalculator {
             if (data.success) {
                 document.getElementById('results-section').innerHTML = data.recommendations;
                 document.getElementById('results-section').classList.remove('d-none');
+
+                // Move to step 5 (results)
+                const step4 = document.getElementById('step4');
+                const step5 = document.getElementById('step5');
+                step4.classList.add('d-none');
+                step5.classList.remove('d-none');
+                this.currentStep = 5;
+                this.updateProgress();
             } else {
                 alert('Error getting recommendations. Please try again.');
             }
@@ -334,6 +342,7 @@ function addApplianceRow() {
     const backupToggle = newApplianceItem.querySelector('.backup-toggle');
     if (backupToggle) backupToggle.addEventListener('click', (e) => calculator.handleBackupToggle(e.target));
 }
+
 
 
 document.getElementById('location').addEventListener('change', function() {
