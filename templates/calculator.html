@@ -73,12 +73,17 @@
             <div class="appliance-list">
                 <!-- Pre-filled appliance items -->
                 <div class="appliance-item">
-                    <select class="form-select appliance-select mb-3" required>
-                        <option value="">Select Appliance</option>
-                        {% for appliance in ['LED Lights', 'Ceiling Fan', 'Standing Fan', 'Smartphone Charger', 'Laptop', 'Desktop Computer', 'TV (32-inch LED)', 'TV (43-inch LED)', 'TV (55-inch LED)', 'Small Refrigerator', 'Large Refrigerator', 'Chest Freezer', 'Air Conditioner (1HP)', 'Air Conditioner (1.5HP)', 'Air Conditioner (2HP)', 'Electric Iron', 'Microwave', 'Electric Kettle', 'Water Dispenser', 'Security Lights', 'CCTV System', 'Small Water Pump', 'Large Water Pump'] %}
-                            <option value="{{ appliance }}" {% if appliance == 'LED Lights' %}selected{% endif %}>{{ appliance }}</option>
-                        {% endfor %}
-                    </select>
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <select class="form-select appliance-select mb-3" required>
+                            <option value="">Select Appliance</option>
+                            {% for appliance in ['LED Lights', 'Ceiling Fan', 'Standing Fan', 'Smartphone Charger', 'Laptop', 'Desktop Computer', 'TV (32-inch LED)', 'TV (43-inch LED)', 'TV (55-inch LED)', 'Small Refrigerator', 'Large Refrigerator', 'Chest Freezer', 'Air Conditioner (1HP)', 'Air Conditioner (1.5HP)', 'Air Conditioner (2HP)', 'Electric Iron', 'Microwave', 'Electric Kettle', 'Water Dispenser', 'Security Lights', 'CCTV System', 'Small Water Pump', 'Large Water Pump'] %}
+                                <option value="{{ appliance }}" {% if appliance == 'LED Lights' %}selected{% endif %}>{{ appliance }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="button" class="btn btn-sm btn-outline-danger delete-appliance" title="Remove appliance">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
 
                     <div class="appliance-controls">
                         <div class="control-group">
@@ -113,13 +118,17 @@
                     </div>
                 </div>
                 <div class="appliance-item">
-                    <select class="form-select appliance-select mb-3" required>
-                        <option value="">Select Appliance</option>
-                        {% for appliance in ['LED Lights', 'Ceiling Fan', 'Standing Fan', 'Smartphone Charger', 'Laptop', 'Desktop Computer', 'TV (32-inch LED)', 'TV (43-inch LED)', 'TV (55-inch LED)', 'Small Refrigerator', 'Large Refrigerator', 'Chest Freezer', 'Air Conditioner (1HP)', 'Air Conditioner (1.5HP)', 'Air Conditioner (2HP)', 'Electric Iron', 'Microwave', 'Electric Kettle', 'Water Dispenser', 'Security Lights', 'CCTV System', 'Small Water Pump', 'Large Water Pump'] %}
-                            <option value="{{ appliance }}" {% if appliance == 'Ceiling Fan' %}selected{% endif %}>{{ appliance }}</option>
-                        {% endfor %}
-                    </select>
-
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <select class="form-select appliance-select mb-3" required>
+                            <option value="">Select Appliance</option>
+                            {% for appliance in ['LED Lights', 'Ceiling Fan', 'Standing Fan', 'Smartphone Charger', 'Laptop', 'Desktop Computer', 'TV (32-inch LED)', 'TV (43-inch LED)', 'TV (55-inch LED)', 'Small Refrigerator', 'Large Refrigerator', 'Chest Freezer', 'Air Conditioner (1HP)', 'Air Conditioner (1.5HP)', 'Air Conditioner (2HP)', 'Electric Iron', 'Microwave', 'Electric Kettle', 'Water Dispenser', 'Security Lights', 'CCTV System', 'Small Water Pump', 'Large Water Pump'] %}
+                                <option value="{{ appliance }}" {% if appliance == 'Ceiling Fan' %}selected{% endif %}>{{ appliance }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="button" class="btn btn-sm btn-outline-danger delete-appliance" title="Remove appliance">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
                     <div class="appliance-controls">
                         <div class="control-group">
                             <div class="d-flex align-items-center justify-content-between w-100">
@@ -153,13 +162,17 @@
                     </div>
                 </div>
                 <div class="appliance-item">
-                    <select class="form-select appliance-select mb-3" required>
-                        <option value="">Select Appliance</option>
-                        {% for appliance in ['LED Lights', 'Ceiling Fan', 'Standing Fan', 'Smartphone Charger', 'Laptop', 'Desktop Computer', 'TV (32-inch LED)', 'TV (43-inch LED)', 'TV (55-inch LED)', 'Small Refrigerator', 'Large Refrigerator', 'Chest Freezer', 'Air Conditioner (1HP)', 'Air Conditioner (1.5HP)', 'Air Conditioner (2HP)', 'Electric Iron', 'Microwave', 'Electric Kettle', 'Water Dispenser', 'Security Lights', 'CCTV System', 'Small Water Pump', 'Large Water Pump'] %}
-                            <option value="{{ appliance }}" {% if appliance == 'Laptop' %}selected{% endif %}>{{ appliance }}</option>
-                        {% endfor %}
-                    </select>
-
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <select class="form-select appliance-select mb-3" required>
+                            <option value="">Select Appliance</option>
+                            {% for appliance in ['LED Lights', 'Ceiling Fan', 'Standing Fan', 'Smartphone Charger', 'Laptop', 'Desktop Computer', 'TV (32-inch LED)', 'TV (43-inch LED)', 'TV (55-inch LED)', 'Small Refrigerator', 'Large Refrigerator', 'Chest Freezer', 'Air Conditioner (1HP)', 'Air Conditioner (1.5HP)', 'Air Conditioner (2HP)', 'Electric Iron', 'Microwave', 'Electric Kettle', 'Water Dispenser', 'Security Lights', 'CCTV System', 'Small Water Pump', 'Large Water Pump'] %}
+                                <option value="{{ appliance }}" {% if appliance == 'Laptop' %}selected{% endif %}>{{ appliance }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="button" class="btn btn-sm btn-outline-danger delete-appliance" title="Remove appliance">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
                     <div class="appliance-controls">
                         <div class="control-group">
                             <div class="d-flex align-items-center justify-content-between w-100">
@@ -193,13 +206,17 @@
                     </div>
                 </div>
                 <div class="appliance-item">
-                    <select class="form-select appliance-select mb-3" required>
-                        <option value="">Select Appliance</option>
-                        {% for appliance in ['LED Lights', 'Ceiling Fan', 'Standing Fan', 'Smartphone Charger', 'Laptop', 'Desktop Computer', 'TV (32-inch LED)', 'TV (43-inch LED)', 'TV (55-inch LED)', 'Small Refrigerator', 'Large Refrigerator', 'Chest Freezer', 'Air Conditioner (1HP)', 'Air Conditioner (1.5HP)', 'Air Conditioner (2HP)', 'Electric Iron', 'Microwave', 'Electric Kettle', 'Water Dispenser', 'Security Lights', 'CCTV System', 'Small Water Pump', 'Large Water Pump'] %}
-                            <option value="{{ appliance }}" {% if appliance == 'TV (32-inch LED)' %}selected{% endif %}>{{ appliance }}</option>
-                        {% endfor %}
-                    </select>
-
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <select class="form-select appliance-select mb-3" required>
+                            <option value="">Select Appliance</option>
+                            {% for appliance in ['LED Lights', 'Ceiling Fan', 'Standing Fan', 'Smartphone Charger', 'Laptop', 'Desktop Computer', 'TV (32-inch LED)', 'TV (43-inch LED)', 'TV (55-inch LED)', 'Small Refrigerator', 'Large Refrigerator', 'Chest Freezer', 'Air Conditioner (1HP)', 'Air Conditioner (1.5HP)', 'Air Conditioner (2HP)', 'Electric Iron', 'Microwave', 'Electric Kettle', 'Water Dispenser', 'Security Lights', 'CCTV System', 'Small Water Pump', 'Large Water Pump'] %}
+                                <option value="{{ appliance }}" {% if appliance == 'TV (32-inch LED)' %}selected{% endif %}>{{ appliance }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="button" class="btn btn-sm btn-outline-danger delete-appliance" title="Remove appliance">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
                     <div class="appliance-controls">
                         <div class="control-group">
                             <div class="d-flex align-items-center justify-content-between w-100">
@@ -233,13 +250,17 @@
                     </div>
                 </div>
                 <div class="appliance-item">
-                    <select class="form-select appliance-select mb-3" required>
-                        <option value="">Select Appliance</option>
-                        {% for appliance in ['LED Lights', 'Ceiling Fan', 'Standing Fan', 'Smartphone Charger', 'Laptop', 'Desktop Computer', 'TV (32-inch LED)', 'TV (43-inch LED)', 'TV (55-inch LED)', 'Small Refrigerator', 'Large Refrigerator', 'Chest Freezer', 'Air Conditioner (1HP)', 'Air Conditioner (1.5HP)', 'Air Conditioner (2HP)', 'Electric Iron', 'Microwave', 'Electric Kettle', 'Water Dispenser', 'Security Lights', 'CCTV System', 'Small Water Pump', 'Large Water Pump'] %}
-                            <option value="{{ appliance }}" {% if appliance == 'Large Refrigerator' %}selected{% endif %}>{{ appliance }}</option>
-                        {% endfor %}
-                    </select>
-
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <select class="form-select appliance-select mb-3" required>
+                            <option value="">Select Appliance</option>
+                            {% for appliance in ['LED Lights', 'Ceiling Fan', 'Standing Fan', 'Smartphone Charger', 'Laptop', 'Desktop Computer', 'TV (32-inch LED)', 'TV (43-inch LED)', 'TV (55-inch LED)', 'Small Refrigerator', 'Large Refrigerator', 'Chest Freezer', 'Air Conditioner (1HP)', 'Air Conditioner (1.5HP)', 'Air Conditioner (2HP)', 'Electric Iron', 'Microwave', 'Electric Kettle', 'Water Dispenser', 'Security Lights', 'CCTV System', 'Small Water Pump', 'Large Water Pump'] %}
+                                <option value="{{ appliance }}" {% if appliance == 'Large Refrigerator' %}selected{% endif %}>{{ appliance }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="button" class="btn btn-sm btn-outline-danger delete-appliance" title="Remove appliance">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
                     <div class="appliance-controls">
                         <div class="control-group">
                             <div class="d-flex align-items-center justify-content-between w-100">
@@ -398,13 +419,17 @@ function addApplianceRow() {
     const newApplianceRow = document.createElement('div');
     newApplianceRow.className = 'appliance-item';
     newApplianceRow.innerHTML = `
-        <select class="form-select appliance-select mb-3" required>
-            <option value="">Select Appliance</option>
-            {% for appliance in ['LED Lights', 'Ceiling Fan', 'Standing Fan', 'Smartphone Charger', 'Laptop', 'Desktop Computer', 'TV (32-inch LED)', 'TV (43-inch LED)', 'TV (55-inch LED)', 'Small Refrigerator', 'Large Refrigerator', 'Chest Freezer', 'Air Conditioner (1HP)', 'Air Conditioner (1.5HP)', 'Air Conditioner (2HP)', 'Electric Iron', 'Microwave', 'Electric Kettle', 'Water Dispenser', 'Security Lights', 'CCTV System', 'Small Water Pump', 'Large Water Pump'] %}
-                <option value="{{ appliance }}">{{ appliance }}</option>
-            {% endfor %}
-        </select>
-
+        <div class="d-flex justify-content-between align-items-start mb-2">
+            <select class="form-select appliance-select mb-3" required>
+                <option value="">Select Appliance</option>
+                {% for appliance in ['LED Lights', 'Ceiling Fan', 'Standing Fan', 'Smartphone Charger', 'Laptop', 'Desktop Computer', 'TV (32-inch LED)', 'TV (43-inch LED)', 'TV (55-inch LED)', 'Small Refrigerator', 'Large Refrigerator', 'Chest Freezer', 'Air Conditioner (1HP)', 'Air Conditioner (1.5HP)', 'Air Conditioner (2HP)', 'Electric Iron', 'Microwave', 'Electric Kettle', 'Water Dispenser', 'Security Lights', 'CCTV System', 'Small Water Pump', 'Large Water Pump'] %}
+                    <option value="{{ appliance }}">{{ appliance }}</option>
+                {% endfor %}
+            </select>
+            <button type="button" class="btn btn-sm btn-outline-danger delete-appliance" title="Remove appliance">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
         <div class="appliance-controls">
             <div class="control-group">
                 <div class="d-flex align-items-center justify-content-between w-100">
@@ -446,11 +471,45 @@ function addApplianceRow() {
     inputs.forEach(input => {
         input.addEventListener('change', () => calculator.updateAppliancePower());
     });
+    // Add event listener to the delete button
+    const deleteButton = newApplianceRow.querySelector('.delete-appliance');
+    deleteButton.addEventListener('click', () => {
+        applianceList.removeChild(newApplianceRow);
+        calculator.updateTotalPower();
+    });
 }
+
 
 // Update sun hours when location changes
 document.getElementById('location').addEventListener('change', function() {
     document.getElementById('sun-hours').value = this.value;
 });
+
+// Add event listeners to existing delete buttons
+const deleteButtons = document.querySelectorAll('.delete-appliance');
+deleteButtons.forEach(button => {
+    button.addEventListener('click', function() {
+        this.parentElement.parentElement.remove();
+        calculator.updateTotalPower();
+    });
+});
+
+const calculator = {
+    updateAppliancePower: function() {
+        //This function needs to be implemented to update individual appliance power based on selection, quantity, and hours.
+        //This is a placeholder and requires actual implementation based on your application logic.
+        console.log('updateAppliancePower called');
+    },
+    updateTotalPower: function() {
+        let totalPower = 0;
+        const dailyKwhElements = document.querySelectorAll('.daily-kwh');
+        dailyKwhElements.forEach(element => {
+            const value = parseFloat(element.textContent.replace(' kWh/day', ''));
+            totalPower += value;
+        });
+        document.getElementById('total-daily-power').textContent = totalPower.toFixed(2);
+    }
+};
+
 </script>
 {% endblock %}

@@ -94,6 +94,7 @@ body {
     display: flex; /* Added for card layout */
     flex-direction: column; /* Added for card layout */
     gap: 0.5rem; /* Added spacing between rows */
+    position: relative;
 }
 
 .appliance-controls {
@@ -188,6 +189,9 @@ body {
         font-size: 1rem;
         height: 48px;
     }
+    .delete-appliance {
+        padding: 0.5rem;
+    }
 }
 
 /* Results Section Styles */
@@ -269,4 +273,19 @@ body {
     .installation-notes .spec-value {
         align-self: flex-start;
     }
+}
+
+/* Add to existing CSS */
+.delete-appliance {
+    padding: 0.25rem 0.5rem;
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
+}
+
+.delete-appliance:hover {
+    opacity: 1;
+}
+
+.appliance-item {
+    position: relative;
 }

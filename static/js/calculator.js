@@ -55,6 +55,12 @@ class SolarCalculator {
                 this.handleHoursButton(e.target);
             } else if (e.target.matches('.backup-toggle')) {
                 this.handleBackupToggle(e.target);
+            } else if (e.target.matches('.delete-appliance') || e.target.closest('.delete-appliance')) {
+                const applianceItem = e.target.closest('.appliance-item');
+                if (applianceItem) {
+                    applianceItem.remove();
+                    this.updateTotalPower();
+                }
             }
         });
 
@@ -67,7 +73,6 @@ class SolarCalculator {
                 this.updateAppliancePower(item);
             }
         });
-
     }
 
     handleQuantityButton(button) {
@@ -277,7 +282,6 @@ class SolarCalculator {
     }
 }
 
-// New addApplianceRow function from edited snippet
 function addApplianceRow() {
     const applianceList = document.querySelector('.appliance-list');
     const newApplianceItem = document.createElement('div');
@@ -315,6 +319,7 @@ function addApplianceRow() {
 
             <div class="d-flex justify-content-between align-items-center mt-3">
                 <button type="button" class="btn btn-sm backup-toggle" data-state="no">No</button>
+                <button type="button" class="btn btn-sm btn-danger delete-appliance">Delete</button>
                 <div class="text-end">
                     <span class="watts-value">0</span>
                     <small class="d-block text-muted daily-kwh">0.00 kWh/day</small>
@@ -341,6 +346,14 @@ function addApplianceRow() {
 
     const backupToggle = newApplianceItem.querySelector('.backup-toggle');
     if (backupToggle) backupToggle.addEventListener('click', (e) => calculator.handleBackupToggle(e.target));
+    const deleteButton = newApplianceItem.querySelector('.delete-appliance');
+    deleteButton.addEventListener('click', (e) => {
+        const applianceItem = e.target.closest('.appliance-item');
+        if (applianceItem) {
+            applianceItem.remove();
+            calculator.updateTotalPower();
+        }
+    });
 }
 
 
