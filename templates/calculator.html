@@ -31,7 +31,7 @@
             </div>
             <input type="hidden" id="sun-hours" value="">
             <div class="d-flex justify-content-end">
-                <button type="button" class="btn btn-solar btn-next" onclick="calculator.nextStep()">Next <i class="fas fa-arrow-right"></i></button>
+                <button type="button" class="btn btn-solar btn-next">Next <i class="fas fa-arrow-right"></i></button>
             </div>
         </div>
 
@@ -292,16 +292,56 @@
                         </div>
                     </div>
                 </div>
+                <div class="appliance-item">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <select class="form-select appliance-select mb-3" required>
+                            <option value="">Select Appliance</option>
+                            {% for appliance in ['LED Lights', 'Ceiling Fan', 'Standing Fan', 'Smartphone Charger', 'Laptop', 'Desktop Computer', 'TV (32-inch LED)', 'TV (43-inch LED)', 'TV (55-inch LED)', 'Small Refrigerator', 'Large Refrigerator', 'Chest Freezer', 'Air Conditioner (1HP)', 'Air Conditioner (1.5HP)', 'Air Conditioner (2HP)', 'Electric Iron', 'Microwave', 'Electric Kettle', 'Water Dispenser', 'Security Lights', 'CCTV System', 'Small Water Pump', 'Large Water Pump'] %}
+                                <option value="{{ appliance }}">{{ appliance }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="button" class="btn btn-sm btn-outline-danger delete-appliance" title="Remove appliance">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="appliance-controls">
+                        <div class="control-group">
+                            <div class="d-flex align-items-center justify-content-between w-100">
+                                <div class="d-flex flex-column align-items-center">
+                                    <small class="text-muted me-2">#</small>
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-sm btn-outline-light quantity-btn" data-action="decrease">-</button>
+                                        <span class="quantity-value mx-2">1</span>
+                                        <button type="button" class="btn btn-sm btn-outline-light quantity-btn" data-action="increase">+</button>
+                                    </div>
+                                </div>
+                                <div class="d-flex flex-column align-items-center">
+                                    <small class="text-muted me-2">Hours / Day</small>
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-sm btn-outline-light hours-btn" data-action="decrease">-</button>
+                                        <span class="hours-value mx-2">6</span>
+                                        <button type="button" class="btn btn-sm btn-outline-light hours-btn" data-action="increase">+</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <button type="button" class="btn btn-sm backup-toggle" data-state="no">No</button>
+                            <div class="text-end">
+                                <span class="watts-value">0</span>
+                                <small class="d-block text-muted daily-kwh">0.00 kWh/day</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-outline-light mt-3 w-100" onclick="addApplianceRow()">
+                    <i class="fas fa-plus me-2"></i>Add Appliance
+                </button>
+                <div class="total-power mt-4 text-end">
+                    <strong>Total Daily Power:</strong>
+                    <span id="total-daily-power">13.40</span> kWh
+                </div>
 
-            </div>
-
-            <button type="button" class="btn btn-outline-light mt-3 w-100" onclick="addApplianceRow()">
-                <i class="fas fa-plus me-2"></i>Add Appliance
-            </button>
-
-            <div class="total-power mt-4 text-end">
-                <strong>Total Daily Power:</strong>
-                <span id="total-daily-power">13.40</span> kWh
             </div>
 
             <div class="d-flex justify-content-between mt-4">
@@ -413,6 +453,33 @@
 </div>
 
 <script>
+const APPLIANCES = {
+    'LED Lights': 10,
+    'Ceiling Fan': 75,
+    'Standing Fan': 60,
+    'Smartphone Charger': 5,
+    'Laptop': 65,
+    'Desktop Computer': 150,
+    'TV (32-inch LED)': 50,
+    'TV (43-inch LED)': 80,
+    'TV (55-inch LED)': 120,
+    'Small Refrigerator': 150,
+    'Large Refrigerator': 250,
+    'Chest Freezer': 200,
+    'Air Conditioner (1HP)': 1000,
+    'Air Conditioner (1.5HP)': 1500,
+    'Air Conditioner (2HP)': 2000,
+    'Electric Iron': 1000,
+    'Microwave': 1000,
+    'Electric Kettle': 1000,
+    'Water Dispenser': 100,
+    'Security Lights': 50,
+    'CCTV System': 100,
+    'Small Water Pump': 200,
+    'Large Water Pump': 500
+};
+
+// Calculator object with navigation and utility functions
 const calculator = {
     currentStep: 1,
     totalSteps: 5,
@@ -423,14 +490,19 @@ const calculator = {
     },
 
     bindEvents: function() {
-        // Previous buttons
-        document.querySelectorAll('.btn-prev').forEach(button => {
-            button.addEventListener('click', () => this.previousStep());
+        // Navigation buttons
+        document.querySelectorAll('.btn-next').forEach(button => {
+            button.addEventListener('click', () => {
+                console.log('Next clicked');
+                this.nextStep();
+            });
         });
 
-        // Next buttons
-        document.querySelectorAll('.btn-next').forEach(button => {
-            button.addEventListener('click', () => this.nextStep());
+        document.querySelectorAll('.btn-prev').forEach(button => {
+            button.addEventListener('click', () => {
+                console.log('Previous clicked');
+                this.previousStep();
+            });
         });
 
         // Calculate button
@@ -438,19 +510,48 @@ const calculator = {
         if (calculateBtn) {
             calculateBtn.addEventListener('click', () => this.calculateResults());
         }
+
+        // Delete buttons
+        document.querySelectorAll('.delete-appliance').forEach(button => {
+            button.addEventListener('click', () => {
+                const applianceItem = button.closest('.appliance-item');
+                if (applianceItem) {
+                    applianceItem.remove();
+                    this.updateTotalPower();
+                }
+            });
+        });
+
+        //Add event listeners to appliance selects for power calculation
+        document.querySelectorAll('.appliance-select').forEach(select => {
+            select.addEventListener('change', (e) => {
+                this.updateAppliancePower(e);
+            });
+        });
+
+        //Add event listeners to quantity and hours buttons
+        document.querySelectorAll('.quantity-btn, .hours-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                this.updateAppliancePower(e);
+            });
+        });
+
+
     },
 
     nextStep: function() {
-        console.log('Moving from step', this.currentStep);
         const currentStep = document.getElementById(`step${this.currentStep}`);
         const nextStep = document.getElementById(`step${this.currentStep + 1}`);
+
+        console.log('Moving from step', this.currentStep);
+        console.log('Current step element:', currentStep);
+        console.log('Next step element:', nextStep);
 
         if (currentStep && nextStep) {
             currentStep.classList.add('d-none');
             nextStep.classList.remove('d-none');
             this.currentStep++;
             this.updateProgress();
-            console.log('Moved to step', this.currentStep);
         }
     },
 
@@ -476,38 +577,50 @@ const calculator = {
             progressBar.setAttribute('aria-valuenow', progress);
         }
     },
-    updateAppliancePower: function() {
-        //This function needs to be implemented to update individual appliance power based on selection, quantity, and hours.
-        //This is a placeholder and requires actual implementation based on your application logic.
-        console.log('updateAppliancePower called');
+
+    calculateResults: function() {
+        // Implementation remains the same
     },
+
     updateTotalPower: function() {
         let totalPower = 0;
-        const dailyKwhElements = document.querySelectorAll('.daily-kwh');
-        dailyKwhElements.forEach(element => {
-            const value = parseFloat(element.textContent.replace(' kWh/day', ''));
+        document.querySelectorAll('.daily-kwh').forEach(element => {
+            const value = parseFloat(element.textContent.replace(' kWh/day', '')) || 0;
             totalPower += value;
         });
         document.getElementById('total-daily-power').textContent = totalPower.toFixed(2);
     },
-    calculateResults: function() {
-        //This function needs to be implemented to calculate results based on user input.
-        //This is a placeholder and requires actual implementation based on your application logic.
-        console.log('calculateResults called');
-
+    updateAppliancePower: function(e) {
+        const item = e.target.closest('.appliance-item');
+        const select = item.querySelector('.appliance-select');
+        const quantity = parseInt(item.querySelector('.quantity-value').textContent) || 1;
+        const hours = parseInt(item.querySelector('.hours-value').textContent) || 6;
+        const watts = APPLIANCES[select.value] || 0;
+        const kwh = (watts * quantity * hours) / 1000;
+        item.querySelector('.watts-value').textContent = watts;
+        item.querySelector('.daily-kwh').textContent = kwh.toFixed(2) + ' kWh/day';
+        this.updateTotalPower();
     }
 };
 
-// Initialize calculator
+// Initialize calculator when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     calculator.init();
+
+    // Update sun hours when location changes
+    document.getElementById('location').addEventListener('change', function() {
+        document.getElementById('sun-hours').value = this.value;
+    });
 });
 
+// Add appliance row function
 function addApplianceRow() {
     const applianceList = document.querySelector('.appliance-list');
-    const newApplianceRow = document.createElement('div');
-    newApplianceRow.className = 'appliance-item';
-    newApplianceRow.innerHTML = `
+    const newRow = document.createElement('div');
+    newRow.className = 'appliance-item';
+
+    // HTML for new appliance row
+    newRow.innerHTML = `
         <div class="d-flex justify-content-between align-items-start mb-2">
             <select class="form-select appliance-select mb-3" required>
                 <option value="">Select Appliance</option>
@@ -530,7 +643,6 @@ function addApplianceRow() {
                             <button type="button" class="btn btn-sm btn-outline-light quantity-btn" data-action="increase">+</button>
                         </div>
                     </div>
-
                     <div class="d-flex flex-column align-items-center">
                         <small class="text-muted me-2">Hours / Day</small>
                         <div class="btn-group">
@@ -541,11 +653,8 @@ function addApplianceRow() {
                     </div>
                 </div>
             </div>
-
             <div class="d-flex justify-content-between align-items-center mt-3">
-                <button type="button" class="btn btn-sm backup-toggle" data-state="no">
-                    <i class="fas fa-battery-empty me-1"></i>No Backup
-                </button>
+                <button type="button" class="btn btn-sm backup-toggle" data-state="no">No</button>
                 <div class="text-end">
                     <span class="watts-value">0</span>
                     <small class="d-block text-muted daily-kwh">0.00 kWh/day</small>
@@ -553,35 +662,34 @@ function addApplianceRow() {
             </div>
         </div>
     `;
-    applianceList.appendChild(newApplianceRow);
 
-    // Add event listeners to new inputs
-    const inputs = newApplianceRow.querySelectorAll('input, select, button');
-    inputs.forEach(input => {
-        input.addEventListener('change, () => calculator.updateAppliancePower());
-    });
-    // Add event listener to the delete button
-    const deleteButton = newApplianceRow.querySelector('.delete-appliance');
-    deleteButton.addEventListener('click', () => {
-        applianceList.removeChild(newApplianceRow);
+    applianceList.appendChild(newRow);
+
+    // Add event listeners
+    const select = newRow.querySelector('.appliance-select');
+    select.addEventListener('change', (e) => {
+        const watts = APPLIANCES[e.target.value] || 0;
+        const item = e.target.closest('.appliance-item');
+        item.querySelector('.watts-value').textContent = watts;
         calculator.updateTotalPower();
+    });
+
+    const deleteButton = newRow.querySelector('.delete-appliance');
+    deleteButton.addEventListener('click', () => {
+        applianceList.removeChild(newRow);
+        calculator.updateTotalPower();
+    });
+
+    // Add event listeners to quantity and hours buttons in new row
+    newRow.querySelectorAll('.quantity-btn, .hours-btn').forEach(button => {
+        button.addEventListener('click', (e) => {
+            calculator.updateAppliancePower(e);
+        });
+    });
+
+    newRow.querySelector('.appliance-select').addEventListener('change', (e) => {
+        calculator.updateAppliancePower(e);
     });
 }
-
-
-// Update sun hours when location changes
-document.getElementById('location').addEventListener('change', function() {
-    document.getElementById('sun-hours').value = this.value;
-});
-
-// Add event listeners to existing delete buttons
-const deleteButtons = document.querySelectorAll('.delete-appliance');
-deleteButtons.forEach(button => {
-    button.addEventListener('click', function() {
-        this.parentElement.parentElement.remove();
-        calculator.updateTotalPower();
-    });
-});
-
 </script>
 {% endblock %}
