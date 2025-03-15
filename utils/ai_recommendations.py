@@ -2,6 +2,7 @@ import os
 import anthropic
 from anthropic import Anthropic
 import logging
+import json
 
 def get_system_recommendations(user_data):
     """Get AI-powered solar system recommendations using Claude."""
@@ -9,11 +10,11 @@ def get_system_recommendations(user_data):
         client = Anthropic(api_key=os.environ['ANTHROPIC_API_KEY'])
 
         # Format the user data into a detailed prompt
-        prompt = f"""Based on the following information about a Nigerian property's energy needs, provide specific recommendations for a solar power system. Include panel size, battery capacity, and system specifications:
+        prompt = f"""Based on the following information about a Nigerian property's energy needs, calculate and provide specific recommendations for a solar power system. Return the data in a structured JSON format.
 
 Location: {user_data['location']}
 User Type: {user_data['user_type']}
-Current Generator: {user_data['generator_size']}KVA
+Current Generator: {user_data['generator_size']}kW
 Monthly Fuel Usage: {user_data['generator_fuel']} liters
 Daily Energy Usage: {user_data['daily_energy']}kWh
 Backup Days Needed: {user_data['backup_days']}
@@ -26,22 +27,29 @@ Consider:
 - Current generator expenses
 - User's budget constraints
 
-Provide recommendations in this format:
-1. Solar Panel System:
-   - Total capacity in kW
-   - Suggested number and type of panels
-2. Battery System:
-   - Total capacity in kWh
-   - Recommended battery configuration
-3. Cost Analysis:
-   - Estimated total system cost
-   - Monthly savings projection
-   - Payback period
-4. Additional Recommendations:
-   - Installation considerations
-   - Maintenance requirements
-   - System optimization tips
-"""
+Return ONLY a JSON object with these exact keys (include units in the values):
+{{
+    "solar_system": {{
+        "total_capacity": "X kW",
+        "num_panels": "X",
+        "panel_type": "XXX W monocrystalline"
+    }},
+    "battery_system": {{
+        "total_capacity": "X kWh",
+        "battery_type": "lithium-ion/gel/etc",
+        "configuration": "X batteries in series/parallel"
+    }},
+    "financial": {{
+        "estimated_cost": "₦X",
+        "monthly_savings": "₦X",
+        "payback_period": "X years"
+    }},
+    "installation": {{
+        "mounting": "roof/ground mounted",
+        "estimated_area": "X square meters",
+        "additional_notes": "brief installation considerations"
+    }}
+}}"""
 
         # Call Claude API with the latest model
         message = client.messages.create(
@@ -56,13 +64,63 @@ Provide recommendations in this format:
             ]
         )
 
-        # Extract the text content from the response
-        recommendations = message.content[0].text if isinstance(message.content, list) else message.content
+        # Extract the response text
+        response_text = message.content[0].text if isinstance(message.content, list) else message.content
 
-        return {
-            'success': True,
-            'recommendations': str(recommendations)  # Ensure the content is a string
-        }
+        # Try to parse JSON from the response
+        try:
+            recommendations_data = json.loads(response_text)
+
+            # Format the recommendations in HTML
+            html_recommendations = f"""
+                <div class="mb-4">
+                    <h4>Solar Panel System</h4>
+                    <ul class="list-unstyled">
+                        <li><strong>Total Capacity:</strong> {recommendations_data['solar_system']['total_capacity']}</li>
+                        <li><strong>Number of Panels:</strong> {recommendations_data['solar_system']['num_panels']}</li>
+                        <li><strong>Panel Type:</strong> {recommendations_data['solar_system']['panel_type']}</li>
+                    </ul>
+                </div>
+
+                <div class="mb-4">
+                    <h4>Battery System</h4>
+                    <ul class="list-unstyled">
+                        <li><strong>Total Capacity:</strong> {recommendations_data['battery_system']['total_capacity']}</li>
+                        <li><strong>Battery Type:</strong> {recommendations_data['battery_system']['battery_type']}</li>
+                        <li><strong>Configuration:</strong> {recommendations_data['battery_system']['configuration']}</li>
+                    </ul>
+                </div>
+
+                <div class="mb-4">
+                    <h4>Financial Analysis</h4>
+                    <ul class="list-unstyled">
+                        <li><strong>Estimated Cost:</strong> {recommendations_data['financial']['estimated_cost']}</li>
+                        <li><strong>Monthly Savings:</strong> {recommendations_data['financial']['monthly_savings']}</li>
+                        <li><strong>Payback Period:</strong> {recommendations_data['financial']['payback_period']}</li>
+                    </ul>
+                </div>
+
+                <div class="mb-4">
+                    <h4>Installation Details</h4>
+                    <ul class="list-unstyled">
+                        <li><strong>Mounting Type:</strong> {recommendations_data['installation']['mounting']}</li>
+                        <li><strong>Required Area:</strong> {recommendations_data['installation']['estimated_area']}</li>
+                        <li><strong>Additional Notes:</strong> {recommendations_data['installation']['additional_notes']}</li>
+                    </ul>
+                </div>
+            """
+
+            return {
+                'success': True,
+                'recommendations': html_recommendations
+            }
+
+        except json.JSONDecodeError as e:
+            logging.error(f"Failed to parse JSON from Claude response: {str(e)}")
+            return {
+                'success': False,
+                'error': 'Failed to parse AI recommendations'
+            }
 
     except Exception as e:
         logging.error(f"Error getting AI recommendations: {str(e)}")

@@ -15,8 +15,7 @@
             <div class="mb-3">
                 <label for="user-type" class="form-label">User Type</label>
                 <select class="form-select" id="user-type" required>
-                    <option value="">Select user type</option>
-                    <option value="household">Household</option>
+                    <option value="household" selected>Household</option>
                     <option value="business">Business</option>
                 </select>
                 <div class="invalid-feedback">Please select a user type.</div>
@@ -24,9 +23,8 @@
             <div class="mb-3">
                 <label for="location" class="form-label">Location</label>
                 <select class="form-select" id="location" required>
-                    <option value="">Select location</option>
                     {% for location, hours in locations.items() %}
-                    <option value="{{ hours }}">{{ location }}</option>
+                    <option value="{{ hours }}" {% if location == "Lagos" %}selected{% endif %}>{{ location }}</option>
                     {% endfor %}
                 </select>
                 <div class="invalid-feedback">Please select your location.</div>
@@ -41,18 +39,25 @@
         <div id="step2" class="step-container d-none">
             <h3 class="mb-4">Current Generator Usage</h3>
             <div class="mb-3">
-                <label for="generator-size" class="form-label">Generator Size (KVA)</label>
-                <input type="number" class="form-control" id="generator-size" required min="0">
-                <div class="invalid-feedback">Please enter generator size.</div>
+                <label for="generator-size" class="form-label">Generator Size (kW)</label>
+                <select class="form-select" id="generator-size" required>
+                    <option value="2.5" selected>2.5 kW (Small Home)</option>
+                    <option value="4">4.0 kW (Medium Home)</option>
+                    <option value="6.5">6.5 kW (Large Home)</option>
+                    <option value="10">10 kW (Small Business)</option>
+                    <option value="15">15 kW (Medium Business)</option>
+                    <option value="20">20 kW (Large Business)</option>
+                </select>
+                <div class="invalid-feedback">Please select your generator size.</div>
             </div>
             <div class="mb-3">
                 <label for="generator-fuel" class="form-label">Monthly Fuel Consumption (Liters)</label>
-                <input type="number" class="form-control" id="generator-fuel" required min="0">
+                <input type="number" class="form-control" id="generator-fuel" value="100" required min="0">
                 <div class="invalid-feedback">Please enter fuel consumption.</div>
             </div>
             <div class="mb-3">
                 <label for="generator-maintenance" class="form-label">Annual Maintenance Cost (NGN)</label>
-                <input type="number" class="form-control" id="generator-maintenance" required min="0">
+                <input type="number" class="form-control" id="generator-maintenance" value="50000" required min="0">
                 <div class="invalid-feedback">Please enter maintenance cost.</div>
             </div>
             <div class="d-flex justify-content-between">
