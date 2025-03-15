@@ -80,18 +80,18 @@
                         </tr>
                     </thead>
                     <tbody>
+                        <!-- Default appliance row with typical values -->
                         <tr class="appliance-row">
-                            <td><input type="text" class="form-control" placeholder="Appliance name" required></td>
-                            <td><input type="number" class="form-control watts" min="0" required></td>
-                            <td><input type="number" class="form-control hours" min="0" max="24" required></td>
-                            <td><span class="daily-kwh">0.00</span></td>
+                            <td><input type="text" class="form-control" value="Air Conditioner" placeholder="Appliance name" required></td>
+                            <td><input type="number" class="form-control watts" value="1500" min="0" required></td>
+                            <td><input type="number" class="form-control hours" value="8" min="0" max="24" required></td>
+                            <td><span class="daily-kwh">12.00</span></td>
                         </tr>
-                        <!-- Add more rows dynamically with JavaScript -->
                     </tbody>
                     <tfoot>
                         <tr>
                             <td colspan="3" class="text-end"><strong>Total Daily Power:</strong></td>
-                            <td><span id="total-daily-power">0.00</span> kWh</td>
+                            <td><span id="total-daily-power">12.00</span> kWh</td>
                         </tr>
                     </tfoot>
                 </table>
@@ -111,9 +111,8 @@
             <div class="mb-3">
                 <label for="budget-range" class="form-label">Budget Range (NGN)</label>
                 <select class="form-select" id="budget-range" required>
-                    <option value="">Select budget range</option>
                     <option value="500000-1000000">500,000 - 1,000,000</option>
-                    <option value="1000000-2000000">1,000,000 - 2,000,000</option>
+                    <option value="1000000-2000000" selected>1,000,000 - 2,000,000</option>
                     <option value="2000000-5000000">2,000,000 - 5,000,000</option>
                     <option value="5000000+">5,000,000+</option>
                 </select>
@@ -121,7 +120,7 @@
             </div>
             <div class="mb-3">
                 <label for="backup-days" class="form-label">Desired Backup Days</label>
-                <input type="number" class="form-control" id="backup-days" value="1" min="1" max="7" required>
+                <input type="number" class="form-control" id="backup-days" value="2" min="1" max="7" required>
                 <div class="invalid-feedback">Please enter desired backup days (1-7).</div>
             </div>
             <div class="d-flex justify-content-between">
@@ -183,6 +182,7 @@
                             <option value="morning">Morning (9AM - 12PM)</option>
                             <option value="afternoon">Afternoon (12PM - 4PM)</option>
                             <option value="evening">Evening (4PM - 7PM)</option>
+                            <option value="afternoon" selected>Afternoon (12PM - 4PM)</option>
                         </select>
                         <div class="invalid-feedback">Please select a contact time.</div>
                     </div>
