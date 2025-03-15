@@ -262,6 +262,95 @@ function addApplianceRow() {
                     </div>
                 </div>
                 <div class="d-flex justify-content-between align-items-center mt-3">
+                    <button type="button" class="btn btn-sm backup-toggle active" data-state="yes">Yes</button>
+                    <div class="text-end">
+                        <span class="watts-value">0</span>
+                        <small class="d-block text-muted daily-kwh">0.00 kWh/day</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    const newRow = template.firstElementChild;
+    const addButton = applianceList.querySelector('button[onclick="addApplianceRow()"]');
+    const totalPower = applianceList.querySelector('.total-power');
+    applianceList.insertBefore(newRow, totalPower);
+
+    // Add event listeners to the new row
+    const calculator = window.calculator;
+    newRow.querySelector('.appliance-select').addEventListener('change', () => calculator.updateAppliancePower(newRow));
+    newRow.querySelectorAll('.quantity-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const value = newRow.querySelector('.quantity-value');
+            if (btn.dataset.action === 'increase') {
+                value.textContent = parseInt(value.textContent) + 1;
+            } else {
+                value.textContent = Math.max(1, parseInt(value.textContent) - 1);
+            }
+            calculator.updateAppliancePower(newRow);
+        });
+    });
+    newRow.querySelectorAll('.hours-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const value = newRow.querySelector('.hours-value');
+            if (btn.dataset.action === 'increase') {
+                value.textContent = Math.min(24, parseInt(value.textContent) + 1);
+            } else {
+                value.textContent = Math.max(1, parseInt(value.textContent) - 1);
+            }
+            calculator.updateAppliancePower(newRow);
+        });
+    });
+    newRow.querySelector('.backup-toggle').addEventListener('click', (e) => {
+        calculator.handleBackupToggle(e.target);
+        calculator.updateAppliancePower(newRow);
+    });
+    newRow.querySelector('.delete-appliance').addEventListener('click', () => {
+        newRow.remove();
+        calculator.updateTotalPower();
+    });
+
+    calculator.updateAppliancePower(newRow);
+}
+function addApplianceRow() {
+    const applianceList = document.querySelector('.appliance-list');
+    const template = document.createElement('div');
+    template.innerHTML = `
+        <div class="appliance-item">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <select class="form-select appliance-select mb-3" required>
+                    <option value="">Select Appliance</option>
+                    ${Object.keys(APPLIANCES).map(appliance => 
+                        `<option value="${appliance}">${appliance}</option>`
+                    ).join('')}
+                </select>
+                <button type="button" class="btn btn-sm btn-outline-danger delete-appliance" title="Remove appliance">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="appliance-controls">
+                <div class="control-group">
+                    <div class="d-flex align-items-center justify-content-between w-100">
+                        <div class="d-flex flex-column align-items-center">
+                            <small class="text-muted me-2">#</small>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-sm btn-outline-light quantity-btn" data-action="decrease">-</button>
+                                <span class="quantity-value mx-2">1</span>
+                                <button type="button" class="btn btn-sm btn-outline-light quantity-btn" data-action="increase">+</button>
+                            </div>
+                        </div>
+                        <div class="d-flex flex-column align-items-center">
+                            <small class="text-muted me-2">Hours / Day</small>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-sm btn-outline-light hours-btn" data-action="decrease">-</button>
+                                <span class="hours-value mx-2">6</span>
+                                <button type="button" class="btn btn-sm btn-outline-light hours-btn" data-action="increase">+</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mt-3">
                     <button type="button" class="btn btn-sm backup-toggle" data-state="no">No</button>
                     <div class="text-end">
                         <span class="watts-value">0</span>
