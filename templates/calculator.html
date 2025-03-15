@@ -75,9 +75,23 @@
                 <button type="button" class="btn btn-outline-light mt-3 w-100" onclick="addApplianceRow()">
                     <i class="fas fa-plus me-2"></i>Add Appliance
                 </button>
-                <div class="total-power mt-4 text-end">
-                    <strong>Total Daily Power:</strong>
-                    <span id="total-daily-power">13.40</span> kWh
+                <div class="total-power mt-4">
+                    <div class="d-flex justify-content-between">
+                        <div id="quick-cost-estimate" class="quick-estimate">
+                            <div class="estimate-item">
+                                <span class="estimate-label">Estimated System Size:</span>
+                                <span class="estimate-value">Loading...</span>
+                            </div>
+                            <div class="estimate-item">
+                                <span class="estimate-label">Estimated Cost:</span>
+                                <span class="estimate-value">Loading...</span>
+                            </div>
+                        </div>
+                        <div>
+                            <strong>Total Daily Power:</strong>
+                            <span id="total-daily-power">0.00</span> kWh
+                        </div>
+                    </div>
                 </div>
 
             </div>

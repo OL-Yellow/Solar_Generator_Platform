@@ -1,0 +1,33 @@
+
+.quick-estimate {
+    background-color: rgba(0, 150, 136, 0.1);
+    border-left: 4px solid #009688;
+    padding: 10px 15px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+.estimate-item {
+    margin-bottom: 5px;
+}
+
+.estimate-label {
+    font-weight: 500;
+    color: #555;
+    margin-right: 8px;
+}
+
+.estimate-value {
+    font-weight: 600;
+    color: #009688;
+}
+
+/* Add animation for value changes */
+.estimate-value {
+    transition: all 0.3s ease;
+}
+
+/* Highlight on value change */
+.estimate-value.changed {
+    background-color: rgba(0, 150, 136, 0.2);
+}

@@ -1,7 +1,8 @@
 import os
 from flask import Flask, render_template, request, session, redirect, url_for, flash, jsonify
 import logging
-from utils.ai_recommendations import get_system_recommendations
+# Import local calculator instead of AI
+from utils.system_calculator import get_system_recommendations
 
 # Configure logging with more details
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')

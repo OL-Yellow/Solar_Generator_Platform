@@ -175,6 +175,9 @@ class SolarCalculator {
             totalPower += value;
         });
         document.getElementById('total-daily-power').textContent = totalPower.toFixed(2);
+        
+        // Update the quick cost estimate whenever total power changes
+        updateQuickEstimate();
     }
 
     async calculateResults() {
@@ -218,10 +221,71 @@ class SolarCalculator {
     }
 }
 
+// Constants for quick estimation
+const APPLIANCES = {
+    "refrigerator": 150,
+    "freezer": 200,
+    "air_conditioner": 1200,
+    "fan": 75,
+    "television": 120,
+    "computer": 150,
+    "water_pump": 800,
+    "washing_machine": 500,
+    "microwave": 1000,
+    "lights": 60,
+    "iron": 1200,
+    "water_heater": 1500
+};
+
+// Constants for quick system cost estimation
+const PANEL_COST_PER_KW = 350000;  // Naira per kW
+const BATTERY_COST_PER_KWH = 150000;  // Naira per kWh
+const INVERTER_BASE_COST = 150000;  // Base cost for small inverter
+
 // Initialize calculator when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     window.calculator = new SolarCalculator();
+    
+    // Display initial cost estimate
+    updateQuickEstimate();
 });
+
+// Function to update the quick cost estimate
+function updateQuickEstimate() {
+    const totalPowerElement = document.getElementById('total-daily-power');
+    if (!totalPowerElement) return;
+    
+    const dailyEnergy = parseFloat(totalPowerElement.textContent) || 0;
+    
+    // Quick estimate of system size (kW)
+    const systemSizeKW = Math.max(1, dailyEnergy / 5);
+    
+    // Quick estimate of battery size (kWh)
+    const batterySizeKWH = Math.max(2, dailyEnergy * 0.7);
+    
+    // Calculate estimated costs
+    const panelCost = systemSizeKW * PANEL_COST_PER_KW;
+    const batteryCost = batterySizeKWH * BATTERY_COST_PER_KWH;
+    const inverterCost = INVERTER_BASE_COST + (systemSizeKW * 20000);
+    
+    // Total system cost
+    const totalCost = panelCost + batteryCost + inverterCost;
+    
+    // Update the cost estimates display
+    const quickEstimateElement = document.getElementById('quick-cost-estimate');
+    if (quickEstimateElement) {
+        quickEstimateElement.innerHTML = `
+            <div class="estimate-item">
+                <span class="estimate-label">Estimated System Size:</span>
+                <span class="estimate-value">${systemSizeKW.toFixed(1)} kW</span>
+            </div>
+            <div class="estimate-item">
+                <span class="estimate-label">Estimated Cost:</span>
+                <span class="estimate-value">₦${totalCost.toLocaleString('en-NG')}</span>
+            </div>
+        `;
+    }
+}
 
 // Function to add event listeners to appliance rows
 function initializeApplianceRow(applianceRow) {
@@ -279,6 +343,14 @@ function addApplianceRow() {
     const applianceList = document.querySelector('.appliance-list');
     const addButton = applianceList.querySelector('button[onclick="addApplianceRow()"]');
     const template = document.createElement('div');
+    
+    // Get all available appliance options
+    const applianceOptions = Object.keys(APPLIANCES).map(key => {
+        const watts = APPLIANCES[key];
+        const displayName = key.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+        return `<option value="${key}">${displayName} (${watts}W)</option>`;
+    }).join('');
+    
     template.innerHTML = `
         <div class="appliance-item">
             <div class="d-flex justify-content-between align-items-start mb-2">
