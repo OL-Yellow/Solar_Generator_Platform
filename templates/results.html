@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container py-4">
+    {% if error %}
+    <div class="alert alert-danger" role="alert">
+        {{ error }}
+    </div>
+    {% else %}
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="results-card">
+                <h2 class="mb-4">Calculation Results</h2>
+                <div class="alert alert-success" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>
+                    Your solar system details have been saved. Our team will contact you shortly!
+                </div>
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <h4>System Requirements</h4>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-solar-panel me-2"></i> Solar Panel Size: {{ system_size }} kW</li>
+                            <li><i class="fas fa-battery-full me-2"></i> Battery Capacity: {{ battery_size }} kWh</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h4>Financial Summary</h4>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-money-bill-wave me-2"></i> Monthly Savings: ₦{{ monthly_savings }}</li>
+                            <li><i class="fas fa-clock me-2"></i> Payback Period: {{ payback_period }} years</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mt-4">
+                <a href="{{ url_for('calculator') }}" class="btn btn-solar">
+                    <i class="fas fa-calculator me-2"></i> Start New Calculation
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

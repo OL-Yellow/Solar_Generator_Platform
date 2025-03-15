@@ -1,0 +1,96 @@
+/* Custom styles on top of Bootstrap dark theme */
+:root {
+    --solar-primary: #ffd700;
+    --solar-secondary: #4a90e2;
+}
+
+body {
+    min-height: 100vh;
+    background-color: var(--bs-dark);
+    color: var(--bs-light);
+}
+
+.hero-section {
+    background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+        url('https://images.unsplash.com/photo-1602327850587-fc4b61215d07');
+    background-size: cover;
+    background-position: center;
+    padding: 6rem 0;
+}
+
+.step-container {
+    background-color: var(--bs-dark);
+    border-radius: 1rem;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.progress {
+    height: 0.5rem;
+    background-color: var(--bs-gray-700);
+}
+
+.progress-bar {
+    background-color: var(--solar-primary);
+}
+
+.form-control, .form-select {
+    background-color: var(--bs-dark);
+    border-color: var(--bs-gray-700);
+    color: var(--bs-light);
+}
+
+.form-control:focus, .form-select:focus {
+    background-color: var(--bs-dark);
+    border-color: var(--solar-primary);
+    color: var(--bs-light);
+    box-shadow: 0 0 0 0.25rem rgba(255, 215, 0, 0.25);
+}
+
+.btn-solar {
+    background-color: var(--solar-primary);
+    border-color: var(--solar-primary);
+    color: var(--bs-dark);
+}
+
+.btn-solar:hover {
+    background-color: #e6c200;
+    border-color: #e6c200;
+    color: var(--bs-dark);
+}
+
+.results-card {
+    background-color: var(--bs-gray-900);
+    border: 1px solid var(--bs-gray-700);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.value-highlight {
+    color: var(--solar-primary);
+    font-weight: bold;
+}
+
+.chart-container {
+    position: relative;
+    height: 400px;
+    width: 100%;
+    margin: 2rem 0;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 4rem 0;
+    }
+
+    .step-container {
+        padding: 1rem;
+    }
+
+    .chart-container {
+        height: 300px;
+    }
+}
