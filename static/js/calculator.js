@@ -105,19 +105,29 @@ class SolarCalculator {
         document.querySelectorAll('.backup-toggle').forEach(btn => {
             btn.addEventListener('click', (e) => this.handleBackupToggle(e.target));
         });
+
+        // Initialize the appliance rows
+        document.querySelectorAll('.appliance-item').forEach(item => {
+            initializeApplianceRow(item);
+        });
     }
 
     nextStep() {
         if (this.currentStep < this.totalSteps) {
             const currentStepElement = document.getElementById(`step${this.currentStep}`);
-            const nextStepElement = document.getElementById(`step${this.currentStep + 1}`);
-
-            if (currentStepElement && nextStepElement) {
+            if (currentStepElement) {
                 currentStepElement.classList.add('d-none');
-                nextStepElement.classList.remove('d-none');
-                this.currentStep++;
-                this.updateProgress();
             }
+
+            this.currentStep++;
+
+            const nextStepElement = document.getElementById(`step${this.currentStep}`);
+            if (nextStepElement) {
+                nextStepElement.classList.remove('d-none');
+            }
+
+            this.updateProgress();
+            console.log(`Moving to step ${this.currentStep}`);
         }
     }
 
@@ -175,7 +185,7 @@ class SolarCalculator {
             totalPower += value;
         });
         document.getElementById('total-daily-power').textContent = totalPower.toFixed(2);
-        
+
         // Update the quick cost estimate whenever total power changes
         updateQuickEstimate();
     }
@@ -222,20 +232,7 @@ class SolarCalculator {
 }
 
 // Constants for quick estimation
-const APPLIANCES = {
-    "refrigerator": 150,
-    "freezer": 200,
-    "air_conditioner": 1200,
-    "fan": 75,
-    "television": 120,
-    "computer": 150,
-    "water_pump": 800,
-    "washing_machine": 500,
-    "microwave": 1000,
-    "lights": 60,
-    "iron": 1200,
-    "water_heater": 1500
-};
+// Removed duplicate APPLIANCES constant
 
 // Constants for quick system cost estimation
 const PANEL_COST_PER_KW = 350000;  // Naira per kW
@@ -245,7 +242,7 @@ const INVERTER_BASE_COST = 150000;  // Base cost for small inverter
 // Initialize calculator when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     window.calculator = new SolarCalculator();
-    
+
     // Display initial cost estimate
     updateQuickEstimate();
 });
@@ -254,23 +251,23 @@ document.addEventListener('DOMContentLoaded', () => {
 function updateQuickEstimate() {
     const totalPowerElement = document.getElementById('total-daily-power');
     if (!totalPowerElement) return;
-    
+
     const dailyEnergy = parseFloat(totalPowerElement.textContent) || 0;
-    
+
     // Quick estimate of system size (kW)
     const systemSizeKW = Math.max(1, dailyEnergy / 5);
-    
+
     // Quick estimate of battery size (kWh)
     const batterySizeKWH = Math.max(2, dailyEnergy * 0.7);
-    
+
     // Calculate estimated costs
     const panelCost = systemSizeKW * PANEL_COST_PER_KW;
     const batteryCost = batterySizeKWH * BATTERY_COST_PER_KWH;
     const inverterCost = INVERTER_BASE_COST + (systemSizeKW * 20000);
-    
+
     // Total system cost
     const totalCost = panelCost + batteryCost + inverterCost;
-    
+
     // Update the cost estimates display
     const quickEstimateElement = document.getElementById('quick-cost-estimate');
     if (quickEstimateElement) {
@@ -343,14 +340,14 @@ function addApplianceRow() {
     const applianceList = document.querySelector('.appliance-list');
     const addButton = applianceList.querySelector('button[onclick="addApplianceRow()"]');
     const template = document.createElement('div');
-    
+
     // Get all available appliance options
     const applianceOptions = Object.keys(APPLIANCES).map(key => {
         const watts = APPLIANCES[key];
         const displayName = key.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
         return `<option value="${key}">${displayName} (${watts}W)</option>`;
     }).join('');
-    
+
     template.innerHTML = `
         <div class="appliance-item">
             <div class="d-flex justify-content-between align-items-start mb-2">
