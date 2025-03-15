@@ -53,17 +53,6 @@ class SolarCalculator {
         // Initialize all appliance dropdowns with the list of appliances
         const applianceSelects = document.querySelectorAll('.appliance-select');
         applianceSelects.forEach(select => {
-            // Add default option
-            select.innerHTML = '<option value="">Select Appliance</option>';
-
-            // Add all appliances as options
-            Object.keys(APPLIANCES).forEach(appliance => {
-                const option = document.createElement('option');
-                option.value = appliance;
-                option.textContent = appliance;
-                select.appendChild(option);
-            });
-
             // Add change event listener
             select.addEventListener('change', (e) => {
                 const watts = APPLIANCES[e.target.value] || 0;
@@ -251,6 +240,9 @@ function addApplianceRow() {
         <td>
             <select class="form-select appliance-select" required>
                 <option value="">Select Appliance</option>
+                ${Object.keys(APPLIANCES).map(appliance => 
+                    `<option value="${appliance}">${appliance}</option>`
+                ).join('')}
             </select>
         </td>
         <td><input type="number" class="form-control watts" readonly></td>
@@ -260,18 +252,10 @@ function addApplianceRow() {
     `;
     tbody.appendChild(newRow);
 
-    // Initialize the new dropdown
-    const select = newRow.querySelector('.appliance-select');
-    Object.keys(APPLIANCES).forEach(appliance => {
-        const option = document.createElement('option');
-        option.value = appliance;
-        option.textContent = appliance;
-        select.appendChild(option);
-    });
-
     // Add event listeners
-    select.addEventListener('change', () => {
-        const watts = APPLIANCES[select.value] || 0;
+    const select = newRow.querySelector('.appliance-select');
+    select.addEventListener('change', (e) => {
+        const watts = APPLIANCES[e.target.value] || 0;
         newRow.querySelector('.watts').value = watts;
         calculator.updateAppliancePower();
     });

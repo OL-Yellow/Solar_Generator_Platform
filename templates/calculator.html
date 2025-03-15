@@ -81,11 +81,14 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Pre-filled appliance rows -->
+                        <!-- Pre-filled appliance rows with selected default appliances -->
                         <tr class="appliance-row">
                             <td>
                                 <select class="form-select appliance-select" required>
-                                    <option value="LED Lights" selected>LED Lights</option>
+                                    <option value="">Select Appliance</option>
+                                    {% for appliance in ['LED Lights', 'Ceiling Fan', 'Standing Fan', 'Smartphone Charger', 'Laptop', 'Desktop Computer', 'TV (32-inch LED)', 'TV (43-inch LED)', 'TV (55-inch LED)', 'Small Refrigerator', 'Large Refrigerator', 'Chest Freezer', 'Air Conditioner (1HP)', 'Air Conditioner (1.5HP)', 'Air Conditioner (2HP)', 'Electric Iron', 'Microwave', 'Electric Kettle', 'Water Dispenser', 'Security Lights', 'CCTV System', 'Small Water Pump', 'Large Water Pump'] %}
+                                        <option value="{{ appliance }}" {% if appliance == 'LED Lights' %}selected{% endif %}>{{ appliance }}</option>
+                                    {% endfor %}
                                 </select>
                             </td>
                             <td><input type="number" class="form-control watts" value="10" readonly></td>
@@ -96,7 +99,10 @@
                         <tr class="appliance-row">
                             <td>
                                 <select class="form-select appliance-select" required>
-                                    <option value="Ceiling Fan" selected>Ceiling Fan</option>
+                                    <option value="">Select Appliance</option>
+                                    {% for appliance in ['LED Lights', 'Ceiling Fan', 'Standing Fan', 'Smartphone Charger', 'Laptop', 'Desktop Computer', 'TV (32-inch LED)', 'TV (43-inch LED)', 'TV (55-inch LED)', 'Small Refrigerator', 'Large Refrigerator', 'Chest Freezer', 'Air Conditioner (1HP)', 'Air Conditioner (1.5HP)', 'Air Conditioner (2HP)', 'Electric Iron', 'Microwave', 'Electric Kettle', 'Water Dispenser', 'Security Lights', 'CCTV System', 'Small Water Pump', 'Large Water Pump'] %}
+                                        <option value="{{ appliance }}" {% if appliance == 'Ceiling Fan' %}selected{% endif %}>{{ appliance }}</option>
+                                    {% endfor %}
                                 </select>
                             </td>
                             <td><input type="number" class="form-control watts" value="75" readonly></td>
@@ -107,7 +113,10 @@
                         <tr class="appliance-row">
                             <td>
                                 <select class="form-select appliance-select" required>
-                                    <option value="Laptop" selected>Laptop</option>
+                                    <option value="">Select Appliance</option>
+                                    {% for appliance in ['LED Lights', 'Ceiling Fan', 'Standing Fan', 'Smartphone Charger', 'Laptop', 'Desktop Computer', 'TV (32-inch LED)', 'TV (43-inch LED)', 'TV (55-inch LED)', 'Small Refrigerator', 'Large Refrigerator', 'Chest Freezer', 'Air Conditioner (1HP)', 'Air Conditioner (1.5HP)', 'Air Conditioner (2HP)', 'Electric Iron', 'Microwave', 'Electric Kettle', 'Water Dispenser', 'Security Lights', 'CCTV System', 'Small Water Pump', 'Large Water Pump'] %}
+                                        <option value="{{ appliance }}" {% if appliance == 'Laptop' %}selected{% endif %}>{{ appliance }}</option>
+                                    {% endfor %}
                                 </select>
                             </td>
                             <td><input type="number" class="form-control watts" value="65" readonly></td>
@@ -118,7 +127,10 @@
                         <tr class="appliance-row">
                             <td>
                                 <select class="form-select appliance-select" required>
-                                    <option value="TV (32-inch LED)" selected>TV (32-inch LED)</option>
+                                    <option value="">Select Appliance</option>
+                                    {% for appliance in ['LED Lights', 'Ceiling Fan', 'Standing Fan', 'Smartphone Charger', 'Laptop', 'Desktop Computer', 'TV (32-inch LED)', 'TV (43-inch LED)', 'TV (55-inch LED)', 'Small Refrigerator', 'Large Refrigerator', 'Chest Freezer', 'Air Conditioner (1HP)', 'Air Conditioner (1.5HP)', 'Air Conditioner (2HP)', 'Electric Iron', 'Microwave', 'Electric Kettle', 'Water Dispenser', 'Security Lights', 'CCTV System', 'Small Water Pump', 'Large Water Pump'] %}
+                                        <option value="{{ appliance }}" {% if appliance == 'TV (32-inch LED)' %}selected{% endif %}>{{ appliance }}</option>
+                                    {% endfor %}
                                 </select>
                             </td>
                             <td><input type="number" class="form-control watts" value="50" readonly></td>
@@ -129,7 +141,10 @@
                         <tr class="appliance-row">
                             <td>
                                 <select class="form-select appliance-select" required>
-                                    <option value="Large Refrigerator" selected>Large Refrigerator</option>
+                                    <option value="">Select Appliance</option>
+                                    {% for appliance in ['LED Lights', 'Ceiling Fan', 'Standing Fan', 'Smartphone Charger', 'Laptop', 'Desktop Computer', 'TV (32-inch LED)', 'TV (43-inch LED)', 'TV (55-inch LED)', 'Small Refrigerator', 'Large Refrigerator', 'Chest Freezer', 'Air Conditioner (1HP)', 'Air Conditioner (1.5HP)', 'Air Conditioner (2HP)', 'Electric Iron', 'Microwave', 'Electric Kettle', 'Water Dispenser', 'Security Lights', 'CCTV System', 'Small Water Pump', 'Large Water Pump'] %}
+                                        <option value="{{ appliance }}" {% if appliance == 'Large Refrigerator' %}selected{% endif %}>{{ appliance }}</option>
+                                    {% endfor %}
                                 </select>
                             </td>
                             <td><input type="number" class="form-control watts" value="250" readonly></td>
