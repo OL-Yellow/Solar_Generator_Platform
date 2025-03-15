@@ -67,66 +67,71 @@
         </div>
 
         <!-- Step 3: Appliances -->
-        <div id="step3" class="step-container d-none">
+        <div id="step3" class="step-container">
             <h3 class="mb-4">Appliances & Equipment</h3>
-            <div class="table-responsive">
-                <table class="table table-dark">
-                    <thead>
-                        <tr>
-                            <th>Appliance</th>
-                            <th>Hours / Day</th>
-                            <th>Back-up?</th>
-                            <th>Watts</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Pre-filled appliance rows with selected default appliances -->
-                        <tr class="appliance-row">
-                            <td>
-                                <select class="form-select appliance-select mb-2" required>
-                                    <option value="">Select Appliance</option>
-                                    {% for appliance in ['LED Lights', 'Ceiling Fan', 'Standing Fan', 'Smartphone Charger', 'Laptop', 'Desktop Computer', 'TV (32-inch LED)', 'TV (43-inch LED)', 'TV (55-inch LED)', 'Small Refrigerator', 'Large Refrigerator', 'Chest Freezer', 'Air Conditioner (1HP)', 'Air Conditioner (1.5HP)', 'Air Conditioner (2HP)', 'Electric Iron', 'Microwave', 'Electric Kettle', 'Water Dispenser', 'Security Lights', 'CCTV System', 'Small Water Pump', 'Large Water Pump'] %}
-                                        <option value="{{ appliance }}" {% if appliance == 'LED Lights' %}selected{% endif %}>{{ appliance }}</option>
-                                    {% endfor %}
-                                </select>
-                                <div class="d-flex align-items-center">
-                                    <small class="text-muted me-2">Quantity:</small>
+
+            <!-- Appliance List -->
+            <div class="appliance-list">
+                <!-- Pre-filled appliance items -->
+                <div class="appliance-item">
+                    <select class="form-select appliance-select mb-3" required>
+                        <option value="">Select Appliance</option>
+                        {% for appliance in ['LED Lights', 'Ceiling Fan', 'Standing Fan', 'Smartphone Charger', 'Laptop', 'Desktop Computer', 'TV (32-inch LED)', 'TV (43-inch LED)', 'TV (55-inch LED)', 'Small Refrigerator', 'Large Refrigerator', 'Chest Freezer', 'Air Conditioner (1HP)', 'Air Conditioner (1.5HP)', 'Air Conditioner (2HP)', 'Electric Iron', 'Microwave', 'Electric Kettle', 'Water Dispenser', 'Security Lights', 'CCTV System', 'Small Water Pump', 'Large Water Pump'] %}
+                            <option value="{{ appliance }}" {% if appliance == 'LED Lights' %}selected{% endif %}>{{ appliance }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <div class="appliance-controls">
+                        <div class="control-group">
+                            <div class="d-flex flex-column align-items-center">
+                                <label class="small text-muted mb-1">#</label>
+                                <div class="btn-group">
                                     <button type="button" class="btn btn-sm btn-outline-light quantity-btn" data-action="decrease">-</button>
                                     <span class="quantity-value mx-2">1</span>
                                     <button type="button" class="btn btn-sm btn-outline-light quantity-btn" data-action="increase">+</button>
                                 </div>
-                            </td>
-                            <td>
-                                <div class="d-flex align-items-center">
+                            </div>
+
+                            <div class="d-flex flex-column align-items-center ms-4">
+                                <label class="small text-muted mb-1">Hours</label>
+                                <div class="btn-group">
                                     <button type="button" class="btn btn-sm btn-outline-light hours-btn" data-action="decrease">-</button>
                                     <span class="hours-value mx-2">6</span>
                                     <button type="button" class="btn btn-sm btn-outline-light hours-btn" data-action="increase">+</button>
                                 </div>
-                            </td>
-                            <td>
-                                <button type="button" class="btn btn-sm backup-toggle active" data-state="yes">Yes</button>
-                            </td>
-                            <td>
-                                <span class="watts-value">10</span>
-                                <small class="d-block text-muted daily-kwh">0.06 kWh/day</small>
-                            </td>
-                        </tr>
-                        
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <td colspan="3" class="text-end"><strong>Total Daily Power:</strong></td>
-                            <td><span id="total-daily-power">0.06</span> kWh</td>
-                        </tr>
-                    </tfoot>
-                </table>
+                            </div>
+                        </div>
+
+                        <div class="power-info">
+                            <div class="watts-display">
+                                <span class="watts-value">10</span>W
+                            </div>
+                            <div class="daily-kwh small text-muted">0.06 kWh/day</div>
+                        </div>
+
+                        <button type="button" class="btn btn-sm backup-toggle active" data-state="yes">
+                            <i class="fas fa-battery-full me-1"></i>Backup
+                        </button>
+                    </div>
+                </div>
             </div>
-            <button type="button" class="btn btn-outline-light mb-3" onclick="addApplianceRow()">
-                <i class="fas fa-plus"></i> Add Appliance
+
+            <button type="button" class="btn btn-outline-light mt-3 w-100" onclick="addApplianceRow()">
+                <i class="fas fa-plus me-2"></i>Add Appliance
             </button>
-            <div class="d-flex justify-content-between">
-                <button type="button" class="btn btn-secondary btn-prev"><i class="fas fa-arrow-left"></i> Previous</button>
-                <button type="button" class="btn btn-solar btn-next">Next <i class="fas fa-arrow-right"></i></button>
+
+            <div class="total-power mt-4 text-end">
+                <strong>Total Daily Power:</strong>
+                <span id="total-daily-power">0.06</span> kWh
+            </div>
+
+            <div class="d-flex justify-content-between mt-4">
+                <button type="button" class="btn btn-secondary btn-prev">
+                    <i class="fas fa-arrow-left me-2"></i>Previous
+                </button>
+                <button type="button" class="btn btn-solar btn-next">
+                    Next<i class="fas fa-arrow-right ms-2"></i>
+                </button>
             </div>
         </div>
 
@@ -222,43 +227,54 @@
 
 <script>
 function addApplianceRow() {
-    const tbody = document.querySelector('tbody');
-    const newRow = document.createElement('tr');
-    newRow.className = 'appliance-row';
-    newRow.innerHTML = `
-        <td>
-            <select class="form-select appliance-select mb-2" required>
-                <option value="">Select Appliance</option>
-                {% for appliance in ['LED Lights', 'Ceiling Fan', 'Standing Fan', 'Smartphone Charger', 'Laptop', 'Desktop Computer', 'TV (32-inch LED)', 'TV (43-inch LED)', 'TV (55-inch LED)', 'Small Refrigerator', 'Large Refrigerator', 'Chest Freezer', 'Air Conditioner (1HP)', 'Air Conditioner (1.5HP)', 'Air Conditioner (2HP)', 'Electric Iron', 'Microwave', 'Electric Kettle', 'Water Dispenser', 'Security Lights', 'CCTV System', 'Small Water Pump', 'Large Water Pump'] %}
-                    <option value="{{ appliance }}">{{ appliance }}</option>
-                {% endfor %}
-            </select>
-            <div class="d-flex align-items-center">
-                <small class="text-muted me-2">Quantity:</small>
-                <button type="button" class="btn btn-sm btn-outline-light quantity-btn" data-action="decrease">-</button>
-                <span class="quantity-value mx-2">1</span>
-                <button type="button" class="btn btn-sm btn-outline-light quantity-btn" data-action="increase">+</button>
+    const applianceList = document.querySelector('.appliance-list');
+    const newApplianceItem = document.createElement('div');
+    newApplianceItem.className = 'appliance-item';
+    newApplianceItem.innerHTML = `
+        <select class="form-select appliance-select mb-3" required>
+            <option value="">Select Appliance</option>
+            {% for appliance in ['LED Lights', 'Ceiling Fan', 'Standing Fan', 'Smartphone Charger', 'Laptop', 'Desktop Computer', 'TV (32-inch LED)', 'TV (43-inch LED)', 'TV (55-inch LED)', 'Small Refrigerator', 'Large Refrigerator', 'Chest Freezer', 'Air Conditioner (1HP)', 'Air Conditioner (1.5HP)', 'Air Conditioner (2HP)', 'Electric Iron', 'Microwave', 'Electric Kettle', 'Water Dispenser', 'Security Lights', 'CCTV System', 'Small Water Pump', 'Large Water Pump'] %}
+                <option value="{{ appliance }}">{{ appliance }}</option>
+            {% endfor %}
+        </select>
+
+        <div class="appliance-controls">
+            <div class="control-group">
+                <div class="d-flex flex-column align-items-center">
+                    <label class="small text-muted mb-1">#</label>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-sm btn-outline-light quantity-btn" data-action="decrease">-</button>
+                        <span class="quantity-value mx-2">1</span>
+                        <button type="button" class="btn btn-sm btn-outline-light quantity-btn" data-action="increase">+</button>
+                    </div>
+                </div>
+
+                <div class="d-flex flex-column align-items-center ms-4">
+                    <label class="small text-muted mb-1">Hours</label>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-sm btn-outline-light hours-btn" data-action="decrease">-</button>
+                        <span class="hours-value mx-2">6</span>
+                        <button type="button" class="btn btn-sm btn-outline-light hours-btn" data-action="increase">+</button>
+                    </div>
+                </div>
             </div>
-        </td>
-        <td>
-            <div class="d-flex align-items-center">
-                <button type="button" class="btn btn-sm btn-outline-light hours-btn" data-action="decrease">-</button>
-                <span class="hours-value mx-2">6</span>
-                <button type="button" class="btn btn-sm btn-outline-light hours-btn" data-action="increase">+</button>
+
+            <div class="power-info">
+                <div class="watts-display">
+                    <span class="watts-value">0</span>W
+                </div>
+                <div class="daily-kwh small text-muted">0.00 kWh/day</div>
             </div>
-        </td>
-        <td>
-            <button type="button" class="btn btn-sm backup-toggle" data-state="no">No</button>
-        </td>
-        <td>
-            <span class="watts-value">0</span>
-            <small class="d-block text-muted daily-kwh">0.00 kWh/day</small>
-        </td>
+
+            <button type="button" class="btn btn-sm backup-toggle" data-state="no">
+                <i class="fas fa-battery-empty me-1"></i>No Backup
+            </button>
+        </div>
     `;
-    tbody.appendChild(newRow);
+    applianceList.appendChild(newApplianceItem);
 
     // Add event listeners to new inputs
-    const inputs = newRow.querySelectorAll('input, select, button');
+    const inputs = newApplianceItem.querySelectorAll('input, select, button');
     inputs.forEach(input => {
         input.addEventListener('change', () => calculator.updateAppliancePower());
     });
