@@ -12,34 +12,48 @@ class SolarCalculator {
     }
 
     initializeEventListeners() {
+        // Wait for DOM to be fully loaded
         document.addEventListener('DOMContentLoaded', () => {
             this.updateProgress();
             this.setupStepNavigation();
             this.setupCalculationTriggers();
+            this.setupApplianceListeners();
         });
     }
 
     setupStepNavigation() {
+        // Set up next button handlers
         const nextButtons = document.querySelectorAll('.btn-next');
-        const prevButtons = document.querySelectorAll('.btn-prev');
-
         nextButtons.forEach(button => {
-            button.addEventListener('click', () => this.nextStep());
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.nextStep();
+            });
         });
 
+        // Set up previous button handlers
+        const prevButtons = document.querySelectorAll('.btn-prev');
         prevButtons.forEach(button => {
-            button.addEventListener('click', () => this.previousStep());
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.previousStep();
+            });
         });
     }
 
     setupCalculationTriggers() {
         const calculateButton = document.getElementById('calculate-btn');
         if (calculateButton) {
-            calculateButton.addEventListener('click', () => this.calculateResults());
+            calculateButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.calculateResults();
+            });
         }
+    }
 
-        // Update appliance calculations on change
-        const applianceInputs = document.querySelectorAll('.appliance-input');
+    setupApplianceListeners() {
+        // Initial appliance row listeners
+        const applianceInputs = document.querySelectorAll('.appliance-row input');
         applianceInputs.forEach(input => {
             input.addEventListener('change', () => this.updateAppliancePower());
         });
@@ -56,44 +70,55 @@ class SolarCalculator {
 
     nextStep() {
         if (this.validateCurrentStep()) {
-            this.hideStep(this.currentStep);
-            this.currentStep++;
-            this.showStep(this.currentStep);
-            this.updateProgress();
+            const currentStepElement = document.getElementById(`step${this.currentStep}`);
+            const nextStepElement = document.getElementById(`step${this.currentStep + 1}`);
+
+            if (currentStepElement && nextStepElement) {
+                currentStepElement.classList.add('d-none');
+                nextStepElement.classList.remove('d-none');
+                this.currentStep++;
+                this.updateProgress();
+            }
         }
     }
 
     previousStep() {
         if (this.currentStep > 1) {
-            this.hideStep(this.currentStep);
-            this.currentStep--;
-            this.showStep(this.currentStep);
-            this.updateProgress();
+            const currentStepElement = document.getElementById(`step${this.currentStep}`);
+            const prevStepElement = document.getElementById(`step${this.currentStep - 1}`);
+
+            if (currentStepElement && prevStepElement) {
+                currentStepElement.classList.add('d-none');
+                prevStepElement.classList.remove('d-none');
+                this.currentStep--;
+                this.updateProgress();
+            }
         }
     }
 
-    hideStep(step) {
-        document.querySelector(`#step${step}`).classList.add('d-none');
-    }
-
-    showStep(step) {
-        document.querySelector(`#step${step}`).classList.remove('d-none');
-    }
-
     validateCurrentStep() {
-        // Add validation logic for each step
-        const step = document.querySelector(`#step${this.currentStep}`);
-        const requiredFields = step.querySelectorAll('[required]');
+        const currentStepElement = document.getElementById(`step${this.currentStep}`);
+        if (!currentStepElement) return false;
+
+        const requiredFields = currentStepElement.querySelectorAll('[required]');
         let valid = true;
 
         requiredFields.forEach(field => {
-            if (!field.value) {
+            if (!field.value.trim()) {
                 valid = false;
                 field.classList.add('is-invalid');
             } else {
                 field.classList.remove('is-invalid');
             }
         });
+
+        if (!valid) {
+            // Show validation message
+            const firstInvalid = currentStepElement.querySelector('.is-invalid');
+            if (firstInvalid) {
+                firstInvalid.focus();
+            }
+        }
 
         return valid;
     }
@@ -126,8 +151,9 @@ class SolarCalculator {
         };
 
         // Show loading state
-        document.getElementById('calculate-btn').disabled = true;
-        document.getElementById('calculate-btn').innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Getting Recommendations...';
+        const calculateBtn = document.getElementById('calculate-btn');
+        calculateBtn.disabled = true;
+        calculateBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Getting Recommendations...';
 
         // Call the AI recommendations endpoint
         fetch('/get_recommendations', {
@@ -140,15 +166,12 @@ class SolarCalculator {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Parse and display the AI recommendations
-                const recommendations = data.recommendations;
-
                 // Update results section with AI recommendations
                 document.getElementById('results-section').innerHTML = `
                     <div class="results-card">
                         <h3 class="mb-4">AI-Powered Solar Solution Recommendations</h3>
                         <div class="recommendation-text">
-                            ${recommendations}
+                            ${data.recommendations}
                         </div>
                     </div>
 
@@ -192,6 +215,18 @@ class SolarCalculator {
 
                 // Show results section
                 document.getElementById('results-section').classList.remove('d-none');
+
+                // Reinitialize form validation for the new form
+                const forms = document.querySelectorAll('.needs-validation');
+                forms.forEach(form => {
+                    form.addEventListener('submit', event => {
+                        if (!form.checkValidity()) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add('was-validated');
+                    });
+                });
             } else {
                 alert('Error getting recommendations. Please try again.');
             }
@@ -202,71 +237,36 @@ class SolarCalculator {
         })
         .finally(() => {
             // Reset button state
-            document.getElementById('calculate-btn').disabled = false;
-            document.getElementById('calculate-btn').innerHTML = 'Calculate Results';
-        });
-    }
-
-    displayResults(results) {
-        document.getElementById('system-size').textContent = results.systemSize;
-        document.getElementById('battery-size').textContent = results.batterySize;
-        document.getElementById('total-cost').textContent = results.totalCost;
-        document.getElementById('monthly-savings').textContent = results.monthlySavings;
-        document.getElementById('payback-period').textContent = results.paybackPeriod;
-        document.getElementById('current-cost').textContent = results.currentCost;
-
-        // Update hidden fields for lead form
-        document.getElementById('lead-system-size').value = results.systemSize;
-        document.getElementById('lead-estimated-savings').value = results.monthlySavings;
-    }
-
-    createROIChart(totalCost, monthlySavings) {
-        const ctx = document.getElementById('roi-chart').getContext('2d');
-        const months = Array.from({length: 121}, (_, i) => i);
-        const savings = months.map(month => month * monthlySavings);
-
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: months,
-                datasets: [{
-                    label: 'Cumulative Savings',
-                    data: savings,
-                    borderColor: 'rgb(75, 192, 192)',
-                    tension: 0.1
-                }, {
-                    label: 'System Cost',
-                    data: Array(121).fill(totalCost),
-                    borderColor: 'rgb(255, 99, 132)',
-                    borderDash: [5, 5]
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: 'Return on Investment Over Time'
-                    }
-                },
-                scales: {
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Months'
-                        }
-                    },
-                    y: {
-                        title: {
-                            display: true,
-                            text: 'NGN'
-                        }
-                    }
-                }
-            }
+            calculateBtn.disabled = false;
+            calculateBtn.innerHTML = 'Calculate Results';
         });
     }
 }
 
 // Initialize calculator
 const calculator = new SolarCalculator();
+
+// Function to add new appliance row
+function addApplianceRow() {
+    const tbody = document.querySelector('tbody');
+    const newRow = document.createElement('tr');
+    newRow.className = 'appliance-row';
+    newRow.innerHTML = `
+        <td><input type="text" class="form-control" placeholder="Appliance name" required></td>
+        <td><input type="number" class="form-control watts" min="0" required></td>
+        <td><input type="number" class="form-control hours" min="0" max="24" required></td>
+        <td><span class="daily-kwh">0.00</span></td>
+    `;
+    tbody.appendChild(newRow);
+
+    // Add event listeners to new inputs
+    const inputs = newRow.querySelectorAll('input');
+    inputs.forEach(input => {
+        input.addEventListener('change', () => calculator.updateAppliancePower());
+    });
+}
+
+// Update sun hours when location changes
+document.getElementById('location').addEventListener('change', function() {
+    document.getElementById('sun-hours').value = this.value;
+});
