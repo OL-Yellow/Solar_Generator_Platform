@@ -31,7 +31,7 @@
             </div>
             <input type="hidden" id="sun-hours" value="">
             <div class="d-flex justify-content-end">
-                <button type="button" class="btn btn-solar btn-next">Next <i class="fas fa-arrow-right"></i></button>
+                <button type="button" class="btn btn-solar btn-next" onclick="calculator.nextStep()">Next <i class="fas fa-arrow-right"></i></button>
             </div>
         </div>
 
@@ -84,7 +84,6 @@
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
-
                     <div class="appliance-controls">
                         <div class="control-group">
                             <div class="d-flex align-items-center justify-content-between w-100">
@@ -414,6 +413,96 @@
 </div>
 
 <script>
+const calculator = {
+    currentStep: 1,
+    totalSteps: 5,
+
+    init: function() {
+        this.updateProgress();
+        this.bindEvents();
+    },
+
+    bindEvents: function() {
+        // Previous buttons
+        document.querySelectorAll('.btn-prev').forEach(button => {
+            button.addEventListener('click', () => this.previousStep());
+        });
+
+        // Next buttons
+        document.querySelectorAll('.btn-next').forEach(button => {
+            button.addEventListener('click', () => this.nextStep());
+        });
+
+        // Calculate button
+        const calculateBtn = document.getElementById('calculate-btn');
+        if (calculateBtn) {
+            calculateBtn.addEventListener('click', () => this.calculateResults());
+        }
+    },
+
+    nextStep: function() {
+        console.log('Moving from step', this.currentStep);
+        const currentStep = document.getElementById(`step${this.currentStep}`);
+        const nextStep = document.getElementById(`step${this.currentStep + 1}`);
+
+        if (currentStep && nextStep) {
+            currentStep.classList.add('d-none');
+            nextStep.classList.remove('d-none');
+            this.currentStep++;
+            this.updateProgress();
+            console.log('Moved to step', this.currentStep);
+        }
+    },
+
+    previousStep: function() {
+        if (this.currentStep > 1) {
+            const currentStep = document.getElementById(`step${this.currentStep}`);
+            const prevStep = document.getElementById(`step${this.currentStep - 1}`);
+
+            if (currentStep && prevStep) {
+                currentStep.classList.add('d-none');
+                prevStep.classList.remove('d-none');
+                this.currentStep--;
+                this.updateProgress();
+            }
+        }
+    },
+
+    updateProgress: function() {
+        const progressBar = document.querySelector('.progress-bar');
+        if (progressBar) {
+            const progress = (this.currentStep / this.totalSteps) * 100;
+            progressBar.style.width = `${progress}%`;
+            progressBar.setAttribute('aria-valuenow', progress);
+        }
+    },
+    updateAppliancePower: function() {
+        //This function needs to be implemented to update individual appliance power based on selection, quantity, and hours.
+        //This is a placeholder and requires actual implementation based on your application logic.
+        console.log('updateAppliancePower called');
+    },
+    updateTotalPower: function() {
+        let totalPower = 0;
+        const dailyKwhElements = document.querySelectorAll('.daily-kwh');
+        dailyKwhElements.forEach(element => {
+            const value = parseFloat(element.textContent.replace(' kWh/day', ''));
+            totalPower += value;
+        });
+        document.getElementById('total-daily-power').textContent = totalPower.toFixed(2);
+    },
+    calculateResults: function() {
+        //This function needs to be implemented to calculate results based on user input.
+        //This is a placeholder and requires actual implementation based on your application logic.
+        console.log('calculateResults called');
+
+    }
+};
+
+// Initialize calculator
+document.addEventListener('DOMContentLoaded', () => {
+    calculator.init();
+});
+
 function addApplianceRow() {
     const applianceList = document.querySelector('.appliance-list');
     const newApplianceRow = document.createElement('div');
@@ -469,7 +558,7 @@ function addApplianceRow() {
     // Add event listeners to new inputs
     const inputs = newApplianceRow.querySelectorAll('input, select, button');
     inputs.forEach(input => {
-        input.addEventListener('change', () => calculator.updateAppliancePower());
+        input.addEventListener('change, () => calculator.updateAppliancePower());
     });
     // Add event listener to the delete button
     const deleteButton = newApplianceRow.querySelector('.delete-appliance');
@@ -493,23 +582,6 @@ deleteButtons.forEach(button => {
         calculator.updateTotalPower();
     });
 });
-
-const calculator = {
-    updateAppliancePower: function() {
-        //This function needs to be implemented to update individual appliance power based on selection, quantity, and hours.
-        //This is a placeholder and requires actual implementation based on your application logic.
-        console.log('updateAppliancePower called');
-    },
-    updateTotalPower: function() {
-        let totalPower = 0;
-        const dailyKwhElements = document.querySelectorAll('.daily-kwh');
-        dailyKwhElements.forEach(element => {
-            const value = parseFloat(element.textContent.replace(' kWh/day', ''));
-            totalPower += value;
-        });
-        document.getElementById('total-daily-power').textContent = totalPower.toFixed(2);
-    }
-};
 
 </script>
 {% endblock %}

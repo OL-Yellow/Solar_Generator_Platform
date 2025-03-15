@@ -35,24 +35,38 @@ class SolarCalculator {
     constructor() {
         this.currentStep = 1;
         this.totalSteps = 5;
-        this.initializeEventListeners();
+        this.bindEvents();
+        this.updateProgress();
     }
 
-    initializeEventListeners() {
-        // Wait for DOM to be fully loaded
-        document.addEventListener('DOMContentLoaded', () => {
-            this.updateProgress();
-            this.setupStepNavigation();
-            this.setupApplianceControls();
-            this.setupCalculationTriggers();
-            this.setupDeleteButtons();
+    bindEvents() {
+        // Next button handler
+        document.querySelectorAll('.btn-next').forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.nextStep();
+            });
         });
-    }
 
-    setupDeleteButtons() {
-        // Add event listeners to existing delete buttons
-        const deleteButtons = document.querySelectorAll('.delete-appliance');
-        deleteButtons.forEach(button => {
+        // Previous button handler
+        document.querySelectorAll('.btn-prev').forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.previousStep();
+            });
+        });
+
+        // Calculate button handler
+        const calculateBtn = document.getElementById('calculate-btn');
+        if (calculateBtn) {
+            calculateBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.calculateResults();
+            });
+        }
+
+        // Delete buttons
+        document.querySelectorAll('.delete-appliance').forEach(button => {
             button.addEventListener('click', () => {
                 const applianceItem = button.closest('.appliance-item');
                 if (applianceItem) {
@@ -61,9 +75,8 @@ class SolarCalculator {
                 }
             });
         });
-    }
 
-    setupApplianceControls() {
+        // Appliance controls
         document.addEventListener('click', (e) => {
             if (e.target.matches('.quantity-btn')) {
                 this.handleQuantityButton(e.target);
@@ -71,16 +84,10 @@ class SolarCalculator {
                 this.handleHoursButton(e.target);
             } else if (e.target.matches('.backup-toggle')) {
                 this.handleBackupToggle(e.target);
-            } else if (e.target.matches('.delete-appliance') || e.target.closest('.delete-appliance')) {
-                const applianceItem = e.target.closest('.appliance-item');
-                if (applianceItem) {
-                    applianceItem.remove();
-                    this.updateTotalPower();
-                }
             }
         });
 
-        // Setup appliance select handlers
+        // Appliance select changes
         document.addEventListener('change', (e) => {
             if (e.target.matches('.appliance-select')) {
                 const watts = APPLIANCES[e.target.value] || 0;
@@ -89,6 +96,41 @@ class SolarCalculator {
                 this.updateAppliancePower(item);
             }
         });
+    }
+
+    updateProgress() {
+        const progressBar = document.querySelector('.progress-bar');
+        if (progressBar) {
+            const progress = (this.currentStep / this.totalSteps) * 100;
+            progressBar.style.width = `${progress}%`;
+            progressBar.setAttribute('aria-valuenow', progress);
+        }
+    }
+
+    nextStep() {
+        const currentStep = document.getElementById(`step${this.currentStep}`);
+        const nextStep = document.getElementById(`step${this.currentStep + 1}`);
+
+        if (currentStep && nextStep) {
+            currentStep.classList.add('d-none');
+            nextStep.classList.remove('d-none');
+            this.currentStep++;
+            this.updateProgress();
+        }
+    }
+
+    previousStep() {
+        if (this.currentStep > 1) {
+            const currentStep = document.getElementById(`step${this.currentStep}`);
+            const prevStep = document.getElementById(`step${this.currentStep - 1}`);
+
+            if (currentStep && prevStep) {
+                currentStep.classList.add('d-none');
+                prevStep.classList.remove('d-none');
+                this.currentStep--;
+                this.updateProgress();
+            }
+        }
     }
 
     handleQuantityButton(button) {
@@ -156,97 +198,6 @@ class SolarCalculator {
         document.getElementById('total-daily-power').textContent = totalPower.toFixed(2);
     }
 
-    setupStepNavigation() {
-        const nextButtons = document.querySelectorAll('.btn-next');
-        nextButtons.forEach(button => {
-            button.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.nextStep();
-            });
-        });
-
-        const prevButtons = document.querySelectorAll('.btn-prev');
-        prevButtons.forEach(button => {
-            button.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.previousStep();
-            });
-        });
-    }
-
-    setupCalculationTriggers() {
-        const calculateButton = document.getElementById('calculate-btn');
-        if (calculateButton) {
-            calculateButton.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.calculateResults();
-            });
-        }
-    }
-
-    updateProgress() {
-        const progressBar = document.querySelector('.progress-bar');
-        if (progressBar) {
-            const progress = (this.currentStep / this.totalSteps) * 100;
-            progressBar.style.width = `${progress}%`;
-            progressBar.setAttribute('aria-valuenow', progress);
-        }
-    }
-
-    nextStep() {
-        if (this.validateCurrentStep()) {
-            const currentStepElement = document.getElementById(`step${this.currentStep}`);
-            const nextStepElement = document.getElementById(`step${this.currentStep + 1}`);
-
-            if (currentStepElement && nextStepElement) {
-                currentStepElement.classList.add('d-none');
-                nextStepElement.classList.remove('d-none');
-                this.currentStep++;
-                this.updateProgress();
-            }
-        }
-    }
-
-    previousStep() {
-        if (this.currentStep > 1) {
-            const currentStepElement = document.getElementById(`step${this.currentStep}`);
-            const prevStepElement = document.getElementById(`step${this.currentStep - 1}`);
-
-            if (currentStepElement && prevStepElement) {
-                currentStepElement.classList.add('d-none');
-                prevStepElement.classList.remove('d-none');
-                this.currentStep--;
-                this.updateProgress();
-            }
-        }
-    }
-
-    validateCurrentStep() {
-        const currentStepElement = document.getElementById(`step${this.currentStep}`);
-        if (!currentStepElement) return false;
-
-        const requiredFields = currentStepElement.querySelectorAll('[required]');
-        let valid = true;
-
-        requiredFields.forEach(field => {
-            if (!field.value.trim()) {
-                valid = false;
-                field.classList.add('is-invalid');
-            } else {
-                field.classList.remove('is-invalid');
-            }
-        });
-
-        if (!valid) {
-            const firstInvalid = currentStepElement.querySelector('.is-invalid');
-            if (firstInvalid) {
-                firstInvalid.focus();
-            }
-        }
-
-        return valid;
-    }
-
     calculateResults() {
         const userData = {
             location: document.getElementById('location').value,
@@ -273,9 +224,6 @@ class SolarCalculator {
         .then(data => {
             if (data.success) {
                 document.getElementById('results-section').innerHTML = data.recommendations;
-                document.getElementById('results-section').classList.remove('d-none');
-
-                // Move to step 5 (results)
                 const step4 = document.getElementById('step4');
                 const step5 = document.getElementById('step5');
                 step4.classList.add('d-none');
@@ -296,9 +244,6 @@ class SolarCalculator {
         });
     }
 }
-
-// Initialize calculator
-const calculator = new SolarCalculator();
 
 // Function to add new appliance row
 function addApplianceRow() {
@@ -352,7 +297,7 @@ function addApplianceRow() {
     `;
     applianceList.appendChild(newApplianceRow);
 
-    // Add event listeners to new inputs
+    // Add event listeners
     const select = newApplianceRow.querySelector('.appliance-select');
     select.addEventListener('change', (e) => {
         const watts = APPLIANCES[e.target.value] || 0;
@@ -361,26 +306,20 @@ function addApplianceRow() {
         calculator.updateAppliancePower(item);
     });
 
-    const quantityBtns = newApplianceRow.querySelectorAll('.quantity-btn');
-    quantityBtns.forEach(btn => btn.addEventListener('click', (e) => calculator.handleQuantityButton(e.target)));
-
-    const hoursBtns = newApplianceRow.querySelectorAll('.hours-btn');
-    hoursBtns.forEach(btn => btn.addEventListener('click', (e) => calculator.handleHoursButton(e.target)));
-
-    const backupToggle = newApplianceRow.querySelector('.backup-toggle');
-    if (backupToggle) backupToggle.addEventListener('click', (e) => calculator.handleBackupToggle(e.target));
-
     const deleteButton = newApplianceRow.querySelector('.delete-appliance');
-    deleteButton.addEventListener('click', (e) => {
-        const applianceItem = e.target.closest('.appliance-item');
-        if (applianceItem) {
-            applianceItem.remove();
-            calculator.updateTotalPower();
-        }
+    deleteButton.addEventListener('click', () => {
+        applianceList.removeChild(newApplianceRow);
+        calculator.updateTotalPower();
     });
 }
 
-// Update sun hours when location changes
-document.getElementById('location').addEventListener('change', function() {
-    document.getElementById('sun-hours').value = this.value;
+// Initialize calculator when DOM is ready
+let calculator;
+document.addEventListener('DOMContentLoaded', () => {
+    calculator = new SolarCalculator();
+
+    // Update sun hours when location changes
+    document.getElementById('location').addEventListener('change', function() {
+        document.getElementById('sun-hours').value = this.value;
+    });
 });
