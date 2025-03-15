@@ -162,10 +162,50 @@ class SolarCalculator {
         document.getElementById('total-daily-power').textContent = totalPower.toFixed(2);
     }
 
-    calculateResults() {
-        // TODO: Implement calculation logic
+    async calculateResults() {
         console.log('Calculating results...');
-        this.nextStep();
+        
+        // Gather user data
+        const userData = {
+            location: document.getElementById('location').value,
+            user_type: document.getElementById('user-type').value,
+            generator_size: document.getElementById('generator-size').value,
+            generator_fuel: document.getElementById('generator-fuel').value,
+            daily_energy: document.getElementById('total-daily-power').textContent,
+            backup_days: document.getElementById('backup-days').value,
+            budget_range: document.getElementById('budget-range').value
+        };
+
+        try {
+            const response = await fetch('/get_recommendations', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(userData)
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const data = await response.json();
+            if (data.success) {
+                // Insert the HTML recommendations into the results section
+                document.getElementById('results-section').innerHTML = data.recommendations;
+                
+                // Update lead form hidden fields
+                document.getElementById('lead-system-size').value = document.getElementById('system-size').textContent;
+                document.getElementById('lead-estimated-savings').value = document.getElementById('monthly-savings').textContent;
+                
+                this.nextStep();
+            } else {
+                alert('Failed to get recommendations: ' + data.error);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Failed to calculate results. Please try again.');
+        }
     }
 }
 
