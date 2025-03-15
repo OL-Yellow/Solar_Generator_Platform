@@ -75,23 +75,73 @@
                         <tr>
                             <th>Appliance</th>
                             <th>Watts</th>
+                            <th>Quantity</th>
                             <th>Hours/Day</th>
                             <th>Daily kWh</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Default appliance row with typical values -->
+                        <!-- Pre-filled appliance rows -->
                         <tr class="appliance-row">
-                            <td><input type="text" class="form-control" value="Air Conditioner" placeholder="Appliance name" required></td>
-                            <td><input type="number" class="form-control watts" value="1500" min="0" required></td>
+                            <td>
+                                <select class="form-select appliance-select" required>
+                                    <option value="LED Lights" selected>LED Lights</option>
+                                </select>
+                            </td>
+                            <td><input type="number" class="form-control watts" value="10" readonly></td>
+                            <td><input type="number" class="form-control quantity" value="8" min="1" required></td>
+                            <td><input type="number" class="form-control hours" value="12" min="0" max="24" required></td>
+                            <td><span class="daily-kwh">0.96</span></td>
+                        </tr>
+                        <tr class="appliance-row">
+                            <td>
+                                <select class="form-select appliance-select" required>
+                                    <option value="Ceiling Fan" selected>Ceiling Fan</option>
+                                </select>
+                            </td>
+                            <td><input type="number" class="form-control watts" value="75" readonly></td>
+                            <td><input type="number" class="form-control quantity" value="4" min="1" required></td>
+                            <td><input type="number" class="form-control hours" value="16" min="0" max="24" required></td>
+                            <td><span class="daily-kwh">4.80</span></td>
+                        </tr>
+                        <tr class="appliance-row">
+                            <td>
+                                <select class="form-select appliance-select" required>
+                                    <option value="Laptop" selected>Laptop</option>
+                                </select>
+                            </td>
+                            <td><input type="number" class="form-control watts" value="65" readonly></td>
+                            <td><input type="number" class="form-control quantity" value="2" min="1" required></td>
                             <td><input type="number" class="form-control hours" value="8" min="0" max="24" required></td>
-                            <td><span class="daily-kwh">12.00</span></td>
+                            <td><span class="daily-kwh">1.04</span></td>
+                        </tr>
+                        <tr class="appliance-row">
+                            <td>
+                                <select class="form-select appliance-select" required>
+                                    <option value="TV (32-inch LED)" selected>TV (32-inch LED)</option>
+                                </select>
+                            </td>
+                            <td><input type="number" class="form-control watts" value="50" readonly></td>
+                            <td><input type="number" class="form-control quantity" value="2" min="1" required></td>
+                            <td><input type="number" class="form-control hours" value="6" min="0" max="24" required></td>
+                            <td><span class="daily-kwh">0.60</span></td>
+                        </tr>
+                        <tr class="appliance-row">
+                            <td>
+                                <select class="form-select appliance-select" required>
+                                    <option value="Large Refrigerator" selected>Large Refrigerator</option>
+                                </select>
+                            </td>
+                            <td><input type="number" class="form-control watts" value="250" readonly></td>
+                            <td><input type="number" class="form-control quantity" value="1" min="1" required></td>
+                            <td><input type="number" class="form-control hours" value="24" min="0" max="24" required></td>
+                            <td><span class="daily-kwh">6.00</span></td>
                         </tr>
                     </tbody>
                     <tfoot>
                         <tr>
-                            <td colspan="3" class="text-end"><strong>Total Daily Power:</strong></td>
-                            <td><span id="total-daily-power">12.00</span> kWh</td>
+                            <td colspan="4" class="text-end"><strong>Total Daily Power:</strong></td>
+                            <td><span id="total-daily-power">13.40</span> kWh</td>
                         </tr>
                     </tfoot>
                 </table>
@@ -201,15 +251,21 @@ function addApplianceRow() {
     const newRow = document.createElement('tr');
     newRow.className = 'appliance-row';
     newRow.innerHTML = `
-        <td><input type="text" class="form-control" placeholder="Appliance name" required></td>
+        <td>
+            <select class="form-select appliance-select" required>
+                <option value="">Select Appliance</option>
+                <!-- Add options here dynamically or from a separate data source -->
+            </select>
+        </td>
         <td><input type="number" class="form-control watts" min="0" required></td>
+        <td><input type="number" class="form-control quantity" value="1" min="1" required></td>
         <td><input type="number" class="form-control hours" min="0" max="24" required></td>
         <td><span class="daily-kwh">0.00</span></td>
     `;
     tbody.appendChild(newRow);
-    
+
     // Add event listeners to new inputs
-    const inputs = newRow.querySelectorAll('input');
+    const inputs = newRow.querySelectorAll('input, select');
     inputs.forEach(input => {
         input.addEventListener('change', () => calculator.updateAppliancePower());
     });

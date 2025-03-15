@@ -4,6 +4,33 @@ const BATTERY_COST_PER_KWH = 200000; // NGN
 const INSTALLATION_COST_PERCENTAGE = 0.15;
 const DIESEL_PRICE_PER_LITER = 650; // NGN
 
+// Common appliances in Nigeria with typical wattage
+const APPLIANCES = {
+    'LED Lights': 10,
+    'Ceiling Fan': 75,
+    'Standing Fan': 50,
+    'Smartphone Charger': 10,
+    'Laptop': 65,
+    'Desktop Computer': 150,
+    'TV (32-inch LED)': 50,
+    'TV (43-inch LED)': 100,
+    'TV (55-inch LED)': 150,
+    'Small Refrigerator': 150,
+    'Large Refrigerator': 250,
+    'Chest Freezer': 300,
+    'Air Conditioner (1HP)': 750,
+    'Air Conditioner (1.5HP)': 1100,
+    'Air Conditioner (2HP)': 1500,
+    'Electric Iron': 1000,
+    'Microwave': 800,
+    'Electric Kettle': 1500,
+    'Water Dispenser': 100,
+    'Security Lights': 30,
+    'CCTV System': 50,
+    'Small Water Pump': 750,
+    'Large Water Pump': 1500
+};
+
 class SolarCalculator {
     constructor() {
         this.currentStep = 1;
@@ -18,6 +45,32 @@ class SolarCalculator {
             this.setupStepNavigation();
             this.setupCalculationTriggers();
             this.setupApplianceListeners();
+            this.initializeApplianceDropdowns();
+        });
+    }
+
+    initializeApplianceDropdowns() {
+        // Initialize all appliance dropdowns with the list of appliances
+        const applianceSelects = document.querySelectorAll('.appliance-select');
+        applianceSelects.forEach(select => {
+            // Add default option
+            select.innerHTML = '<option value="">Select Appliance</option>';
+
+            // Add all appliances as options
+            Object.keys(APPLIANCES).forEach(appliance => {
+                const option = document.createElement('option');
+                option.value = appliance;
+                option.textContent = appliance;
+                select.appendChild(option);
+            });
+
+            // Add change event listener
+            select.addEventListener('change', (e) => {
+                const watts = APPLIANCES[e.target.value] || 0;
+                const row = e.target.closest('tr');
+                row.querySelector('.watts').value = watts;
+                this.updateAppliancePower();
+            });
         });
     }
 
@@ -52,7 +105,7 @@ class SolarCalculator {
     }
 
     setupApplianceListeners() {
-        // Initial appliance row listeners
+        // Add listeners for quantity and hours inputs
         const applianceInputs = document.querySelectorAll('.appliance-row input');
         applianceInputs.forEach(input => {
             input.addEventListener('change', () => this.updateAppliancePower());
@@ -130,7 +183,8 @@ class SolarCalculator {
         applianceRows.forEach(row => {
             const watts = parseFloat(row.querySelector('.watts').value) || 0;
             const hours = parseFloat(row.querySelector('.hours').value) || 0;
-            const daily = (watts * hours) / 1000; // Convert to kWh
+            const quantity = parseFloat(row.querySelector('.quantity').value) || 1; //Default to 1 if no quantity
+            const daily = (watts * hours * quantity) / 1000; // Convert to kWh
             row.querySelector('.daily-kwh').textContent = daily.toFixed(2);
             totalPower += daily;
         });
@@ -167,66 +221,8 @@ class SolarCalculator {
         .then(data => {
             if (data.success) {
                 // Update results section with AI recommendations
-                document.getElementById('results-section').innerHTML = `
-                    <div class="results-card">
-                        <h3 class="mb-4">AI-Powered Solar Solution Recommendations</h3>
-                        <div class="recommendation-text">
-                            ${data.recommendations}
-                        </div>
-                    </div>
-
-                    <!-- Lead Capture Form -->
-                    <div class="results-card">
-                        <h3 class="mb-4">Get Detailed Quote</h3>
-                        <form action="/submit_lead" method="POST" class="needs-validation" novalidate>
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label for="name" class="form-label">Full Name</label>
-                                    <input type="text" class="form-control" id="name" name="name" required>
-                                    <div class="invalid-feedback">Please enter your name.</div>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="phone" class="form-label">Phone Number</label>
-                                    <input type="tel" class="form-control" id="phone" name="phone" required>
-                                    <div class="invalid-feedback">Please enter a valid phone number.</div>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="email" class="form-label">Email Address</label>
-                                    <input type="email" class="form-control" id="email" name="email" required>
-                                    <div class="invalid-feedback">Please enter a valid email address.</div>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="contact-time" class="form-label">Best Time to Contact</label>
-                                    <select class="form-select" id="contact-time" name="contact_time" required>
-                                        <option value="">Choose time...</option>
-                                        <option value="morning">Morning (9AM - 12PM)</option>
-                                        <option value="afternoon">Afternoon (12PM - 4PM)</option>
-                                        <option value="evening">Evening (4PM - 7PM)</option>
-                                    </select>
-                                    <div class="invalid-feedback">Please select a contact time.</div>
-                                </div>
-                            </div>
-                            <input type="hidden" id="lead-system-size" name="system_size" value="AI Recommendation">
-                            <input type="hidden" id="lead-estimated-savings" name="estimated_savings" value="Custom">
-                            <button type="submit" class="btn btn-solar mt-4">Get Quote</button>
-                        </form>
-                    </div>
-                `;
-
-                // Show results section
+                document.getElementById('results-section').innerHTML = data.recommendations;
                 document.getElementById('results-section').classList.remove('d-none');
-
-                // Reinitialize form validation for the new form
-                const forms = document.querySelectorAll('.needs-validation');
-                forms.forEach(form => {
-                    form.addEventListener('submit', event => {
-                        if (!form.checkValidity()) {
-                            event.preventDefault();
-                            event.stopPropagation();
-                        }
-                        form.classList.add('was-validated');
-                    });
-                });
             } else {
                 alert('Error getting recommendations. Please try again.');
             }
@@ -252,14 +248,34 @@ function addApplianceRow() {
     const newRow = document.createElement('tr');
     newRow.className = 'appliance-row';
     newRow.innerHTML = `
-        <td><input type="text" class="form-control" placeholder="Appliance name" required></td>
-        <td><input type="number" class="form-control watts" min="0" required></td>
+        <td>
+            <select class="form-select appliance-select" required>
+                <option value="">Select Appliance</option>
+            </select>
+        </td>
+        <td><input type="number" class="form-control watts" readonly></td>
+        <td><input type="number" class="form-control quantity" min="1" value="1" required></td>
         <td><input type="number" class="form-control hours" min="0" max="24" required></td>
         <td><span class="daily-kwh">0.00</span></td>
     `;
     tbody.appendChild(newRow);
 
-    // Add event listeners to new inputs
+    // Initialize the new dropdown
+    const select = newRow.querySelector('.appliance-select');
+    Object.keys(APPLIANCES).forEach(appliance => {
+        const option = document.createElement('option');
+        option.value = appliance;
+        option.textContent = appliance;
+        select.appendChild(option);
+    });
+
+    // Add event listeners
+    select.addEventListener('change', () => {
+        const watts = APPLIANCES[select.value] || 0;
+        newRow.querySelector('.watts').value = watts;
+        calculator.updateAppliancePower();
+    });
+
     const inputs = newRow.querySelectorAll('input');
     inputs.forEach(input => {
         input.addEventListener('change', () => calculator.updateAppliancePower());
