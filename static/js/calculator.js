@@ -175,20 +175,35 @@ class SolarCalculator {
         const kwh = (watts * quantity * hours) / 1000;
 
         item.querySelector('.watts-value').textContent = watts;
-        item.querySelector('.daily-kwh').textContent = kwh.toFixed(2) + ' kWh/day';
+        item.querySelector('.daily-kwh').textContent = kwh.toFixed(2);
         this.updateTotalPower();
     }
 
     updateTotalPower() {
         let totalPower = 0;
-        document.querySelectorAll('.daily-kwh').forEach(element => {
-            const value = parseFloat(element.textContent.replace(' kWh/day', '')) || 0;
-            totalPower += value;
+        let backupPower = 0;
+
+        document.querySelectorAll('.appliance-item').forEach(item => {
+            const powerValue = parseFloat(item.querySelector('.daily-kwh').textContent) || 0;
+            totalPower += powerValue;
+
+            // Only add to backup power if backup is enabled
+            const backupToggle = item.querySelector('.backup-toggle');
+            if (backupToggle && backupToggle.dataset.state === 'yes') {
+                backupPower += powerValue;
+            }
         });
+
         document.getElementById('total-daily-power').textContent = totalPower.toFixed(2);
 
-        // Update the quick cost estimate whenever total power changes
-        updateQuickEstimate();
+        // Add backup power display
+        const backupPowerElement = document.getElementById('backup-daily-power');
+        if (backupPowerElement) {
+            backupPowerElement.textContent = backupPower.toFixed(2);
+        }
+
+        // Update the quick cost estimate based on backup power
+        updateQuickEstimate(backupPower);
     }
 
     async calculateResults() {
@@ -249,17 +264,15 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Function to update the quick cost estimate
-function updateQuickEstimate() {
-    const totalPowerElement = document.getElementById('total-daily-power');
-    if (!totalPowerElement) return;
+function updateQuickEstimate(dailyBackupEnergy) {
+    const quickEstimateElement = document.getElementById('quick-cost-estimate');
+    if (!quickEstimateElement) return;
 
-    const dailyEnergy = parseFloat(totalPowerElement.textContent) || 0;
-
-    // Quick estimate of system size (kW)
-    const systemSizeKW = Math.max(1, dailyEnergy / 5);
+    // Quick estimate of system size (kW) based on backup power
+    const systemSizeKW = Math.max(1, dailyBackupEnergy / 5);
 
     // Quick estimate of battery size (kWh)
-    const batterySizeKWH = Math.max(2, dailyEnergy * 0.7);
+    const batterySizeKWH = Math.max(2, dailyBackupEnergy * 0.7);
 
     // Calculate estimated costs
     const panelCost = systemSizeKW * PANEL_COST_PER_KW_2;
@@ -269,20 +282,16 @@ function updateQuickEstimate() {
     // Total system cost
     const totalCost = panelCost + batteryCost + inverterCost;
 
-    // Update the cost estimates display
-    const quickEstimateElement = document.getElementById('quick-cost-estimate');
-    if (quickEstimateElement) {
-        quickEstimateElement.innerHTML = `
-            <div class="estimate-item">
-                <span class="estimate-label">Estimated System Size:</span>
-                <span class="estimate-value">${systemSizeKW.toFixed(1)} kW</span>
-            </div>
-            <div class="estimate-item">
-                <span class="estimate-label">Estimated Cost:</span>
-                <span class="estimate-value">₦${totalCost.toLocaleString('en-NG')}</span>
-            </div>
-        `;
-    }
+    quickEstimateElement.innerHTML = `
+        <div class="estimate-item">
+            <span class="estimate-label">Estimated System Size:</span>
+            <span class="estimate-value">${systemSizeKW.toFixed(1)} kW</span>
+        </div>
+        <div class="estimate-item">
+            <span class="estimate-label">Estimated Cost:</span>
+            <span class="estimate-value">₦${totalCost.toLocaleString('en-NG')}</span>
+        </div>
+    `;
 }
 
 // Function to add event listeners to appliance rows
@@ -342,13 +351,6 @@ function addApplianceRow() {
     const addButton = applianceList.querySelector('button[onclick="addApplianceRow()"]');
     const template = document.createElement('div');
 
-    // Get all available appliance options
-    const applianceOptions = Object.keys(APPLIANCES).map(key => {
-        const watts = APPLIANCES[key];
-        const displayName = key.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
-        return `<option value="${key}">${displayName} (${watts}W)</option>`;
-    }).join('');
-
     template.innerHTML = `
         <div class="appliance-item">
             <div class="d-flex justify-content-between align-items-start mb-2">
@@ -366,28 +368,39 @@ function addApplianceRow() {
                 <div class="control-group">
                     <div class="d-flex align-items-center justify-content-between w-100">
                         <div class="d-flex flex-column align-items-center">
-                            <small class="text-muted me-2">#</small>
+                            <label class="text-muted mb-1">Number of Units</label>
                             <div class="btn-group">
-                                <button type="button" class="btn btn-sm btn-outline-light quantity-btn" data-action="decrease">-</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary quantity-btn" data-action="decrease">-</button>
                                 <span class="quantity-value mx-2">1</span>
-                                <button type="button" class="btn btn-sm btn-outline-light quantity-btn" data-action="increase">+</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary quantity-btn" data-action="increase">+</button>
                             </div>
                         </div>
                         <div class="d-flex flex-column align-items-center">
-                            <small class="text-muted me-2">Hours / Day</small>
+                            <label class="text-muted mb-1">Hours / Day</label>
                             <div class="btn-group">
-                                <button type="button" class="btn btn-sm btn-outline-light hours-btn" data-action="decrease">-</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary hours-btn" data-action="decrease">-</button>
                                 <span class="hours-value mx-2">6</span>
-                                <button type="button" class="btn btn-sm btn-outline-light hours-btn" data-action="increase">+</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary hours-btn" data-action="increase">+</button>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="d-flex justify-content-between align-items-center mt-3">
-                    <button type="button" class="btn btn-sm backup-toggle" data-state="no">No</button>
+                    <div class="backup-control">
+                        <label class="form-label d-block mb-1">Include in Backup?</label>
+                        <button type="button" class="btn btn-sm backup-toggle active" data-state="yes">Yes</button>
+                    </div>
                     <div class="text-end">
-                        <span class="watts-value">0</span>
-                        <small class="d-block text-muted daily-kwh">0.00 kWh/day</small>
+                        <div class="power-stats">
+                            <div class="power-stat">
+                                <span class="stat-label">Power:</span>
+                                <span class="watts-value">0</span> W
+                            </div>
+                            <div class="power-stat">
+                                <span class="stat-label">Daily Usage:</span>
+                                <span class="daily-kwh">0.00</span> kWh/day
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

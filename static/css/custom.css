@@ -277,3 +277,132 @@ body {
     color: var(--text-color);
     font-weight: 600;
 }
+
+/* Add these styles to the existing CSS file */
+
+/* Appliance Controls */
+.appliance-item {
+    background: #ffffff;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+    margin-bottom: 1rem;
+}
+
+.appliance-select {
+    flex: 1;
+    margin-right: 1rem;
+}
+
+.control-group {
+    background: #f8f9fa;
+    padding: 1.25rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--border-color);
+}
+
+.control-group label {
+    color: var(--text-color);
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+/* Power Stats */
+.power-stats {
+    text-align: right;
+}
+
+.power-stat {
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    color: var(--text-color);
+    font-size: 0.875rem;
+    margin-right: 0.5rem;
+}
+
+.watts-value, .daily-kwh {
+    color: var(--text-color);
+    font-weight: 600;
+}
+
+/* Backup Toggle */
+.backup-control {
+    display: flex;
+    flex-direction: column;
+}
+
+.backup-control label {
+    color: var(--text-color);
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.backup-toggle {
+    background-color: #f0f0f0;
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    padding: 0.375rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.backup-toggle.active {
+    background-color: var(--solar-primary);
+    border-color: var(--solar-primary);
+    color: var(--text-color);
+}
+
+/* Add Appliance Button */
+.btn-add-appliance {
+    background-color: #ffffff;
+    border: 2px dashed var(--border-color);
+    color: var(--text-color);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    width: 100%;
+    margin-top: 1rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-add-appliance:hover {
+    background-color: #f8f9fa;
+    border-color: var(--solar-primary);
+    color: var(--text-color);
+}
+
+/* Quick Estimate Section */
+.quick-estimate {
+    background-color: #f8f9fa;
+    padding: 1.25rem;
+    border-radius: 0.5rem;
+    margin-top: 1.5rem;
+    border: 1px solid var(--border-color);
+}
+
+.total-power {
+    background-color: #ffffff;
+    padding: 1.25rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--border-color);
+    margin-top: 1.5rem;
+}
+
+.total-power .power-summary {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.total-power .power-label {
+    color: var(--text-color);
+    font-weight: 500;
+}
+
+.total-power .power-value {
+    color: var(--text-color);
+    font-weight: 600;
+}

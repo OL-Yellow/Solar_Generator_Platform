@@ -72,11 +72,11 @@
 
             <div class="appliance-list">
                 <!-- No pre-filled appliance items -->
-                <button type="button" class="btn btn-outline-light mt-3 w-100" onclick="addApplianceRow()">
+                <button type="button" class="btn-add-appliance" onclick="addApplianceRow()">
                     <i class="fas fa-plus me-2"></i>Add Appliance
                 </button>
                 <div class="total-power mt-4">
-                    <div class="d-flex justify-content-between">
+                    <div class="d-flex flex-column">
                         <div id="quick-cost-estimate" class="quick-estimate">
                             <div class="estimate-item">
                                 <span class="estimate-label">Estimated System Size:</span>
@@ -87,9 +87,15 @@
                                 <span class="estimate-value">Loading...</span>
                             </div>
                         </div>
-                        <div>
-                            <strong>Total Daily Power:</strong>
-                            <span id="total-daily-power">0.00</span> kWh
+                        <div class="power-summary mt-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="power-label">Total Daily Power:</span>
+                                <span class="power-value"><span id="total-daily-power">0.00</span> kWh</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span class="power-label">Backup Power Required:</span>
+                                <span class="power-value"><span id="backup-daily-power">0.00</span> kWh</span>
+                            </div>
                         </div>
                     </div>
                 </div>
