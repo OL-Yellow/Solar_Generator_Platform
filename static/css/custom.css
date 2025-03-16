@@ -4,6 +4,8 @@
     --solar-secondary: #4a90e2;
     --bg-color: #ffffff;
     --text-color: #333333;
+    --muted-text: #666666;
+    --border-color: #e0e0e0;
 }
 
 body {
@@ -44,7 +46,7 @@ body {
 
 .form-control, .form-select {
     background-color: #ffffff;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--border-color);
     color: var(--text-color);
     border-radius: 0.5rem;
     padding: 0.75rem 1rem;
@@ -75,7 +77,7 @@ body {
 
 .results-card {
     background-color: #ffffff;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--border-color);
     border-radius: 1rem;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
@@ -97,7 +99,7 @@ body {
     background: #f8f9fa;
     border-radius: 0.5rem;
     padding: 1rem;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--border-color);
 }
 
 .control-group {
@@ -106,17 +108,17 @@ body {
     padding: 0.5rem;
     background: #ffffff;
     border-radius: 0.5rem;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--border-color);
 }
 
 .btn-group .btn {
     color: var(--text-color);
-    border-color: #e0e0e0;
+    border-color: var(--border-color);
 }
 
 .backup-toggle {
     background-color: #f0f0f0;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--border-color);
     color: var(--text-color);
     border-radius: 0.5rem;
     transition: all 0.2s ease;
@@ -146,7 +148,7 @@ body {
 /* Card Styles */
 .card {
     background-color: #ffffff;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--border-color);
     border-radius: 1rem;
     transition: transform 0.2s ease;
 }
@@ -182,45 +184,12 @@ body {
     margin-top: 3rem;
 }
 
-/* Add to existing CSS */
-.delete-appliance {
-    padding: 0.25rem 0.5rem;
-    opacity: 0.6;
-    transition: opacity 0.2s ease;
-}
-
-.delete-appliance:hover {
-    opacity: 1;
-}
-
-.appliance-item {
-    position: relative;
-}
-
-@media (max-width: 768px) {
-    .appliance-item {
-        padding: 1rem;
-    }
-    .chart-container {
-        height: 300px;
-    }
-    .quantity-btn, .hours-btn {
-        width: 44px;
-        height: 44px;
-    }
-    .appliance-select {
-        font-size: 1rem;
-        height: 48px;
-    }
-    .delete-appliance {
-        padding: 0.5rem;
-    }
-}
-
+/* Specification Styles */
 .section-title {
-    color: var(--solar-primary);
+    color: var(--text-color);
     margin-bottom: 1.5rem;
     font-size: 1.25rem;
+    font-weight: 600;
 }
 
 .specification-list {
@@ -234,16 +203,17 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 0.5rem 0;
-    border-bottom: 1px solid var(--bs-gray-700);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .spec-label {
-    color: var(--bs-gray-400);
+    color: var(--muted-text);
+    font-weight: 500;
 }
 
 .spec-value {
-    color: var(--bs-light);
-    font-weight: 500;
+    color: var(--text-color);
+    font-weight: 600;
 }
 
 .installation-notes {
@@ -256,16 +226,54 @@ body {
     font-size: 0.9rem;
     line-height: 1.5;
     margin: 0;
-    color: var(--bs-gray-300);
+    color: var(--muted-text);
 }
 
 .watts-value {
     font-size: 1.2rem;
-    font-weight: 500;
-    color: var(--solar-primary);
+    font-weight: 600;
+    color: var(--text-color);
 }
 
 .daily-kwh {
-    color: var(--bs-gray-400);
+    color: var(--muted-text);
     font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* Form Controls */
+.form-label {
+    color: var(--text-color);
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.invalid-feedback {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+/* Quick Estimate Section */
+.quick-estimate {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-top: 1rem;
+}
+
+.estimate-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.estimate-label {
+    color: var(--muted-text);
+    font-weight: 500;
+}
+
+.estimate-value {
+    color: var(--text-color);
+    font-weight: 600;
 }
