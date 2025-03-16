@@ -2,33 +2,40 @@
 :root {
     --solar-primary: #ffd700;
     --solar-secondary: #4a90e2;
+    --bg-color: #ffffff;
+    --text-color: #333333;
 }
 
 body {
     min-height: 100vh;
-    background-color: var(--bs-dark);
-    color: var(--bs-light);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .hero-section {
-    background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
-        url('https://images.unsplash.com/photo-1602327850587-fc4b61215d07');
-    background-size: cover;
-    background-position: center;
-    padding: 6rem 0;
+    background-color: var(--solar-primary);
+    padding: 4rem 0;
+    text-align: center;
+}
+
+.hero-section h1,
+.hero-section p {
+    color: var(--text-color);
 }
 
 .step-container {
-    background-color: var(--bs-dark);
+    background-color: #ffffff;
     border-radius: 1rem;
     padding: 2rem;
     margin-bottom: 2rem;
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .progress {
     height: 0.5rem;
-    background-color: var(--bs-gray-700);
+    background-color: #f0f0f0;
+    border-radius: 0.25rem;
 }
 
 .progress-bar {
@@ -36,33 +43,39 @@ body {
 }
 
 .form-control, .form-select {
-    background-color: var(--bs-dark);
-    border-color: var(--bs-gray-700);
-    color: var(--bs-light);
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    color: var(--text-color);
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
 }
 
 .form-control:focus, .form-select:focus {
-    background-color: var(--bs-dark);
+    background-color: #ffffff;
     border-color: var(--solar-primary);
-    color: var(--bs-light);
-    box-shadow: 0 0 0 0.25rem rgba(255, 215, 0, 0.25);
+    color: var(--text-color);
+    box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.25);
 }
 
 .btn-solar {
     background-color: var(--solar-primary);
-    border-color: var(--solar-primary);
-    color: var(--bs-dark);
+    border: none;
+    color: var(--text-color);
+    border-radius: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
 }
 
 .btn-solar:hover {
     background-color: #e6c200;
-    border-color: #e6c200;
-    color: var(--bs-dark);
+    color: var(--text-color);
+    transform: translateY(-1px);
 }
 
 .results-card {
-    background-color: var(--bs-gray-900);
-    border: 1px solid var(--bs-gray-700);
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
     border-radius: 1rem;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
@@ -73,13 +86,6 @@ body {
     font-weight: bold;
 }
 
-.chart-container {
-    position: relative;
-    height: 400px;
-    width: 100%;
-    margin: 2rem 0;
-}
-
 /* Appliance List Styles */
 .appliance-list {
     display: flex;
@@ -88,103 +94,120 @@ body {
 }
 
 .appliance-item {
-    background: rgba(255, 255, 255, 0.05);
+    background: #f8f9fa;
     border-radius: 0.5rem;
     padding: 1rem;
-    display: flex; /* Added for card layout */
-    flex-direction: column; /* Added for card layout */
-    gap: 0.5rem; /* Added spacing between rows */
-    position: relative;
-}
-
-.appliance-controls {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+    border: 1px solid #e0e0e0;
 }
 
 .control-group {
     display: flex;
     justify-content: space-between;
     padding: 0.5rem;
-    background: rgba(0, 0, 0, 0.2);
+    background: #ffffff;
     border-radius: 0.5rem;
+    border: 1px solid #e0e0e0;
 }
 
-.btn-group {
-    display: flex;
-    align-items: center;
-}
-
-.quantity-btn, .hours-btn {
-    width: 36px;
-    height: 36px;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2rem;
-}
-
-.quantity-value, .hours-value {
-    min-width: 30px;
-    text-align: center;
-    font-size: 1.1rem;
-    font-weight: 500;
+.btn-group .btn {
+    color: var(--text-color);
+    border-color: #e0e0e0;
 }
 
 .backup-toggle {
-    min-width: 60px;
-    background-color: var(--bs-gray-700);
-    border: 1px solid var(--bs-gray-600);
+    background-color: #f0f0f0;
+    border: 1px solid #e0e0e0;
+    color: var(--text-color);
     border-radius: 0.5rem;
     transition: all 0.2s ease;
 }
 
 .backup-toggle.active {
-    background-color: var(--bs-success);
-    border-color: var(--bs-success);
-}
-
-.watts-value {
-    font-size: 1.2rem;
-    font-weight: 500;
-    color: var(--solar-primary);
-}
-
-.daily-kwh {
-    color: var(--bs-gray-400);
-    font-size: 0.9rem;
+    background-color: var(--solar-primary);
+    border-color: var(--solar-primary);
 }
 
 /* Mobile Optimizations */
 @media (max-width: 768px) {
     .hero-section {
-        padding: 4rem 0;
+        padding: 3rem 0;
     }
 
     .step-container {
-        padding: 1rem;
-    }
-
-    .chart-container {
-        height: 300px;
-    }
-
-    .appliance-item {
-        padding: 1rem;
+        padding: 1.5rem;
     }
 
     .control-group {
-        flex-direction: row;
+        flex-direction: column;
         gap: 1rem;
     }
+}
 
+/* Card Styles */
+.card {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 1rem;
+    transition: transform 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+.card-body {
+    color: var(--text-color);
+}
+
+.card i {
+    color: var(--solar-primary);
+}
+
+/* Navigation */
+.navbar {
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+    color: var(--text-color);
+    font-weight: 700;
+}
+
+/* Footer */
+.footer {
+    background-color: #f8f9fa;
+    color: var(--text-color);
+    padding: 2rem 0;
+    margin-top: 3rem;
+}
+
+/* Add to existing CSS */
+.delete-appliance {
+    padding: 0.25rem 0.5rem;
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
+}
+
+.delete-appliance:hover {
+    opacity: 1;
+}
+
+.appliance-item {
+    position: relative;
+}
+
+@media (max-width: 768px) {
+    .appliance-item {
+        padding: 1rem;
+    }
+    .chart-container {
+        height: 300px;
+    }
     .quantity-btn, .hours-btn {
         width: 44px;
         height: 44px;
     }
-
     .appliance-select {
         font-size: 1rem;
         height: 48px;
@@ -192,19 +215,6 @@ body {
     .delete-appliance {
         padding: 0.5rem;
     }
-}
-
-/* Results Section Styles */
-.results-card {
-    background-color: var(--bs-gray-900);
-    border: 1px solid var(--bs-gray-700);
-    border-radius: 1rem;
-    padding: 2rem;
-    margin-bottom: 2rem;
-}
-
-.recommendation-section {
-    margin-bottom: 1.5rem;
 }
 
 .section-title {
@@ -249,43 +259,13 @@ body {
     color: var(--bs-gray-300);
 }
 
-.value-highlight {
+.watts-value {
+    font-size: 1.2rem;
+    font-weight: 500;
     color: var(--solar-primary);
-    font-weight: bold;
 }
 
-/* Mobile Optimizations for Results */
-@media (max-width: 768px) {
-    .results-card {
-        padding: 1.5rem;
-    }
-
-    .spec-item {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
-    }
-
-    .spec-value {
-        align-self: flex-end;
-    }
-
-    .installation-notes .spec-value {
-        align-self: flex-start;
-    }
-}
-
-/* Add to existing CSS */
-.delete-appliance {
-    padding: 0.25rem 0.5rem;
-    opacity: 0.6;
-    transition: opacity 0.2s ease;
-}
-
-.delete-appliance:hover {
-    opacity: 1;
-}
-
-.appliance-item {
-    position: relative;
+.daily-kwh {
+    color: var(--bs-gray-400);
+    font-size: 0.9rem;
 }
