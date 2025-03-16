@@ -5,31 +5,59 @@ const INVERTER_BASE_COST = 150000;  // Base cost for small inverter
 const INSTALLATION_COST_PERCENTAGE = 0.15;
 const DIESEL_PRICE_PER_LITER = 650; // NGN
 
-// Common appliances in Nigeria with typical wattage
+// Common appliances in Nigeria with typical wattage and usage profiles
 const APPLIANCES = {
-    'LED Lights': 10,
-    'Ceiling Fan': 75,
-    'Standing Fan': 60,
-    'Smartphone Charger': 5,
-    'Laptop': 65,
-    'Desktop Computer': 150,
-    'TV (32-inch LED)': 50,
-    'TV (43-inch LED)': 80,
-    'TV (55-inch LED)': 120,
-    'Small Refrigerator': 150,
-    'Large Refrigerator': 250,
-    'Chest Freezer': 200,
-    'Air Conditioner (1HP)': 1000,
-    'Air Conditioner (1.5HP)': 1500,
-    'Air Conditioner (2HP)': 2000,
-    'Electric Iron': 1000,
-    'Microwave': 1000,
-    'Electric Kettle': 1000,
-    'Water Dispenser': 100,
-    'Security Lights': 50,
-    'CCTV System': 100,
-    'Small Water Pump': 200,
-    'Large Water Pump': 500
+    'LED Lights (4-6 bulbs)': {
+        watts: 40,
+        profile: 'critical',
+        typical_hours: 6
+    },
+    'Ceiling Fan': {
+        watts: 75,
+        profile: 'important',
+        typical_hours: 6
+    },
+    'Standing Fan': {
+        watts: 60,
+        profile: 'important',
+        typical_hours: 6
+    },
+    'TV (32-inch LED)': {
+        watts: 50,
+        profile: 'important',
+        typical_hours: 4
+    },
+    'Small Refrigerator': {
+        watts: 150,
+        profile: 'critical',
+        typical_hours: 8
+    },
+    'Phone & Laptop Charging': {
+        watts: 70,
+        profile: 'critical',
+        typical_hours: 4
+    },
+    'Security Lights': {
+        watts: 30,
+        profile: 'critical',
+        typical_hours: 12
+    }
+};
+
+// Usage profiles with descriptions
+const USAGE_PROFILES = {
+    critical: {
+        description: 'Essential items needed during power outages (e.g. lights, security, refrigeration)',
+        multiplier: 1.0  // Full backup time
+    },
+    important: {
+        description: 'Comfort items used occasionally during outages (e.g. fans, TV)',
+        multiplier: 0.5  // Half of backup time
+    },
+    optional: {
+        description: 'Non-essential items (use when excess power available)',
+        multiplier: 0.25 // Quarter of backup time
+    }
 };
 
 class SolarCalculator {
@@ -89,19 +117,6 @@ class SolarCalculator {
             });
         });
 
-        document.querySelectorAll('.hours-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const item = e.target.closest('.appliance-item');
-                const valueSpan = item.querySelector('.hours-value');
-                const currentValue = parseInt(valueSpan.textContent);
-                if (e.target.dataset.action === 'increase') {
-                    valueSpan.textContent = Math.min(24, currentValue + 1);
-                } else {
-                    valueSpan.textContent = Math.max(1, currentValue - 1);
-                }
-                this.updateAppliancePower(item);
-            });
-        });
 
         document.querySelectorAll('.backup-toggle').forEach(btn => {
             btn.addEventListener('click', (e) => this.handleBackupToggle(e.target));
@@ -169,38 +184,57 @@ class SolarCalculator {
 
     updateAppliancePower(item) {
         const select = item.querySelector('.appliance-select');
-        const watts = APPLIANCES[select.value] || 0;
+        const appliance = APPLIANCES[select.value];
         const quantity = parseInt(item.querySelector('.quantity-value').textContent) || 1;
-        const hours = parseInt(item.querySelector('.hours-value').textContent) || 6;
-        const kwh = (watts * quantity * hours) / 1000;
+
+        if (!appliance) return;
+
+        const watts = appliance.watts;
+        const profile = appliance.profile;
+        const typical_hours = appliance.typical_hours;
+
+        const kwh = (watts * quantity * typical_hours) / 1000;
 
         item.querySelector('.watts-value').textContent = watts;
         item.querySelector('.daily-kwh').textContent = kwh.toFixed(2);
+        item.querySelector('.usage-profile').textContent = profile.charAt(0).toUpperCase() + profile.slice(1);
+        item.querySelector('.typical-hours').textContent = typical_hours;
+
         this.updateTotalPower();
     }
 
     updateTotalPower() {
         let totalPower = 0;
-        let backupPower = 0;
+        let criticalPower = 0;
+        let importantPower = 0;
 
         document.querySelectorAll('.appliance-item').forEach(item => {
-            const powerValue = parseFloat(item.querySelector('.daily-kwh').textContent) || 0;
-            totalPower += powerValue;
+            const select = item.querySelector('.appliance-select');
+            const appliance = APPLIANCES[select.value];
+            if (!appliance) return;
 
-            // Only add to backup power if backup is enabled
-            const backupToggle = item.querySelector('.backup-toggle');
-            if (backupToggle && backupToggle.dataset.state === 'yes') {
-                backupPower += powerValue;
+            const quantity = parseInt(item.querySelector('.quantity-value').textContent) || 1;
+            const watts = appliance.watts;
+            const profile = appliance.profile;
+            const typical_hours = appliance.typical_hours;
+            const kwh = (watts * quantity * typical_hours) / 1000;
+
+            totalPower += kwh;
+
+            if (profile === 'critical') {
+                criticalPower += kwh;
+            } else if (profile === 'important') {
+                importantPower += kwh;
             }
         });
 
         document.getElementById('total-daily-power').textContent = totalPower.toFixed(2);
+        document.getElementById('critical-power').textContent = criticalPower.toFixed(2);
+        document.getElementById('important-power').textContent = importantPower.toFixed(2);
 
-        // Add backup power display
-        const backupPowerElement = document.getElementById('backup-daily-power');
-        if (backupPowerElement) {
-            backupPowerElement.textContent = backupPower.toFixed(2);
-        }
+        // Calculate backup power needs
+        const backupPower = criticalPower + (importantPower * 0.5);
+        document.getElementById('backup-daily-power').textContent = backupPower.toFixed(2);
 
         // Update the quick cost estimate based on backup power
         updateQuickEstimate(backupPower);
@@ -298,7 +332,7 @@ function updateQuickEstimate(dailyBackupEnergy) {
 function initializeApplianceRow(applianceRow) {
     const calculator = window.calculator;
 
-    applianceRow.querySelector('.appliance-select').addEventListener('change', () => 
+    applianceRow.querySelector('.appliance-select').addEventListener('change', () =>
         calculator.updateAppliancePower(applianceRow)
     );
 
@@ -307,18 +341,6 @@ function initializeApplianceRow(applianceRow) {
             const value = applianceRow.querySelector('.quantity-value');
             if (btn.dataset.action === 'increase') {
                 value.textContent = parseInt(value.textContent) + 1;
-            } else {
-                value.textContent = Math.max(1, parseInt(value.textContent) - 1);
-            }
-            calculator.updateAppliancePower(applianceRow);
-        });
-    });
-
-    applianceRow.querySelectorAll('.hours-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const value = applianceRow.querySelector('.hours-value');
-            if (btn.dataset.action === 'increase') {
-                value.textContent = Math.min(24, parseInt(value.textContent) + 1);
             } else {
                 value.textContent = Math.max(1, parseInt(value.textContent) - 1);
             }
@@ -339,14 +361,8 @@ function initializeApplianceRow(applianceRow) {
     calculator.updateAppliancePower(applianceRow);
 }
 
+// When adding a new appliance row, use this template
 function addApplianceRow() {
-    // Ensure calculator is initialized
-    const calculator = window.calculator;
-    if (!calculator) {
-        console.error('Calculator not initialized');
-        return;
-    }
-
     const applianceList = document.querySelector('.appliance-list');
     const addButton = applianceList.querySelector('button[onclick="addApplianceRow()"]');
     const template = document.createElement('div');
@@ -356,8 +372,8 @@ function addApplianceRow() {
             <div class="d-flex justify-content-between align-items-start mb-2">
                 <select class="form-select appliance-select mb-3" required>
                     <option value="">Select Appliance</option>
-                    ${Object.keys(APPLIANCES).map(appliance => 
-                        `<option value="${appliance}">${appliance}</option>`
+                    ${Object.entries(APPLIANCES).map(([name, data]) =>
+                        `<option value="${name}">${name} (${data.watts}W)</option>`
                     ).join('')}
                 </select>
                 <button type="button" class="btn btn-sm btn-outline-danger delete-appliance" title="Remove appliance">
@@ -376,30 +392,24 @@ function addApplianceRow() {
                             </div>
                         </div>
                         <div class="d-flex flex-column align-items-center">
-                            <label class="text-muted mb-1">Hours / Day</label>
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-sm btn-outline-secondary hours-btn" data-action="decrease">-</button>
-                                <span class="hours-value mx-2">6</span>
-                                <button type="button" class="btn btn-sm btn-outline-secondary hours-btn" data-action="increase">+</button>
-                            </div>
+                            <label class="text-muted mb-1">Usage Profile:</label>
+                            <span class="usage-profile">-</span>
+                        </div>
+                        <div class="d-flex flex-column align-items-center">
+                            <label class="text-muted mb-1">Typical Hours:</label>
+                            <span class="typical-hours">-</span>
                         </div>
                     </div>
                 </div>
                 <div class="d-flex justify-content-between align-items-center mt-3">
-                    <div class="backup-control">
-                        <label class="form-label d-block mb-1">Include in Backup?</label>
-                        <button type="button" class="btn btn-sm backup-toggle active" data-state="yes">Yes</button>
-                    </div>
-                    <div class="text-end">
-                        <div class="power-stats">
-                            <div class="power-stat">
-                                <span class="stat-label">Power:</span>
-                                <span class="watts-value">0</span> W
-                            </div>
-                            <div class="power-stat">
-                                <span class="stat-label">Daily Usage:</span>
-                                <span class="daily-kwh">0.00</span> kWh/day
-                            </div>
+                    <div class="power-stats">
+                        <div class="power-stat">
+                            <span class="stat-label">Power Rating:</span>
+                            <span class="watts-value">0</span> W
+                        </div>
+                        <div class="power-stat">
+                            <span class="stat-label">Daily Usage:</span>
+                            <span class="daily-kwh">0.00</span> kWh/day
                         </div>
                     </div>
                 </div>
@@ -414,7 +424,7 @@ function addApplianceRow() {
     const deleteBtn = newRow.querySelector('.delete-appliance');
     deleteBtn.addEventListener('click', () => {
         newRow.remove();
-        calculator.updateTotalPower();
+        window.calculator.updateTotalPower();
     });
 
     // Initialize other controls

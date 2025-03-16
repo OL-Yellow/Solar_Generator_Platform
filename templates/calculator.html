@@ -70,6 +70,17 @@
         <div id="step3" class="step-container d-none">
             <h3 class="mb-4">Appliances & Equipment</h3>
 
+            <div class="alert alert-info mb-4">
+                <h5 class="alert-heading">Understanding Usage Profiles</h5>
+                <p class="mb-2">We've simplified the calculation by categorizing appliances into usage profiles:</p>
+                <ul class="mb-0">
+                    <li><strong>Critical:</strong> Essential items that need constant power during outages</li>
+                    <li><strong>Important:</strong> Items used occasionally during outages</li>
+                    <li><strong>Optional:</strong> Non-essential items used when excess power is available</li>
+                </ul>
+                <p class="mt-2 mb-0">This helps us design a system that's both practical and affordable.</p>
+            </div>
+
             <div class="appliance-list">
                 <!-- No pre-filled appliance items -->
                 <button type="button" class="btn-add-appliance" onclick="addApplianceRow()">
@@ -89,12 +100,20 @@
                         </div>
                         <div class="power-summary mt-3">
                             <div class="d-flex justify-content-between mb-2">
+                                <span class="power-label">Critical Load:</span>
+                                <span class="power-value"><span id="critical-power">0.00</span> kWh/day</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="power-label">Important Load:</span>
+                                <span class="power-value"><span id="important-power">0.00</span> kWh/day</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
                                 <span class="power-label">Total Daily Power:</span>
-                                <span class="power-value"><span id="total-daily-power">0.00</span> kWh</span>
+                                <span class="power-value"><span id="total-daily-power">0.00</span> kWh/day</span>
                             </div>
                             <div class="d-flex justify-content-between">
                                 <span class="power-label">Backup Power Required:</span>
-                                <span class="power-value"><span id="backup-daily-power">0.00</span> kWh</span>
+                                <span class="power-value"><span id="backup-daily-power">0.00</span> kWh/day</span>
                             </div>
                         </div>
                     </div>
