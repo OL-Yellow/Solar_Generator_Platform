@@ -207,7 +207,7 @@ body {
 }
 
 .spec-label {
-    color: var(--muted-text);
+    color: var(--text-color); /* Changed to match other labels */
     font-weight: 500;
 }
 
@@ -302,7 +302,7 @@ body {
 }
 
 .control-group label {
-    color: #333333;
+    color: var(--text-color); /* Changed to improve visibility */
     font-size: 0.875rem;
     font-weight: 500;
 }

@@ -368,7 +368,7 @@ function addApplianceRow() {
                 <div class="control-group">
                     <div class="d-flex align-items-center justify-content-between w-100">
                         <div class="d-flex flex-column align-items-center">
-                            <label class="text-muted mb-1">Number of Units</label>
+                            <label class="text-muted mb-1"># of Appliances</label>
                             <div class="btn-group">
                                 <button type="button" class="btn btn-sm btn-outline-secondary quantity-btn" data-action="decrease">-</button>
                                 <span class="quantity-value mx-2">1</span>
