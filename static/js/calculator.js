@@ -210,11 +210,17 @@ class SolarCalculator {
                 user_type: document.getElementById('user-type')?.value || '',
                 grid_hours: document.getElementById('grid-hours')?.value || '',
                 monthly_fuel_cost: document.getElementById('generator-fuel')?.value || '',
-                total_daily_energy: document.getElementById('total-daily-power')?.textContent || '',
-                backup_daily_energy: document.getElementById('backup-daily-power')?.textContent || '',
+                daily_energy: document.getElementById('backup-daily-power')?.textContent || '', // Using backup power as daily_energy
+                maintenance_cost: document.getElementById('generator-maintenance')?.value || '',
                 backup_days: document.getElementById('backup-days')?.value || '',
                 budget_range: document.getElementById('budget-range')?.value || ''
             };
+
+            // Pre-validation
+            if (!userData.daily_energy || parseFloat(userData.daily_energy) === 0) {
+                alert('Please add at least one appliance to backup before calculating.');
+                return;
+            }
 
             const response = await fetch('/get_recommendations', {
                 method: 'POST',
@@ -225,22 +231,22 @@ class SolarCalculator {
             });
 
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
 
             const data = await response.json();
             if (data.success) {
+                this.nextStep();
                 const resultsSection = document.getElementById('results-section');
                 if (resultsSection) {
                     resultsSection.innerHTML = data.recommendations;
-                    this.nextStep();
                 }
             } else {
-                alert('Failed to get recommendations: ' + data.error);
+                throw new Error(data.error || 'Failed to get recommendations');
             }
         } catch (error) {
             console.error('Error:', error);
-            alert('Failed to calculate results. Please try again.');
+            alert('Failed to calculate results. Please check your inputs and try again.');
         }
     }
 }
@@ -254,7 +260,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function initializeApplianceRow(applianceRow) {
     const calculator = window.calculator;
 
-    applianceRow.querySelector('.appliance-select').addEventListener('change', () => 
+    applianceRow.querySelector('.appliance-select').addEventListener('change', () =>
         calculator.updateAppliancePower(applianceRow)
     );
 
@@ -312,7 +318,7 @@ function addApplianceRow() {
             <div class="d-flex justify-content-between align-items-start mb-2">
                 <select class="form-select appliance-select mb-3" required>
                     <option value="">Select Appliance</option>
-                    ${Object.keys(APPLIANCES).map(appliance => 
+                    ${Object.keys(APPLIANCES).map(appliance =>
                         `<option value="${appliance}">${appliance}</option>`
                     ).join('')}
                 </select>
