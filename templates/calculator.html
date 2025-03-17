@@ -4,7 +4,7 @@
 <div class="container py-4">
     <!-- Progress Bar -->
     <div class="progress mb-4">
-        <div class="progress-bar" role="progressbar" style="width: 20%;" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
+        <div class="progress-bar" role="progressbar" style="width: 33%;" aria-valuenow="33" aria-valuemin="0" aria-valuemax="100"></div>
     </div>
 
     <!-- Calculator Form -->
@@ -29,7 +29,6 @@
                 </select>
                 <div class="invalid-feedback">Please select your location.</div>
             </div>
-            <input type="hidden" id="sun-hours" value="">
             <div class="d-flex justify-content-end">
                 <button type="button" class="btn btn-solar btn-next">Next <i class="fas fa-arrow-right"></i></button>
             </div>
@@ -62,9 +61,9 @@
         <!-- Step 3: Appliances -->
         <div id="step3" class="step-container d-none">
             <h3 class="mb-4">Appliances & Equipment</h3>
+            <p class="text-muted mb-4">Select the appliances you want to power during outages. The hours specified will determine your backup duration.</p>
 
             <div class="appliance-list">
-                <!-- No pre-filled appliance items -->
                 <button type="button" class="btn-add-appliance" onclick="addApplianceRow()">
                     <i class="fas fa-plus me-2"></i>Add Appliance
                 </button>
@@ -82,114 +81,20 @@
                         </div>
                     </div>
                 </div>
-
             </div>
 
             <div class="d-flex justify-content-between mt-4">
                 <button type="button" class="btn btn-secondary btn-prev">
                     <i class="fas fa-arrow-left me-2"></i>Previous
                 </button>
-                <button type="button" class="btn btn-solar btn-next">
-                    Next<i class="fas fa-arrow-right ms-2"></i>
+                <button type="button" class="btn btn-solar" id="calculate-btn">
+                    Calculate Results<i class="fas fa-calculator ms-2"></i>
                 </button>
             </div>
         </div>
 
-        <!-- Step 4: Budget and Backup -->
-        <div id="step4" class="step-container d-none">
-            <h3 class="mb-4">Budget & Backup Requirements</h3>
-            <div class="mb-3">
-                <label for="budget-range" class="form-label">Budget Range (NGN)</label>
-                <select class="form-select" id="budget-range" required>
-                    <option value="500000-1000000">500,000 - 1,000,000</option>
-                    <option value="1000000-2000000" selected>1,000,000 - 2,000,000</option>
-                    <option value="2000000-5000000">2,000,000 - 5,000,000</option>
-                    <option value="5000000+">5,000,000+</option>
-                </select>
-                <div class="invalid-feedback">Please select your budget range.</div>
-            </div>
-            <div class="mb-3">
-                <label for="backup-days" class="form-label">Desired Backup Days</label>
-                <input type="number" class="form-control" id="backup-days" value="2" min="1" max="7" required>
-                <div class="invalid-feedback">Please enter desired backup days (1-7).</div>
-            </div>
-            <div class="d-flex justify-content-between">
-                <button type="button" class="btn btn-secondary btn-prev"><i class="fas fa-arrow-left"></i> Previous</button>
-                <button type="button" class="btn btn-solar" id="calculate-btn">Calculate Results</button>
-            </div>
-        </div>
-
-        <!-- Step 5: Results -->
-        <div id="step5" class="step-container d-none">
-            <h3 class="mb-4">Your Solar Solution</h3>
-            <div id="results-section" class="mt-5">
-                <div class="results-card">
-                    <h3 class="mb-4">Your Solar Solution</h3>
-                    <div class="row g-4">
-                        <div class="col-md-6">
-                            <h5>System Requirements</h5>
-                            <p>Solar Panel Size: <span id="system-size" class="value-highlight">0</span> kW</p>
-                            <p>Battery Capacity: <span id="battery-size" class="value-highlight">0</span> kWh</p>
-                        </div>
-                        <div class="col-md-6">
-                            <h5>Financial Analysis</h5>
-                            <p>Total System Cost: ₦<span id="total-cost" class="value-highlight">0</span></p>
-                            <p>Current Monthly Cost: ₦<span id="current-cost" class="value-highlight">0</span></p>
-                            <p>Monthly Savings: ₦<span id="monthly-savings" class="value-highlight">0</span></p>
-                            <p>Payback Period: <span id="payback-period" class="value-highlight">0</span> years</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ROI Chart -->
-                <div class="chart-container">
-                    <canvas id="roi-chart"></canvas>
-                </div>
-
-                <!-- Lead Capture Form -->
-                <div class="results-card">
-                    <h3 class="mb-4">Get Detailed Quote</h3>
-                    <form action="{{ url_for('submit_lead') }}" method="POST" class="needs-validation" novalidate>
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label for="name" class="form-label">Full Name</label>
-                                <input type="text" class="form-control" id="name" name="name" required>
-                                <div class="invalid-feedback">Please enter your name.</div>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="phone" class="form-label">Phone Number</label>
-                                <input type="tel" class="form-control" id="phone" name="phone" required>
-                                <div class="invalid-feedback">Please enter a valid phone number.</div>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="email" class="form-label">Email Address</label>
-                                <input type="email" class="form-control" id="email" name="email" required>
-                                <div class="invalid-feedback">Please enter a valid email address.</div>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="contact-time" class="form-label">Best Time to Contact</label>
-                                <select class="form-select" id="contact-time" name="contact_time" required>
-                                    <option value="">Choose time...</option>
-                                    <option value="morning">Morning (9AM - 12PM)</option>
-                                    <option value="afternoon">Afternoon (12PM - 4PM)</option>
-                                    <option value="evening">Evening (4PM - 7PM)</option>
-                                    <option value="afternoon" selected>Afternoon (12PM - 4PM)</option>
-                                </select>
-                                <div class="invalid-feedback">Please select a contact time.</div>
-                            </div>
-                        </div>
-                        <input type="hidden" id="lead-system-size" name="system_size">
-                        <input type="hidden" id="lead-estimated-savings" name="estimated_savings">
-                        <button type="submit" class="btn btn-solar mt-4">Get Quote</button>
-                    </form>
-                </div>
-            </div>
-            <div class="d-flex justify-content-between mt-4">
-                <button type="button" class="btn btn-secondary btn-prev">
-                    <i class="fas fa-arrow-left"></i> Previous
-                </button>
-            </div>
-        </div>
+        <!-- Results Section -->
+        <div id="results-section" class="mt-5"></div>
     </form>
 </div>
 

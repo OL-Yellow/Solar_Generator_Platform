@@ -35,7 +35,7 @@ const APPLIANCES = {
 class SolarCalculator {
     constructor() {
         this.currentStep = 1;
-        this.totalSteps = 5;
+        this.totalSteps = 3; // Changed from 5 to 3 steps
         this.init();
     }
 
@@ -70,7 +70,6 @@ class SolarCalculator {
                 this.calculateResults();
             });
         }
-
         document.querySelectorAll('.appliance-select').forEach(select => {
             select.addEventListener('change', (e) => this.updateAppliancePower(e.target.closest('.appliance-item')));
         });
@@ -195,12 +194,7 @@ class SolarCalculator {
         });
 
         document.getElementById('total-daily-power').textContent = totalPower.toFixed(2);
-
-        // Update backup power display
-        const backupPowerElement = document.getElementById('backup-daily-power');
-        if (backupPowerElement) {
-            backupPowerElement.textContent = backupPower.toFixed(2);
-        }
+        document.getElementById('backup-daily-power').textContent = backupPower.toFixed(2);
     }
 
     async calculateResults() {
@@ -210,10 +204,8 @@ class SolarCalculator {
                 user_type: document.getElementById('user-type')?.value || '',
                 grid_hours: document.getElementById('grid-hours')?.value || '',
                 monthly_fuel_cost: document.getElementById('generator-fuel')?.value || '',
-                daily_energy: document.getElementById('backup-daily-power')?.textContent || '', // Using backup power as daily_energy
-                maintenance_cost: document.getElementById('generator-maintenance')?.value || '',
-                backup_days: document.getElementById('backup-days')?.value || '',
-                budget_range: document.getElementById('budget-range')?.value || ''
+                daily_energy: document.getElementById('backup-daily-power')?.textContent || '',
+                maintenance_cost: document.getElementById('generator-maintenance')?.value || ''
             };
 
             // Pre-validation
@@ -236,7 +228,6 @@ class SolarCalculator {
 
             const data = await response.json();
             if (data.success) {
-                this.nextStep();
                 const resultsSection = document.getElementById('results-section');
                 if (resultsSection) {
                     resultsSection.innerHTML = data.recommendations;
