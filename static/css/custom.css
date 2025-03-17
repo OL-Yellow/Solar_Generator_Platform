@@ -302,7 +302,7 @@ body {
 }
 
 .control-group label {
-    color: var(--text-color);
+    color: #333333;
     font-size: 0.875rem;
     font-weight: 500;
 }
