@@ -211,9 +211,10 @@ class SolarCalculator {
             const userData = {
                 location: document.getElementById('location')?.value || '',
                 user_type: document.getElementById('user-type')?.value || '',
-                generator_size: document.getElementById('generator-size')?.value || '',
-                generator_fuel: document.getElementById('generator-fuel')?.value || '',
-                daily_energy: document.getElementById('total-daily-power')?.textContent || '',
+                grid_hours: document.getElementById('grid-hours')?.value || '',
+                monthly_fuel_cost: document.getElementById('generator-fuel')?.value || '',
+                total_daily_energy: document.getElementById('total-daily-power')?.textContent || '',
+                backup_daily_energy: document.getElementById('backup-daily-power')?.textContent || '',
                 backup_days: document.getElementById('backup-days')?.value || '',
                 budget_range: document.getElementById('budget-range')?.value || ''
             };
@@ -255,6 +256,54 @@ const PANEL_COST_PER_KW_2 = 350000;  // Naira per kW
 const BATTERY_COST_PER_KWH_2 = 150000;  // Naira per kWh
 const INVERTER_BASE_COST_2 = 150000;  // Base cost for small inverter
 
+// Update the quick estimate function to be based solely on backup power
+function updateQuickEstimate(dailyBackupEnergy) {
+    const quickEstimateElement = document.getElementById('quick-cost-estimate');
+    if (!quickEstimateElement) return;
+
+    if (dailyBackupEnergy === 0) {
+        quickEstimateElement.innerHTML = `
+            <div class="alert alert-info">
+                Add appliances to backup to get system size and cost estimates.
+            </div>
+        `;
+        return;
+    }
+
+    // Get grid hours to determine if solar is needed
+    const gridHours = parseInt(document.getElementById('grid-hours').value) || 0;
+    const needsSolar = gridHours < 12; // If less than 12 hours of grid power, recommend solar
+
+    // System sizing calculations
+    const systemSizeKW = needsSolar ? Math.max(1, dailyBackupEnergy / 5) : 0;
+    const inverterSizeKW = Math.max(1, dailyBackupEnergy); // Size inverter for peak load
+    const batterySizeKWH = Math.max(2, dailyBackupEnergy * 1.2); // 20% margin for battery life
+
+    // Calculate costs
+    const panelCost = needsSolar ? systemSizeKW * PANEL_COST_PER_KW_2 : 0;
+    const batteryCost = batterySizeKWH * BATTERY_COST_PER_KWH_2;
+    const inverterCost = INVERTER_BASE_COST_2 + (inverterSizeKW * 20000);
+
+    // Total system cost
+    const totalCost = panelCost + batteryCost + inverterCost;
+
+    quickEstimateElement.innerHTML = `
+        <div class="estimate-item">
+            <span class="estimate-label">Estimated System Size:</span>
+            <span class="estimate-value">${inverterSizeKW.toFixed(1)} kW Inverter${needsSolar ? `, ${systemSizeKW.toFixed(1)} kW Solar` : ''}</span>
+        </div>
+        <div class="estimate-item">
+            <span class="estimate-label">Battery Capacity:</span>
+            <span class="estimate-value">${batterySizeKWH.toFixed(1)} kWh</span>
+        </div>
+        <div class="estimate-item">
+            <span class="estimate-label">Estimated Cost:</span>
+            <span class="estimate-value">₦${totalCost.toLocaleString('en-NG')}</span>
+        </div>
+    `;
+}
+
+
 // Initialize calculator when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     window.calculator = new SolarCalculator();
@@ -264,35 +313,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Function to update the quick cost estimate
-function updateQuickEstimate(dailyBackupEnergy) {
-    const quickEstimateElement = document.getElementById('quick-cost-estimate');
-    if (!quickEstimateElement) return;
 
-    // Quick estimate of system size (kW) based on backup power
-    const systemSizeKW = Math.max(1, dailyBackupEnergy / 5);
-
-    // Quick estimate of battery size (kWh)
-    const batterySizeKWH = Math.max(2, dailyBackupEnergy * 0.7);
-
-    // Calculate estimated costs
-    const panelCost = systemSizeKW * PANEL_COST_PER_KW_2;
-    const batteryCost = batterySizeKWH * BATTERY_COST_PER_KWH_2;
-    const inverterCost = INVERTER_BASE_COST_2 + (systemSizeKW * 20000);
-
-    // Total system cost
-    const totalCost = panelCost + batteryCost + inverterCost;
-
-    quickEstimateElement.innerHTML = `
-        <div class="estimate-item">
-            <span class="estimate-label">Estimated System Size:</span>
-            <span class="estimate-value">${systemSizeKW.toFixed(1)} kW</span>
-        </div>
-        <div class="estimate-item">
-            <span class="estimate-label">Estimated Cost:</span>
-            <span class="estimate-value">₦${totalCost.toLocaleString('en-NG')}</span>
-        </div>
-    `;
-}
 
 // Function to add event listeners to appliance rows
 function initializeApplianceRow(applianceRow) {
