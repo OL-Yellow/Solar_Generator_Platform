@@ -208,11 +208,24 @@ class SolarCalculator {
                 maintenance_cost: document.getElementById('generator-maintenance')?.value || ''
             };
 
-            // Pre-validation
+            // Enhanced validation
+            if (!userData.location || !userData.user_type) {
+                alert('Please complete the basic information section first.');
+                return;
+            }
+
+            if (!userData.grid_hours || !userData.monthly_fuel_cost || !userData.maintenance_cost) {
+                alert('Please complete the current power usage section first.');
+                return;
+            }
+
             if (!userData.daily_energy || parseFloat(userData.daily_energy) === 0) {
                 alert('Please add at least one appliance to backup before calculating.');
                 return;
             }
+
+            // Log the data being sent
+            console.log('Sending data to backend:', userData);
 
             const response = await fetch('/get_recommendations', {
                 method: 'POST',
@@ -227,16 +240,20 @@ class SolarCalculator {
             }
 
             const data = await response.json();
+            console.log('Received response:', data);
+
             if (data.success) {
                 const resultsSection = document.getElementById('results-section');
                 if (resultsSection) {
                     resultsSection.innerHTML = data.recommendations;
+                } else {
+                    throw new Error('Results section not found in DOM');
                 }
             } else {
                 throw new Error(data.error || 'Failed to get recommendations');
             }
         } catch (error) {
-            console.error('Error:', error);
+            console.error('Error details:', error);
             alert('Failed to calculate results. Please check your inputs and try again.');
         }
     }

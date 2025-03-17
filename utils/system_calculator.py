@@ -1,4 +1,3 @@
-
 import json
 import math
 import os
@@ -45,13 +44,13 @@ def get_system_size(daily_energy_kwh, location):
     """Calculate required solar system size based on energy needs and location"""
     # Get sun hours for location or use default
     sun_hours = SUN_HOURS.get(location, SUN_HOURS["default"])
-    
+
     # Add 20% buffer for system losses and future expansion
     required_kw = (daily_energy_kwh / sun_hours) * 1.2
-    
+
     # Round up to nearest 0.5 kW
     required_kw = math.ceil(required_kw * 2) / 2
-    
+
     # Ensure minimum system size of 1 kW
     return max(1.0, required_kw)
 
@@ -60,16 +59,16 @@ def get_battery_size(daily_energy_kwh, backup_days, user_type):
     # For businesses, assume 70% of daily energy is used during daylight hours
     # For households, assume 50% of daily energy is used during daylight hours
     night_usage_factor = 0.5 if user_type == "household" else 0.3
-    
+
     # Calculate energy needed to store
     night_energy_kwh = daily_energy_kwh * night_usage_factor
-    
+
     # Factor in backup days
     backup_energy_kwh = daily_energy_kwh * (backup_days - 1) + night_energy_kwh
-    
+
     # Add 30% buffer for battery depth of discharge and degradation
     required_capacity = backup_energy_kwh * 1.3
-    
+
     # Round up to nearest 1 kWh
     return math.ceil(required_capacity)
 
@@ -101,35 +100,35 @@ def calculate_system_cost(daily_energy_kwh, location, backup_days, user_type, ba
     battery_size_kwh = get_battery_size(daily_energy_kwh, backup_days, user_type)
     inverter_size = get_inverter_size(system_size_kw)
     panel_count = calculate_panel_count(system_size_kw)
-    
+
     # Get cost factors for location
     location_costs = PANEL_COSTS.get(location, PANEL_COSTS["default"])
     panel_cost_per_watt = location_costs["cost_per_watt"]
     installation_factor = location_costs["installation_factor"]
-    
+
     # Calculate component costs
     panel_cost = system_size_kw * 1000 * panel_cost_per_watt
     battery_cost = battery_size_kwh * BATTERY_COSTS[battery_type]["cost_per_kwh"]
     inverter_cost = INVERTER_COSTS[inverter_size]
-    
+
     # Installation and balance of system costs (wiring, mounting, etc.)
     installation_cost = (panel_cost + battery_cost + inverter_cost) * (installation_factor - 1)
-    
+
     # Calculate total system cost
     total_cost = panel_cost + battery_cost + inverter_cost + installation_cost
-    
+
     # Calculate monthly savings vs generator
     # Assuming generator fuel cost of NGN 350/liter and 0.5 liter per kWh
     monthly_generator_cost = daily_energy_kwh * 30 * 0.5 * 350
     monthly_savings = monthly_generator_cost
-    
+
     # Calculate payback period (in years)
     payback_years = total_cost / (monthly_savings * 12)
-    
+
     # Convert currency values to formatted strings
     total_cost_formatted = f"{total_cost:,.2f}"
     monthly_savings_formatted = f"{monthly_savings:,.2f}"
-    
+
     return {
         "solar_system": {
             "total_capacity": f"{system_size_kw} kW",
@@ -259,16 +258,19 @@ def get_html_recommendations(recommendations_data):
 def get_system_recommendations(user_data):
     """Get solar system recommendations using local calculation rules"""
     try:
+        # Default to 1 day backup period since we're calculating based on daily backup power
+        backup_days = 1  
+
         recommendations_data = calculate_system_cost(
             daily_energy_kwh=float(user_data['daily_energy']),
             location=user_data['location'],
-            backup_days=int(user_data['backup_days']),
+            backup_days=backup_days,
             user_type=user_data['user_type'],
             battery_type="lithium-ion"  # Default to lithium-ion batteries
         )
-        
+
         html_recommendations = get_html_recommendations(recommendations_data)
-        
+
         return {
             'success': True,
             'recommendations': html_recommendations

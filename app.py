@@ -42,9 +42,14 @@ def get_recommendations():
         user_data = request.get_json()
         logging.debug(f"Received user data: {user_data}")
 
-        if not user_data:
-            logging.error("No data in request")
-            return jsonify({'error': 'No data provided'}), 400
+        # Validate required fields
+        required_fields = ['location', 'user_type', 'grid_hours', 'monthly_fuel_cost', 'daily_energy']
+        missing_fields = [field for field in required_fields if not user_data.get(field)]
+
+        if missing_fields:
+            error_msg = f"Missing required fields: {', '.join(missing_fields)}"
+            logging.error(error_msg)
+            return jsonify({'error': error_msg}), 400
 
         result = get_system_recommendations(user_data)
         logging.debug(f"Got recommendations result: {result}")
