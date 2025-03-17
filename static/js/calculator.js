@@ -128,7 +128,6 @@ class SolarCalculator {
             }
 
             this.updateProgress();
-            console.log(`Moving to step ${this.currentStep}`);
         }
     }
 
@@ -165,6 +164,7 @@ class SolarCalculator {
             button.textContent = 'Yes';
             button.classList.add('active');
         }
+        this.updateTotalPower();
     }
 
     updateAppliancePower(item) {
@@ -196,14 +196,11 @@ class SolarCalculator {
 
         document.getElementById('total-daily-power').textContent = totalPower.toFixed(2);
 
-        // Add backup power display
+        // Update backup power display
         const backupPowerElement = document.getElementById('backup-daily-power');
         if (backupPowerElement) {
             backupPowerElement.textContent = backupPower.toFixed(2);
         }
-
-        // Update the quick cost estimate based on backup power
-        updateQuickEstimate(backupPower);
     }
 
     async calculateResults() {
@@ -248,72 +245,10 @@ class SolarCalculator {
     }
 }
 
-// Constants for quick estimation
-// Removed duplicate APPLIANCES constant
-
-// Constants for quick system cost estimation
-const PANEL_COST_PER_KW_2 = 350000;  // Naira per kW
-const BATTERY_COST_PER_KWH_2 = 150000;  // Naira per kWh
-const INVERTER_BASE_COST_2 = 150000;  // Base cost for small inverter
-
-// Update the quick estimate function to be based solely on backup power
-function updateQuickEstimate(dailyBackupEnergy) {
-    const quickEstimateElement = document.getElementById('quick-cost-estimate');
-    if (!quickEstimateElement) return;
-
-    if (dailyBackupEnergy === 0) {
-        quickEstimateElement.innerHTML = `
-            <div class="alert alert-info">
-                Add appliances to backup to get system size and cost estimates.
-            </div>
-        `;
-        return;
-    }
-
-    // Get grid hours to determine if solar is needed
-    const gridHours = parseInt(document.getElementById('grid-hours').value) || 0;
-    const needsSolar = gridHours < 12; // If less than 12 hours of grid power, recommend solar
-
-    // System sizing calculations
-    const systemSizeKW = needsSolar ? Math.max(1, dailyBackupEnergy / 5) : 0;
-    const inverterSizeKW = Math.max(1, dailyBackupEnergy); // Size inverter for peak load
-    const batterySizeKWH = Math.max(2, dailyBackupEnergy * 1.2); // 20% margin for battery life
-
-    // Calculate costs
-    const panelCost = needsSolar ? systemSizeKW * PANEL_COST_PER_KW_2 : 0;
-    const batteryCost = batterySizeKWH * BATTERY_COST_PER_KWH_2;
-    const inverterCost = INVERTER_BASE_COST_2 + (inverterSizeKW * 20000);
-
-    // Total system cost
-    const totalCost = panelCost + batteryCost + inverterCost;
-
-    quickEstimateElement.innerHTML = `
-        <div class="estimate-item">
-            <span class="estimate-label">Estimated System Size:</span>
-            <span class="estimate-value">${inverterSizeKW.toFixed(1)} kW Inverter${needsSolar ? `, ${systemSizeKW.toFixed(1)} kW Solar` : ''}</span>
-        </div>
-        <div class="estimate-item">
-            <span class="estimate-label">Battery Capacity:</span>
-            <span class="estimate-value">${batterySizeKWH.toFixed(1)} kWh</span>
-        </div>
-        <div class="estimate-item">
-            <span class="estimate-label">Estimated Cost:</span>
-            <span class="estimate-value">₦${totalCost.toLocaleString('en-NG')}</span>
-        </div>
-    `;
-}
-
-
 // Initialize calculator when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     window.calculator = new SolarCalculator();
-
-    // Display initial cost estimate
-    updateQuickEstimate();
 });
-
-// Function to update the quick cost estimate
-
 
 // Function to add event listeners to appliance rows
 function initializeApplianceRow(applianceRow) {
@@ -389,7 +324,7 @@ function addApplianceRow() {
                 <div class="control-group">
                     <div class="d-flex align-items-center justify-content-between w-100">
                         <div class="d-flex flex-column align-items-center">
-                            <label class="text-muted mb-1"># of Appliances</label>
+                            <label class="text-muted mb-1">Number of Units</label>
                             <div class="btn-group">
                                 <button type="button" class="btn btn-sm btn-outline-secondary quantity-btn" data-action="decrease">-</button>
                                 <span class="quantity-value mx-2">1</span>
