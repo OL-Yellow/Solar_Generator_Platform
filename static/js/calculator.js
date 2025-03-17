@@ -35,7 +35,7 @@ const APPLIANCES = {
 class SolarCalculator {
     constructor() {
         this.currentStep = 1;
-        this.totalSteps = 3; // Changed from 5 to 3 steps
+        this.totalSteps = 4; // Updated to include results step
         this.init();
     }
 
@@ -70,10 +70,14 @@ class SolarCalculator {
                 this.calculateResults();
             });
         }
+
         document.querySelectorAll('.appliance-select').forEach(select => {
             select.addEventListener('change', (e) => this.updateAppliancePower(e.target.closest('.appliance-item')));
         });
 
+        document.querySelectorAll('.backup-toggle').forEach(btn => {
+            btn.addEventListener('click', (e) => this.handleBackupToggle(e.target));
+        });
         document.querySelectorAll('.quantity-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const item = e.target.closest('.appliance-item');
@@ -102,10 +106,6 @@ class SolarCalculator {
             });
         });
 
-        document.querySelectorAll('.backup-toggle').forEach(btn => {
-            btn.addEventListener('click', (e) => this.handleBackupToggle(e.target));
-        });
-
         // Initialize the appliance rows
         document.querySelectorAll('.appliance-item').forEach(item => {
             initializeApplianceRow(item);
@@ -114,33 +114,19 @@ class SolarCalculator {
 
     nextStep() {
         if (this.currentStep < this.totalSteps) {
-            const currentStepElement = document.getElementById(`step${this.currentStep}`);
-            if (currentStepElement) {
-                currentStepElement.classList.add('d-none');
-            }
-
+            document.getElementById(`step${this.currentStep}`).classList.add('d-none');
             this.currentStep++;
-
-            const nextStepElement = document.getElementById(`step${this.currentStep}`);
-            if (nextStepElement) {
-                nextStepElement.classList.remove('d-none');
-            }
-
+            document.getElementById(`step${this.currentStep}`).classList.remove('d-none');
             this.updateProgress();
         }
     }
 
     previousStep() {
         if (this.currentStep > 1) {
-            const currentStepElement = document.getElementById(`step${this.currentStep}`);
-            const prevStepElement = document.getElementById(`step${this.currentStep - 1}`);
-
-            if (currentStepElement && prevStepElement) {
-                currentStepElement.classList.add('d-none');
-                prevStepElement.classList.remove('d-none');
-                this.currentStep--;
-                this.updateProgress();
-            }
+            document.getElementById(`step${this.currentStep}`).classList.add('d-none');
+            this.currentStep--;
+            document.getElementById(`step${this.currentStep}`).classList.remove('d-none');
+            this.updateProgress();
         }
     }
 
@@ -154,15 +140,9 @@ class SolarCalculator {
     }
 
     handleBackupToggle(button) {
-        if (button.dataset.state === 'yes') {
-            button.dataset.state = 'no';
-            button.textContent = 'No';
-            button.classList.remove('active');
-        } else {
-            button.dataset.state = 'yes';
-            button.textContent = 'Yes';
-            button.classList.add('active');
-        }
+        button.dataset.state = button.dataset.state === 'yes' ? 'no' : 'yes';
+        button.textContent = button.dataset.state === 'yes' ? 'Yes' : 'No';
+        button.classList.toggle('active', button.dataset.state === 'yes');
         this.updateTotalPower();
     }
 
@@ -243,12 +223,12 @@ class SolarCalculator {
             console.log('Received response:', data);
 
             if (data.success) {
-                const resultsSection = document.getElementById('results-section');
-                if (resultsSection) {
-                    resultsSection.innerHTML = data.recommendations;
-                } else {
-                    throw new Error('Results section not found in DOM');
-                }
+                // Navigate to results step
+                document.getElementById(`step${this.currentStep}`).classList.add('d-none');
+                this.currentStep = 4; // Set to results step
+                document.getElementById('step4').classList.remove('d-none');
+                document.getElementById('results-section').innerHTML = data.recommendations;
+                this.updateProgress();
             } else {
                 throw new Error(data.error || 'Failed to get recommendations');
             }
@@ -310,7 +290,6 @@ function initializeApplianceRow(applianceRow) {
 }
 
 function addApplianceRow() {
-    // Ensure calculator is initialized
     const calculator = window.calculator;
     if (!calculator) {
         console.error('Calculator not initialized');
@@ -379,15 +358,6 @@ function addApplianceRow() {
 
     const newRow = template.firstElementChild;
     applianceList.insertBefore(newRow, addButton);
-
-    // Initialize with direct calculator reference
-    const deleteBtn = newRow.querySelector('.delete-appliance');
-    deleteBtn.addEventListener('click', () => {
-        newRow.remove();
-        calculator.updateTotalPower();
-    });
-
-    // Initialize other controls
     initializeApplianceRow(newRow);
 }
 
