@@ -302,9 +302,14 @@ body {
 }
 
 .control-group label {
-    color: var(--text-color); /* Changed to improve visibility */
+    color: var(--text-color);
     font-size: 0.875rem;
-    font-weight: 500;
+    font-weight: 600;
+    position: relative;
+    z-index: 2;
+    background: transparent;
+    display: block;
+    margin-bottom: 0.5rem;
 }
 
 /* Power Stats */
