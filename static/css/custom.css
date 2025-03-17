@@ -256,10 +256,12 @@ body {
 
 /* Quick Estimate Section */
 .quick-estimate {
-    background-color: #f8f9fa;
-    padding: 1rem;
+    background-color: #ffffff;
+    padding: 1.25rem;
     border-radius: 0.5rem;
-    margin-top: 1rem;
+    margin-top: 1.5rem;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
 .estimate-item {
@@ -269,16 +271,14 @@ body {
 }
 
 .estimate-label {
-    color: var(--muted-text);
-    font-weight: 500;
+    color: #555555;
+    font-weight: 600;
 }
 
 .estimate-value {
     color: var(--text-color);
     font-weight: 600;
 }
-
-/* Add these styles to the existing CSS file */
 
 /* Appliance Controls */
 .appliance-item {
@@ -375,14 +375,6 @@ body {
 }
 
 /* Quick Estimate Section */
-.quick-estimate {
-    background-color: #f8f9fa;
-    padding: 1.25rem;
-    border-radius: 0.5rem;
-    margin-top: 1.5rem;
-    border: 1px solid var(--border-color);
-}
-
 .total-power {
     background-color: #ffffff;
     padding: 1.25rem;
