@@ -190,14 +190,14 @@ def determine_system_type(grid_hours, usage_type):
 
 def calculate_system_cost(daily_energy_kwh, location, backup_days, user_type, battery_type="lithium-ion"):
     """Calculate complete solar system cost based on parameters"""
-    # Get system type recommendation
-    grid_hours = float(location)  # Assuming location value is grid hours for now
-    usage_type = user_type  # Map user_type to usage_type
+    # Get system type recommendation using the grid_hours from user input
+    grid_hours = float(user_type.get('grid_hours', 0))  # Use actual grid hours input
+    usage_type = user_type['usage_type'] if 'usage_type' in user_type else user_type # Handle potential missing key
     system_type_info = determine_system_type(grid_hours, usage_type)
 
     # Calculate system components
     system_size_kw = get_system_size(daily_energy_kwh, location)
-    battery_size_kwh = get_battery_size(daily_energy_kwh, backup_days, user_type)
+    battery_size_kwh = get_battery_size(daily_energy_kwh, backup_days, usage_type)
     inverter_size = get_inverter_size(system_size_kw)
     charge_controller_size = get_charge_controller_size(system_size_kw)
     panel_count = calculate_panel_count(system_size_kw)
@@ -423,7 +423,7 @@ def get_system_recommendations(user_data):
             daily_energy_kwh=float(user_data['daily_energy']),
             location=user_data['location'],
             backup_days=backup_days,
-            user_type=user_data['user_type'],
+            user_type=user_data, # Pass the entire user_data dictionary
             battery_type="lithium-ion"  # Default to lithium-ion batteries
         )
 
