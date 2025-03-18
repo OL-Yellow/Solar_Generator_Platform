@@ -1,0 +1,84 @@
+Update our solar system sizing calculator to incorporate the following nuanced considerations for small households and businesses in Nigeria. The code should maintain the current structure but expand the decision-making framework to address these additional factors:
+
+1. SYSTEM TYPE DETERMINATION:
+   - Add a function determine_system_type() that evaluates:
+     * Default recommendation should be an integrated system
+     * Only recommend portable system if user explicitly indicates dual-use needs between home and business
+     * If grid availability is less than 8 hours/day, recommend full solar
+     * If grid availability is 8-16 hours/day, evaluate cost-effectiveness of hybrid vs backup-only
+     * If grid reliability issues include frequent voltage fluctuations, recommend additional protection components
+
+2. BATTERY TECHNOLOGY SELECTION:
+   - Add a function recommend_battery_technology() that considers:
+     * If ambient temperature regularly exceeds 35°C, favor lithium over lead-acid
+     * If upfront budget is severely constrained, offer lead-acid option with lifecycle cost comparison
+     * For daily cycling applications (regular outages), favor lithium
+     * For occasional backup only, consider lead-acid
+     * Include depth-of-discharge assumptions: 80% for lithium, 50% for lead-acid
+     * Factor in replacement cycles: 7-10 years for lithium vs 2-3 years for quality lead-acid
+
+3. SOLAR SIZING ENHANCEMENTS:
+   - Update get_system_size() to include:
+     * Support for micro-systems starting at 0.2 kW for very small energy needs
+     * Location-specific derating factors for dust/harmattan (5-15% additional capacity)
+     * Temperature derating (0.5% per °C above 25°C for typical panel temperature)
+     * Season-specific sun hours (separate dry/wet season calculations)
+     * Option for phased implementation with future expansion capability
+
+4. BATTERY SIZING IMPROVEMENTS:
+   - Enhance get_battery_size() to account for:
+     * Grid outage pattern analysis (frequency and duration)
+     * Critical vs. non-critical load separation
+     * Battery temperature performance derating
+     * Minimum size requirements for very small systems (at least 0.5 kWh capacity)
+     * Cycle life projections based on usage patterns
+
+5. INVERTER CONSIDERATIONS:
+   - Modify get_inverter_size() to include:
+     * Power quality features needed (surge protection, voltage stabilization)
+     * Hybrid inverter options for grid-interactive systems
+     * Micro-inverter options for very small systems (< 1 kW)
+     * Starting power requirements for motors/pumps if present
+     * Ability to handle low-quality grid power
+
+6. COMPONENT PROTECTION:
+   - Add a function recommend_protection_components() that suggests specific anti-theft measures:
+     * Security cages for outdoor equipment
+     * Tamper-proof mounting hardware
+     * GPS tracking devices for higher-value systems
+     * Secure enclosures with locks
+     * Motion sensor alarms for equipment areas
+     * Wall or fence mounting options to reduce accessibility
+     * Additional recommendations for surge protectors and lightning protection where needed
+
+7. ECONOMIC ANALYSIS:
+   - Add a function perform_economic_analysis() that calculates:
+     * System payback period vs. generator + fuel costs
+     * Monthly savings compared to current energy expenses
+     * Lifecycle cost comparison between different battery technologies
+     * Modular expansion pathway recommendations for budget constraints
+
+8. SYSTEM MODULARITY:
+   - Add a function design_modular_system() that suggests:
+     * Initial minimum viable system based on critical loads only
+     * Expansion pathway as budget allows
+     * Compatible component specifications for future additions
+
+9. DETAILED RECOMMENDATION OUTPUT:
+   - Create a function generate_customer_recommendations() that:
+     * Lists each recommended component with specific models/sizes
+     * Provides clear reasoning for each recommendation (e.g., "We recommend a 3kW inverter because your peak load is 2.4kW, providing headroom for additional appliances")
+     * Includes visual representation of the system design
+     * Summarizes expected performance metrics (backup duration, daily solar production, etc.)
+     * Outlines maintenance requirements and schedules
+
+10. INTERACTIVE MODIFICATION FUNCTIONALITY:
+    - Implement modify_customer_selection() function that:
+      * Allows customers to adjust individual component specifications
+      * Dynamically recalculates system performance and costs based on changes
+      * Provides real-time feedback on pros and cons of modifications (e.g., "Reducing battery capacity will lower upfront cost by ₦X but will reduce backup time from Y hours to Z hours")
+      * Validates changes to ensure technical compatibility
+      * Highlights potential issues if modifications create mismatched components
+      * Maintains original recommendation for comparison
+
+Ensure that the code includes proper documentation and clear explanations of the decision logic. The calculator should be user-friendly and provide not just size recommendations but also rationale and alternatives where appropriate. Include input validation to handle edge cases like extremely low energy requirements or unusual usage patterns.
