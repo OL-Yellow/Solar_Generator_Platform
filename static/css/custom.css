@@ -129,6 +129,18 @@ body {
     border-color: var(--solar-primary);
 }
 
+.appliance-instruction {
+    color: var(--text-color);
+    font-weight: 500;
+    font-size: 1rem;
+}
+
+.control-group label {
+    color: var(--text-color) !important;
+    font-weight: 600 !important;
+    font-size: 0.9rem !important;
+}
+
 /* Mobile Optimizations */
 @media (max-width: 768px) {
     .hero-section {
