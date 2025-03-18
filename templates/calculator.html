@@ -38,6 +38,15 @@
         <div id="step2" class="step-container d-none">
             <h3 class="mb-4">Current Power Usage</h3>
             <div class="mb-3">
+                <label for="usage-type" class="form-label">Usage Type</label>
+                <select class="form-select" id="usage-type" required>
+                    <option value="home">Home Only</option>
+                    <option value="business">Business Only</option>
+                    <option value="dual">Both Home & Business (Portable System)</option>
+                </select>
+                <div class="invalid-feedback">Please select your usage type.</div>
+            </div>
+            <div class="mb-3">
                 <label for="grid-hours" class="form-label">Hours of Grid Power per Day</label>
                 <input type="number" class="form-control" id="grid-hours" value="8" required min="0" max="24">
                 <div class="invalid-feedback">Please enter valid hours (0-24).</div>

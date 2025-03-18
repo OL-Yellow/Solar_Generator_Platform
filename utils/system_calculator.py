@@ -116,8 +116,62 @@ def calculate_panel_count(system_size_kw, panel_watts=400):
     panel_count = math.ceil(system_watts / panel_watts)
     return panel_count
 
+def determine_system_type(grid_hours, usage_type):
+    """
+    Determine the recommended solar system type based on grid availability and usage pattern.
+
+    Args:
+        grid_hours (float): Daily grid power availability in hours
+        usage_type (str): Type of usage ('home', 'business', or 'dual')
+
+    Returns:
+        dict: Contains system type recommendation and rationale
+    """
+    # Initialize the recommendation object
+    system_type_info = {
+        'type': 'integrated',  # Default recommendation
+        'rationale': 'Integrated system recommended as default for reliable power supply.',
+        'configuration': 'Fixed installation'
+    }
+
+    # Check for dual-use case first
+    if usage_type == 'dual':
+        system_type_info.update({
+            'type': 'portable',
+            'rationale': 'Portable system recommended for dual home/business use for flexibility.',
+            'configuration': 'Portable setup with wheeled mounting'
+        })
+        return system_type_info
+
+    # Evaluate based on grid availability
+    if grid_hours < 8:
+        system_type_info.update({
+            'type': 'full_solar',
+            'rationale': 'Full solar system recommended due to limited grid availability (<8 hours/day).',
+            'configuration': 'Complete solar installation with extended battery backup'
+        })
+    elif grid_hours <= 16:
+        system_type_info.update({
+            'type': 'hybrid',
+            'rationale': 'Hybrid system recommended for moderate grid availability (8-16 hours/day).',
+            'configuration': 'Grid-interactive system with battery backup'
+        })
+    else:
+        system_type_info.update({
+            'type': 'backup',
+            'rationale': 'Backup-only system recommended due to good grid availability (>16 hours/day).',
+            'configuration': 'Basic backup system for essential loads'
+        })
+
+    return system_type_info
+
 def calculate_system_cost(daily_energy_kwh, location, backup_days, user_type, battery_type="lithium-ion"):
     """Calculate complete solar system cost based on parameters"""
+    # Get system type recommendation
+    grid_hours = float(location)  # Assuming location value is grid hours for now
+    usage_type = user_type  # Map user_type to usage_type
+    system_type_info = determine_system_type(grid_hours, usage_type)
+
     # Calculate system components
     system_size_kw = get_system_size(daily_energy_kwh, location)
     battery_size_kwh = get_battery_size(daily_energy_kwh, backup_days, user_type)
@@ -147,25 +201,14 @@ def calculate_system_cost(daily_energy_kwh, location, backup_days, user_type, ba
     total_cost = component_total + bos_cost + installation_cost
 
     # Calculate monthly savings vs generator
-    # Assuming generator fuel cost of NGN 650/liter and 0.5 liter per kWh
     monthly_generator_cost = daily_energy_kwh * 30 * 0.5 * 650
     monthly_savings = monthly_generator_cost
 
     # Calculate payback period (in years)
     payback_years = total_cost / (monthly_savings * 12)
 
-    # Format the cost breakdown
-    cost_breakdown = {
-        "solar_panels": f"₦{component_costs['solar_panels']:,.2f}",
-        "batteries": f"₦{component_costs['batteries']:,.2f}",
-        "inverter": f"₦{component_costs['inverter']:,.2f}",
-        "charge_controller": f"₦{component_costs['charge_controller']:,.2f}",
-        "bos": f"₦{bos_cost:,.2f}",
-        "installation": f"₦{installation_cost:,.2f}",
-        "total": f"₦{total_cost:,.2f}"
-    }
-
     return {
+        "system_type": system_type_info,
         "solar_system": {
             "total_capacity": f"{system_size_kw} kW",
             "num_panels": f"{panel_count}",
@@ -178,12 +221,20 @@ def calculate_system_cost(daily_energy_kwh, location, backup_days, user_type, ba
             "configuration": f"{math.ceil(battery_size_kwh / 5)} batteries in parallel"
         },
         "financial": {
-            "cost_breakdown": cost_breakdown,
+            "cost_breakdown": {
+                "solar_panels": f"₦{component_costs['solar_panels']:,.2f}",
+                "batteries": f"₦{component_costs['batteries']:,.2f}",
+                "inverter": f"₦{component_costs['inverter']:,.2f}",
+                "charge_controller": f"₦{component_costs['charge_controller']:,.2f}",
+                "bos": f"₦{bos_cost:,.2f}",
+                "installation": f"₦{installation_cost:,.2f}",
+                "total": f"₦{total_cost:,.2f}"
+            },
             "monthly_savings": f"₦{monthly_savings:,.2f}",
             "payback_period": f"{payback_years:.1f} years"
         },
         "installation": {
-            "mounting": "roof mounted",
+            "mounting": system_type_info["configuration"],
             "estimated_area": f"{panel_count * 2} square meters",
             "additional_notes": "Installation includes mounting hardware, wiring, and system configuration."
         }
@@ -191,7 +242,32 @@ def calculate_system_cost(daily_energy_kwh, location, backup_days, user_type, ba
 
 def get_html_recommendations(recommendations_data):
     """Format the recommendations in HTML with proper styling"""
+    # Add system type section at the beginning
     html_recommendations = f"""
+        <div class="results-card mb-4">
+            <div class="row g-4">
+                <div class="col-12">
+                    <div class="recommendation-section">
+                        <h4 class="section-title">Recommended System Type</h4>
+                        <div class="specification-list">
+                            <div class="spec-item">
+                                <span class="spec-label">System Type:</span>
+                                <span class="spec-value">{recommendations_data['system_type']['type'].replace('_', ' ').title()}</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">Rationale:</span>
+                                <span class="spec-value">{recommendations_data['system_type']['rationale']}</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">Configuration:</span>
+                                <span class="spec-value">{recommendations_data['system_type']['configuration']}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="results-card mb-4">
             <div class="row g-4">
                 <div class="col-12 col-md-6">
@@ -312,7 +388,6 @@ def get_html_recommendations(recommendations_data):
             </div>
         </div>
     """
-
     return html_recommendations
 
 def get_system_recommendations(user_data):
