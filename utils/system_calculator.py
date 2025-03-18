@@ -20,6 +20,40 @@ BATTERY_COSTS = {
     "lead-acid": {"cost_per_kwh": 80000, "cycles": 800, "efficiency": 0.75}
 }
 
+def determine_system_type(grid_hours, user_type, dual_use=False):
+    """
+    Determine the recommended solar system type based on usage patterns
+    Args:
+        grid_hours (int): Daily grid power availability
+        user_type (str): Type of user (household/business)
+        dual_use (bool): Whether system needs to be portable between locations
+    Returns:
+        dict: System type recommendation and rationale
+    """
+    if dual_use:
+        return {
+            "type": "portable",
+            "rationale": "Portable system recommended for dual-use between locations"
+        }
+    
+    if int(grid_hours) < 8:
+        return {
+            "type": "full_solar",
+            "rationale": "Full solar system recommended due to limited grid availability"
+        }
+    
+    if 8 <= int(grid_hours) <= 16:
+        return {
+            "type": "hybrid",
+            "rationale": "Hybrid system recommended for optimal cost-effectiveness with moderate grid availability"
+        }
+    
+    return {
+        "type": "integrated",
+        "rationale": "Standard integrated system recommended for typical usage patterns"
+    }
+
+
 INVERTER_COSTS = {
     "1-3kW": 150000,
     "3-5kW": 250000,
@@ -196,7 +230,18 @@ def get_html_recommendations(recommendations_data):
             <div class="row g-4">
                 <div class="col-12 col-md-6">
                     <div class="recommendation-section">
-                        <h4 class="section-title">Solar Panel System</h4>
+                        <h4 class="section-title">Recommended System Type</h4>
+        <div class="specification-list mb-4">
+            <div class="spec-item">
+                <span class="spec-label">System Type:</span>
+                <span class="spec-value">{system_type_info['type'].replace('_', ' ').title()}</span>
+            </div>
+            <div class="spec-item">
+                <span class="spec-label">Recommendation Basis:</span>
+                <span class="spec-value">{system_type_info['rationale']}</span>
+            </div>
+        </div>
+        <h4 class="section-title">Solar Panel System</h4>
                         <div class="specification-list">
                             <div class="spec-item">
                                 <span class="spec-label">Total Capacity:</span>
@@ -319,7 +364,14 @@ def get_system_recommendations(user_data):
     """Get solar system recommendations using local calculation rules"""
     try:
         # Default to 1 day backup period since we're calculating based on daily backup power
-        backup_days = 1  
+        backup_days = 1
+        
+        # Determine system type
+        system_type_info = determine_system_type(
+            user_data['grid_hours'],
+            user_data['user_type'],
+            user_data.get('dual_use', False)
+        )  
 
         recommendations_data = calculate_system_cost(
             daily_energy_kwh=float(user_data['daily_energy']),

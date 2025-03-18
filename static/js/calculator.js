@@ -242,6 +242,18 @@ class SolarCalculator {
 // Initialize calculator when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     window.calculator = new SolarCalculator();
+    
+    // Handle dual-use option visibility
+    const userTypeSelect = document.getElementById('user-type');
+    const dualUseDiv = document.querySelector('.dual-use-option');
+    
+    userTypeSelect.addEventListener('change', (e) => {
+        if (e.target.value === 'dual') {
+            dualUseDiv.classList.remove('d-none');
+        } else {
+            dualUseDiv.classList.add('d-none');
+        }
+    });
 });
 
 // Function to add event listeners to appliance rows
