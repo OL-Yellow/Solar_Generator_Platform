@@ -230,6 +230,27 @@ def calculate_system_cost(daily_energy_kwh, location, backup_days, user_type, ba
     # Calculate payback period (in years)
     payback_years = total_cost / (monthly_savings * 12)
 
+    # For hybrid systems, calculate backup-only costs
+    backup_only_costs = None
+    if system_type_info['type'] == 'hybrid':
+        backup_only_component_costs = {
+            "batteries": component_costs["batteries"] * 0.7,  # Reduced battery capacity for backup
+            "inverter": component_costs["inverter"],  # Same inverter needed
+        }
+        backup_only_total = sum(backup_only_component_costs.values())
+        backup_only_bos = backup_only_total * 0.1  # Reduced BOS cost
+        backup_only_installation = backup_only_total * 0.15  # Reduced installation cost
+
+        backup_only_costs = {
+            "components": {
+                "batteries": f"₦{backup_only_component_costs['batteries']:,.2f}",
+                "inverter": f"₦{backup_only_component_costs['inverter']:,.2f}",
+            },
+            "bos": f"₦{backup_only_bos:,.2f}",
+            "installation": f"₦{backup_only_installation:,.2f}",
+            "total": f"₦{(backup_only_total + backup_only_bos + backup_only_installation):,.2f}"
+        }
+
     return {
         "system_type": system_type_info,
         "solar_system": {
@@ -253,6 +274,7 @@ def calculate_system_cost(daily_energy_kwh, location, backup_days, user_type, ba
                 "installation": f"₦{installation_cost:,.2f}",
                 "total": f"₦{total_cost:,.2f}"
             },
+            "backup_only_costs": backup_only_costs,  # Will be None for non-hybrid systems
             "monthly_savings": f"₦{monthly_savings:,.2f}",
             "payback_period": f"{payback_years:.1f} years"
         },
@@ -265,7 +287,8 @@ def calculate_system_cost(daily_energy_kwh, location, backup_days, user_type, ba
 
 def get_html_recommendations(recommendations_data):
     """Format the recommendations in HTML with proper styling"""
-    # Add system type section at the beginning
+
+    # Start with system type section
     html_recommendations = f"""
         <div class="results-card mb-4">
             <div class="row g-4">
@@ -290,7 +313,10 @@ def get_html_recommendations(recommendations_data):
                 </div>
             </div>
         </div>
+    """
 
+    # Add solar and battery system sections
+    html_recommendations += f"""
         <div class="results-card mb-4">
             <div class="row g-4">
                 <div class="col-12 col-md-6">
@@ -338,12 +364,30 @@ def get_html_recommendations(recommendations_data):
                 </div>
             </div>
         </div>
+    """
 
+    # Add cost breakdown section with conditional backup-only costs for hybrid systems
+    html_recommendations += """
         <div class="results-card mb-4">
             <div class="row g-4">
                 <div class="col-12">
                     <div class="recommendation-section">
+    """
+
+    if recommendations_data['system_type']['type'] == 'hybrid':
+        html_recommendations += """
+                        <h4 class="section-title">Cost Comparison</h4>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5 class="mb-3">Full Hybrid System</h5>
+        """
+    else:
+        html_recommendations += """
                         <h4 class="section-title">Cost Breakdown</h4>
+        """
+
+    # Add main cost breakdown
+    html_recommendations += f"""
                         <div class="specification-list">
                             <div class="spec-item">
                                 <span class="spec-label">Solar Panels:</span>
@@ -373,6 +417,42 @@ def get_html_recommendations(recommendations_data):
                                 <span class="spec-label font-weight-bold">Total Cost:</span>
                                 <span class="spec-value">{recommendations_data['financial']['cost_breakdown']['total']}</span>
                             </div>
+    """
+
+    # Add backup-only costs for hybrid systems
+    if recommendations_data['system_type']['type'] == 'hybrid' and recommendations_data['financial'].get('backup_only_costs'):
+        backup_costs = recommendations_data['financial']['backup_only_costs']
+        html_recommendations += f"""
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h5 class="mb-3">Backup-Only System</h5>
+                        <div class="specification-list">
+                            <div class="spec-item">
+                                <span class="spec-label">Batteries:</span>
+                                <span class="spec-value">{backup_costs['components']['batteries']}</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">Inverter:</span>
+                                <span class="spec-value">{backup_costs['components']['inverter']}</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">Balance of System:</span>
+                                <span class="spec-value">{backup_costs['bos']}</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">Installation:</span>
+                                <span class="spec-value">{backup_costs['installation']}</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label font-weight-bold">Total Cost:</span>
+                                <span class="spec-value">{backup_costs['total']}</span>
+                            </div>
+                        </div>
+        """
+
+    # Add monthly savings and payback period
+    html_recommendations += f"""
                             <div class="spec-item">
                                 <span class="spec-label">Monthly Savings:</span>
                                 <span class="spec-value">{recommendations_data['financial']['monthly_savings']}</span>
@@ -386,7 +466,10 @@ def get_html_recommendations(recommendations_data):
                 </div>
             </div>
         </div>
+    """
 
+    # Add installation details
+    html_recommendations += f"""
         <div class="results-card">
             <div class="row g-4">
                 <div class="col-12">
