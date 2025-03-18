@@ -223,14 +223,12 @@ def calculate_system_cost(daily_energy_kwh, location, backup_days, user_type, ba
     # Total system cost
     total_cost = component_total + bos_cost + installation_cost
 
-    # Calculate monthly savings vs generator
-    monthly_generator_cost = daily_energy_kwh * 30 * 0.5 * 650
+    # Calculate monthly savings vs generator for full hybrid system
+    monthly_generator_cost = daily_energy_kwh * 30 * 0.5 * 650  # Generator fuel cost
     monthly_savings = monthly_generator_cost
-
-    # Calculate payback period (in years)
     payback_years = total_cost / (monthly_savings * 12)
 
-    # For hybrid systems, calculate backup-only costs
+    # For hybrid systems, calculate backup-only costs and savings
     backup_only_costs = None
     if system_type_info['type'] == 'hybrid':
         backup_only_component_costs = {
@@ -240,6 +238,11 @@ def calculate_system_cost(daily_energy_kwh, location, backup_days, user_type, ba
         backup_only_total = sum(backup_only_component_costs.values())
         backup_only_bos = backup_only_total * 0.1  # Reduced BOS cost
         backup_only_installation = backup_only_total * 0.15  # Reduced installation cost
+        backup_only_final_cost = backup_only_total + backup_only_bos + backup_only_installation
+
+        # Calculate savings for backup-only system (less savings due to continued grid dependency)
+        backup_only_monthly_savings = monthly_generator_cost * 0.6  # 60% of full savings
+        backup_only_payback_years = backup_only_final_cost / (backup_only_monthly_savings * 12)
 
         backup_only_costs = {
             "components": {
@@ -248,7 +251,9 @@ def calculate_system_cost(daily_energy_kwh, location, backup_days, user_type, ba
             },
             "bos": f"₦{backup_only_bos:,.2f}",
             "installation": f"₦{backup_only_installation:,.2f}",
-            "total": f"₦{(backup_only_total + backup_only_bos + backup_only_installation):,.2f}"
+            "total": f"₦{backup_only_final_cost:,.2f}",
+            "monthly_savings": f"₦{backup_only_monthly_savings:,.2f}",
+            "payback_period": f"{backup_only_payback_years:.1f} years"
         }
 
     return {
@@ -287,7 +292,6 @@ def calculate_system_cost(daily_energy_kwh, location, backup_days, user_type, ba
 
 def get_html_recommendations(recommendations_data):
     """Format the recommendations in HTML with proper styling"""
-
     # Start with system type section
     html_recommendations = f"""
         <div class="results-card mb-4">
@@ -319,45 +323,46 @@ def get_html_recommendations(recommendations_data):
     html_recommendations += f"""
         <div class="results-card mb-4">
             <div class="row g-4">
-                <div class="col-12 col-md-6">
+                <div class="col-12">
                     <div class="recommendation-section">
-                        <h4 class="section-title">Solar Panel System</h4>
-                        <div class="specification-list">
-                            <div class="spec-item">
-                                <span class="spec-label">Total Capacity:</span>
-                                <span class="spec-value">{recommendations_data['solar_system']['total_capacity']}</span>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h4 class="section-title">Solar Panel System</h4>
+                                <div class="specification-list">
+                                    <div class="spec-item">
+                                        <span class="spec-label">Total Capacity:</span>
+                                        <span class="spec-value">{recommendations_data['solar_system']['total_capacity']}</span>
+                                    </div>
+                                    <div class="spec-item">
+                                        <span class="spec-label">Number of Panels:</span>
+                                        <span class="spec-value">{recommendations_data['solar_system']['num_panels']}</span>
+                                    </div>
+                                    <div class="spec-item">
+                                        <span class="spec-label">Panel Type:</span>
+                                        <span class="spec-value">{recommendations_data['solar_system']['panel_type']}</span>
+                                    </div>
+                                    <div class="spec-item">
+                                        <span class="spec-label">Charge Controller:</span>
+                                        <span class="spec-value">{recommendations_data['solar_system']['charge_controller']}</span>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="spec-item">
-                                <span class="spec-label">Number of Panels:</span>
-                                <span class="spec-value">{recommendations_data['solar_system']['num_panels']}</span>
-                            </div>
-                            <div class="spec-item">
-                                <span class="spec-label">Panel Type:</span>
-                                <span class="spec-value">{recommendations_data['solar_system']['panel_type']}</span>
-                            </div>
-                            <div class="spec-item">
-                                <span class="spec-label">Charge Controller:</span>
-                                <span class="spec-value">{recommendations_data['solar_system']['charge_controller']}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-12 col-md-6">
-                    <div class="recommendation-section">
-                        <h4 class="section-title">Battery System</h4>
-                        <div class="specification-list">
-                            <div class="spec-item">
-                                <span class="spec-label">Total Capacity:</span>
-                                <span class="spec-value">{recommendations_data['battery_system']['total_capacity']}</span>
-                            </div>
-                            <div class="spec-item">
-                                <span class="spec-label">Battery Type:</span>
-                                <span class="spec-value">{recommendations_data['battery_system']['battery_type'].title()}</span>
-                            </div>
-                            <div class="spec-item">
-                                <span class="spec-label">Configuration:</span>
-                                <span class="spec-value">{recommendations_data['battery_system']['configuration']}</span>
+                            <div class="col-md-6">
+                                <h4 class="section-title">Battery System</h4>
+                                <div class="specification-list">
+                                    <div class="spec-item">
+                                        <span class="spec-label">Total Capacity:</span>
+                                        <span class="spec-value">{recommendations_data['battery_system']['total_capacity']}</span>
+                                    </div>
+                                    <div class="spec-item">
+                                        <span class="spec-label">Battery Type:</span>
+                                        <span class="spec-value">{recommendations_data['battery_system']['battery_type'].title()}</span>
+                                    </div>
+                                    <div class="spec-item">
+                                        <span class="spec-label">Configuration:</span>
+                                        <span class="spec-value">{recommendations_data['battery_system']['configuration']}</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -367,27 +372,106 @@ def get_html_recommendations(recommendations_data):
     """
 
     # Add cost breakdown section with conditional backup-only costs for hybrid systems
-    html_recommendations += """
+    if recommendations_data['system_type']['type'] == 'hybrid':
+        html_recommendations += f"""
         <div class="results-card mb-4">
             <div class="row g-4">
                 <div class="col-12">
                     <div class="recommendation-section">
-    """
-
-    if recommendations_data['system_type']['type'] == 'hybrid':
-        html_recommendations += """
                         <h4 class="section-title">Cost Comparison</h4>
                         <div class="row">
-                            <div class="col-md-6">
-                                <h5 class="mb-3">Full Hybrid System</h5>
+                            <div class="col-md-6 mb-4">
+                                <div class="p-3 border rounded">
+                                    <h5 class="mb-3">Full Hybrid System</h5>
+                                    <div class="specification-list">
+                                        <div class="spec-item">
+                                            <span class="spec-label">Solar Panels:</span>
+                                            <span class="spec-value">{recommendations_data['financial']['cost_breakdown']['solar_panels']}</span>
+                                        </div>
+                                        <div class="spec-item">
+                                            <span class="spec-label">Batteries:</span>
+                                            <span class="spec-value">{recommendations_data['financial']['cost_breakdown']['batteries']}</span>
+                                        </div>
+                                        <div class="spec-item">
+                                            <span class="spec-label">Inverter:</span>
+                                            <span class="spec-value">{recommendations_data['financial']['cost_breakdown']['inverter']}</span>
+                                        </div>
+                                        <div class="spec-item">
+                                            <span class="spec-label">Charge Controller:</span>
+                                            <span class="spec-value">{recommendations_data['financial']['cost_breakdown']['charge_controller']}</span>
+                                        </div>
+                                        <div class="spec-item">
+                                            <span class="spec-label">Balance of System:</span>
+                                            <span class="spec-value">{recommendations_data['financial']['cost_breakdown']['bos']}</span>
+                                        </div>
+                                        <div class="spec-item">
+                                            <span class="spec-label">Installation:</span>
+                                            <span class="spec-value">{recommendations_data['financial']['cost_breakdown']['installation']}</span>
+                                        </div>
+                                        <div class="spec-item">
+                                            <span class="spec-label font-weight-bold">Total Cost:</span>
+                                            <span class="spec-value">{recommendations_data['financial']['cost_breakdown']['total']}</span>
+                                        </div>
+                                        <div class="spec-item">
+                                            <span class="spec-label">Monthly Savings:</span>
+                                            <span class="spec-value">{recommendations_data['financial']['monthly_savings']}</span>
+                                        </div>
+                                        <div class="spec-item">
+                                            <span class="spec-label">Payback Period:</span>
+                                            <span class="spec-value">{recommendations_data['financial']['payback_period']}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <div class="p-3 border rounded">
+                                    <h5 class="mb-3">Backup-Only System</h5>
+                                    <div class="specification-list">
+                                        <div class="spec-item">
+                                            <span class="spec-label">Batteries:</span>
+                                            <span class="spec-value">{recommendations_data['financial']['backup_only_costs']['components']['batteries']}</span>
+                                        </div>
+                                        <div class="spec-item">
+                                            <span class="spec-label">Inverter:</span>
+                                            <span class="spec-value">{recommendations_data['financial']['backup_only_costs']['components']['inverter']}</span>
+                                        </div>
+                                        <div class="spec-item">
+                                            <span class="spec-label">Balance of System:</span>
+                                            <span class="spec-value">{recommendations_data['financial']['backup_only_costs']['bos']}</span>
+                                        </div>
+                                        <div class="spec-item">
+                                            <span class="spec-label">Installation:</span>
+                                            <span class="spec-value">{recommendations_data['financial']['backup_only_costs']['installation']}</span>
+                                        </div>
+                                        <div class="spec-item">
+                                            <span class="spec-label font-weight-bold">Total Cost:</span>
+                                            <span class="spec-value">{recommendations_data['financial']['backup_only_costs']['total']}</span>
+                                        </div>
+                                        <div class="spec-item">
+                                            <span class="spec-label">Monthly Savings:</span>
+                                            <span class="spec-value">{recommendations_data['financial']['backup_only_costs']['monthly_savings']}</span>
+                                        </div>
+                                        <div class="spec-item">
+                                            <span class="spec-label">Payback Period:</span>
+                                            <span class="spec-value">{recommendations_data['financial']['backup_only_costs']['payback_period']}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         """
     else:
-        html_recommendations += """
+        # For non-hybrid systems, show single cost breakdown
+        html_recommendations += f"""
+        <div class="results-card mb-4">
+            <div class="row g-4">
+                <div class="col-12">
+                    <div class="recommendation-section">
                         <h4 class="section-title">Cost Breakdown</h4>
-        """
-
-    # Add main cost breakdown
-    html_recommendations += f"""
                         <div class="specification-list">
                             <div class="spec-item">
                                 <span class="spec-label">Solar Panels:</span>
@@ -417,42 +501,6 @@ def get_html_recommendations(recommendations_data):
                                 <span class="spec-label font-weight-bold">Total Cost:</span>
                                 <span class="spec-value">{recommendations_data['financial']['cost_breakdown']['total']}</span>
                             </div>
-    """
-
-    # Add backup-only costs for hybrid systems
-    if recommendations_data['system_type']['type'] == 'hybrid' and recommendations_data['financial'].get('backup_only_costs'):
-        backup_costs = recommendations_data['financial']['backup_only_costs']
-        html_recommendations += f"""
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <h5 class="mb-3">Backup-Only System</h5>
-                        <div class="specification-list">
-                            <div class="spec-item">
-                                <span class="spec-label">Batteries:</span>
-                                <span class="spec-value">{backup_costs['components']['batteries']}</span>
-                            </div>
-                            <div class="spec-item">
-                                <span class="spec-label">Inverter:</span>
-                                <span class="spec-value">{backup_costs['components']['inverter']}</span>
-                            </div>
-                            <div class="spec-item">
-                                <span class="spec-label">Balance of System:</span>
-                                <span class="spec-value">{backup_costs['bos']}</span>
-                            </div>
-                            <div class="spec-item">
-                                <span class="spec-label">Installation:</span>
-                                <span class="spec-value">{backup_costs['installation']}</span>
-                            </div>
-                            <div class="spec-item">
-                                <span class="spec-label font-weight-bold">Total Cost:</span>
-                                <span class="spec-value">{backup_costs['total']}</span>
-                            </div>
-                        </div>
-        """
-
-    # Add monthly savings and payback period
-    html_recommendations += f"""
                             <div class="spec-item">
                                 <span class="spec-label">Monthly Savings:</span>
                                 <span class="spec-value">{recommendations_data['financial']['monthly_savings']}</span>
@@ -466,7 +514,7 @@ def get_html_recommendations(recommendations_data):
                 </div>
             </div>
         </div>
-    """
+        """
 
     # Add installation details
     html_recommendations += f"""
