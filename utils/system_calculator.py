@@ -28,6 +28,14 @@ INVERTER_COSTS = {
     "15-20kW": 800000
 }
 
+CHARGE_CONTROLLER_COSTS = {
+    "30A": 35000,
+    "50A": 55000,
+    "60A": 70000,
+    "80A": 90000,
+    "100A": 120000
+}
+
 # Location-specific sun hours (average per day)
 SUN_HOURS = {
     "Lagos": 5.5,
@@ -85,6 +93,21 @@ def get_inverter_size(system_size_kw):
     else:
         return "15-20kW"
 
+def get_charge_controller_size(system_size_kw):
+    """Determine appropriate charge controller size based on system size"""
+    system_amps = (system_size_kw * 1000) / 48  # Assuming 48V system
+
+    if system_amps <= 30:
+        return "30A"
+    elif system_amps <= 50:
+        return "50A"
+    elif system_amps <= 60:
+        return "60A"
+    elif system_amps <= 80:
+        return "80A"
+    else:
+        return "100A"
+
 def calculate_panel_count(system_size_kw, panel_watts=400):
     """Calculate number of panels needed based on system size and panel wattage"""
     # Convert kW to W
@@ -99,6 +122,7 @@ def calculate_system_cost(daily_energy_kwh, location, backup_days, user_type, ba
     system_size_kw = get_system_size(daily_energy_kwh, location)
     battery_size_kwh = get_battery_size(daily_energy_kwh, backup_days, user_type)
     inverter_size = get_inverter_size(system_size_kw)
+    charge_controller_size = get_charge_controller_size(system_size_kw)
     panel_count = calculate_panel_count(system_size_kw)
 
     # Get cost factors for location
@@ -107,33 +131,46 @@ def calculate_system_cost(daily_energy_kwh, location, backup_days, user_type, ba
     installation_factor = location_costs["installation_factor"]
 
     # Calculate component costs
-    panel_cost = system_size_kw * 1000 * panel_cost_per_watt
-    battery_cost = battery_size_kwh * BATTERY_COSTS[battery_type]["cost_per_kwh"]
-    inverter_cost = INVERTER_COSTS[inverter_size]
+    component_costs = {
+        "solar_panels": system_size_kw * 1000 * panel_cost_per_watt,
+        "batteries": battery_size_kwh * BATTERY_COSTS[battery_type]["cost_per_kwh"],
+        "inverter": INVERTER_COSTS[inverter_size],
+        "charge_controller": CHARGE_CONTROLLER_COSTS[charge_controller_size],
+    }
 
-    # Installation and balance of system costs (wiring, mounting, etc.)
-    installation_cost = (panel_cost + battery_cost + inverter_cost) * (installation_factor - 1)
+    # Calculate BOS (Balance of System) and installation costs
+    component_total = sum(component_costs.values())
+    bos_cost = component_total * 0.15  # 15% for wiring, mounting, etc.
+    installation_cost = component_total * (installation_factor - 1)
 
-    # Calculate total system cost
-    total_cost = panel_cost + battery_cost + inverter_cost + installation_cost
+    # Total system cost
+    total_cost = component_total + bos_cost + installation_cost
 
     # Calculate monthly savings vs generator
-    # Assuming generator fuel cost of NGN 350/liter and 0.5 liter per kWh
-    monthly_generator_cost = daily_energy_kwh * 30 * 0.5 * 350
+    # Assuming generator fuel cost of NGN 650/liter and 0.5 liter per kWh
+    monthly_generator_cost = daily_energy_kwh * 30 * 0.5 * 650
     monthly_savings = monthly_generator_cost
 
     # Calculate payback period (in years)
     payback_years = total_cost / (monthly_savings * 12)
 
-    # Convert currency values to formatted strings
-    total_cost_formatted = f"{total_cost:,.2f}"
-    monthly_savings_formatted = f"{monthly_savings:,.2f}"
+    # Format the cost breakdown
+    cost_breakdown = {
+        "solar_panels": f"₦{component_costs['solar_panels']:,.2f}",
+        "batteries": f"₦{component_costs['batteries']:,.2f}",
+        "inverter": f"₦{component_costs['inverter']:,.2f}",
+        "charge_controller": f"₦{component_costs['charge_controller']:,.2f}",
+        "bos": f"₦{bos_cost:,.2f}",
+        "installation": f"₦{installation_cost:,.2f}",
+        "total": f"₦{total_cost:,.2f}"
+    }
 
     return {
         "solar_system": {
             "total_capacity": f"{system_size_kw} kW",
             "num_panels": f"{panel_count}",
-            "panel_type": "400 W monocrystalline"
+            "panel_type": "400 W monocrystalline",
+            "charge_controller": charge_controller_size
         },
         "battery_system": {
             "total_capacity": f"{battery_size_kwh} kWh",
@@ -141,8 +178,8 @@ def calculate_system_cost(daily_energy_kwh, location, backup_days, user_type, ba
             "configuration": f"{math.ceil(battery_size_kwh / 5)} batteries in parallel"
         },
         "financial": {
-            "estimated_cost": f"₦{total_cost_formatted}",
-            "monthly_savings": f"₦{monthly_savings_formatted}",
+            "cost_breakdown": cost_breakdown,
+            "monthly_savings": f"₦{monthly_savings:,.2f}",
             "payback_period": f"{payback_years:.1f} years"
         },
         "installation": {
@@ -154,11 +191,6 @@ def calculate_system_cost(daily_energy_kwh, location, backup_days, user_type, ba
 
 def get_html_recommendations(recommendations_data):
     """Format the recommendations in HTML with proper styling"""
-    # Format currency values
-    estimated_cost = recommendations_data['financial']['estimated_cost'].replace('₦', '')
-    monthly_savings = recommendations_data['financial']['monthly_savings'].replace('₦', '')
-
-    # Format the recommendations in HTML with proper styling
     html_recommendations = f"""
         <div class="results-card mb-4">
             <div class="row g-4">
@@ -177,6 +209,10 @@ def get_html_recommendations(recommendations_data):
                             <div class="spec-item">
                                 <span class="spec-label">Panel Type:</span>
                                 <span class="spec-value">{recommendations_data['solar_system']['panel_type']}</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">Charge Controller:</span>
+                                <span class="spec-value">{recommendations_data['solar_system']['charge_controller']}</span>
                             </div>
                         </div>
                     </div>
@@ -208,15 +244,39 @@ def get_html_recommendations(recommendations_data):
             <div class="row g-4">
                 <div class="col-12">
                     <div class="recommendation-section">
-                        <h4 class="section-title">Financial Analysis</h4>
+                        <h4 class="section-title">Cost Breakdown</h4>
                         <div class="specification-list">
                             <div class="spec-item">
-                                <span class="spec-label">Estimated Cost:</span>
-                                <span class="spec-value">₦{estimated_cost}</span>
+                                <span class="spec-label">Solar Panels:</span>
+                                <span class="spec-value">{recommendations_data['financial']['cost_breakdown']['solar_panels']}</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">Batteries:</span>
+                                <span class="spec-value">{recommendations_data['financial']['cost_breakdown']['batteries']}</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">Inverter:</span>
+                                <span class="spec-value">{recommendations_data['financial']['cost_breakdown']['inverter']}</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">Charge Controller:</span>
+                                <span class="spec-value">{recommendations_data['financial']['cost_breakdown']['charge_controller']}</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">Balance of System:</span>
+                                <span class="spec-value">{recommendations_data['financial']['cost_breakdown']['bos']}</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">Installation:</span>
+                                <span class="spec-value">{recommendations_data['financial']['cost_breakdown']['installation']}</span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label font-weight-bold">Total Cost:</span>
+                                <span class="spec-value">{recommendations_data['financial']['cost_breakdown']['total']}</span>
                             </div>
                             <div class="spec-item">
                                 <span class="spec-label">Monthly Savings:</span>
-                                <span class="spec-value">₦{monthly_savings}</span>
+                                <span class="spec-value">{recommendations_data['financial']['monthly_savings']}</span>
                             </div>
                             <div class="spec-item">
                                 <span class="spec-label">Payback Period:</span>
