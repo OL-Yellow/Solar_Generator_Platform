@@ -134,6 +134,12 @@ def determine_system_type(grid_hours, usage_type):
         'configuration': 'Fixed installation'
     }
 
+    # Convert grid_hours to float for comparison
+    try:
+        grid_hours = float(grid_hours)
+    except (TypeError, ValueError):
+        grid_hours = 0
+
     # Check for dual-use case first
     if usage_type == 'dual':
         system_type_info.update({
@@ -147,19 +153,36 @@ def determine_system_type(grid_hours, usage_type):
     if grid_hours < 8:
         system_type_info.update({
             'type': 'full_solar',
-            'rationale': 'Full solar system recommended due to limited grid availability (<8 hours/day).',
+            'rationale': f'Full solar system recommended due to very limited grid availability ({grid_hours} hours/day).',
             'configuration': 'Complete solar installation with extended battery backup'
         })
     elif grid_hours <= 16:
-        system_type_info.update({
-            'type': 'hybrid',
-            'rationale': 'Hybrid system recommended for moderate grid availability (8-16 hours/day).',
-            'configuration': 'Grid-interactive system with battery backup'
-        })
+        # For 8-16 hours, evaluate cost-effectiveness
+        if usage_type == 'business':
+            # Businesses typically need more consistent power
+            system_type_info.update({
+                'type': 'hybrid',
+                'rationale': f'Hybrid system recommended for business use with moderate grid availability ({grid_hours} hours/day). Ensures business continuity with grid-interactive capabilities.',
+                'configuration': 'Grid-interactive system with battery backup'
+            })
+        else:
+            # For homes, if grid is relatively reliable (>12 hours), backup might be sufficient
+            if grid_hours > 12:
+                system_type_info.update({
+                    'type': 'backup',
+                    'rationale': f'Backup-only system recommended due to decent grid availability ({grid_hours} hours/day). Cost-effective solution for home backup needs.',
+                    'configuration': 'Basic backup system for essential loads'
+                })
+            else:
+                system_type_info.update({
+                    'type': 'hybrid',
+                    'rationale': f'Hybrid system recommended due to moderate grid availability ({grid_hours} hours/day). Balances cost and reliability.',
+                    'configuration': 'Grid-interactive system with battery backup'
+                })
     else:
         system_type_info.update({
             'type': 'backup',
-            'rationale': 'Backup-only system recommended due to good grid availability (>16 hours/day).',
+            'rationale': f'Backup-only system recommended due to good grid availability ({grid_hours} hours/day).',
             'configuration': 'Basic backup system for essential loads'
         })
 
