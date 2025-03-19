@@ -57,7 +57,7 @@ class LoanApplicationLogger:
         # Create new row if application doesn't exist
         new_row = {
             'Application Number': application_number,
-            'Location': calculator_data.get('location', '').split(',')[0] if ',' in calculator_data.get('location', '') else calculator_data.get('location', ''),
+            'Location': calculator_data.get('location_name', 'Unknown'),
             'Usage Type': calculator_data.get('user_type', ''),
             'Grid Hours': calculator_data.get('grid_hours', ''),
             'Monthly Fuel Cost': calculator_data.get('monthly_fuel_cost', ''),

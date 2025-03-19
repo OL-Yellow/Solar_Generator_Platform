@@ -195,8 +195,10 @@ class SolarCalculator {
                 }
             });
 
+            const locationSelect = document.getElementById('location');
             const userData = {
-                location: document.getElementById('location')?.value || '',
+                location: locationSelect.value,
+                location_name: locationSelect.options[locationSelect.selectedIndex].text,
                 user_type: document.getElementById('usage-type')?.value || '',
                 grid_hours: document.getElementById('grid-hours')?.value || '',
                 monthly_fuel_cost: document.getElementById('generator-fuel')?.value || '',
