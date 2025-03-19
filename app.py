@@ -1,9 +1,8 @@
 import os
 from flask import Flask, render_template, request, session, redirect, url_for, flash, jsonify
 import logging
+# Import local calculator instead of AI
 from utils.system_calculator import get_system_recommendations
-from extensions import db
-from models import UserProfile, Appliance, SolarRecommendation, LoanApplication
 
 # Configure logging with more details
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -11,18 +10,8 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "dev_key_123")
 
-# Configure the database
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
-app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-    "pool_recycle": 300,
-    "pool_pre_ping": True,
-}
-db.init_app(app)
-
-# Create all database tables
-with app.app_context():
-    db.create_all()
-    logging.info("Database tables created successfully")
+# In-memory storage for leads
+leads = []
 
 # Nigerian states and average sun hours
 NIGERIA_LOCATIONS = {
@@ -66,57 +55,10 @@ def get_recommendations():
             logging.error(error_msg)
             return jsonify({'error': error_msg}), 400
 
-        # Create UserProfile
-        user_profile = UserProfile(
-            location=user_data['location'],
-            user_type=user_data['user_type'],
-            grid_hours=float(user_data['grid_hours']),
-            monthly_fuel_cost=float(user_data['monthly_fuel_cost']),
-            daily_energy=float(user_data['daily_energy'])
-        )
-        db.session.add(user_profile)
-
-        # Create Appliances if provided
-        if 'appliances' in user_data:
-            for app_data in user_data['appliances']:
-                appliance = Appliance(
-                    user_profile=user_profile,
-                    name=app_data['name'],
-                    power_rating=float(app_data['power']),
-                    quantity=int(app_data.get('quantity', 1)),
-                    hours_per_day=float(app_data.get('hours', 0)),
-                    backup_power=app_data.get('backup', True)
-                )
-                db.session.add(appliance)
-
-        # Get recommendations
         result = get_system_recommendations(user_data)
+        logging.debug(f"Got recommendations result: {result}")
 
         if result.get('success'):
-            # Store recommendation data
-            recommendation_data = result['recommendations']
-            solar_recommendation = SolarRecommendation(
-                user_profile=user_profile,
-                system_type=recommendation_data['system_type']['type'],
-                total_capacity=float(recommendation_data['solar_system']['total_capacity'].split()[0]),
-                num_panels=int(recommendation_data['solar_system']['num_panels']),
-                panel_type=recommendation_data['solar_system']['panel_type'],
-                battery_capacity=float(recommendation_data['battery_system']['total_capacity'].split()[0]),
-                battery_type=recommendation_data['battery_system']['battery_type'],
-                battery_configuration=recommendation_data['battery_system']['configuration']
-            )
-            db.session.add(solar_recommendation)
-
-            # Store the profile ID in session for loan application
-            session['user_profile_id'] = user_profile.id
-
-            try:
-                db.session.commit()
-            except Exception as e:
-                logging.error(f"Database error: {str(e)}")
-                db.session.rollback()
-                return jsonify({'error': 'Database error occurred'}), 500
-
             return jsonify(result)
         else:
             logging.error(f"Failed to get recommendations: {result.get('error')}")
@@ -126,32 +68,25 @@ def get_recommendations():
         logging.error(f"Error in get_recommendations: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
-@app.route('/submit_loan_application', methods=['POST'])
-def submit_loan_application():
-    try:
-        user_profile_id = session.get('user_profile_id')
-        if not user_profile_id:
-            flash('Please complete the solar calculator first', 'error')
-            return redirect(url_for('calculator'))
+@app.route('/submit_lead', methods=['POST'])
+def submit_lead():
+    lead_data = {
+        'name': request.form.get('name'),
+        'phone': request.form.get('phone'),
+        'email': request.form.get('email'),
+        'contact_time': request.form.get('contact_time'),
+        'system_size': request.form.get('system_size'),
+        'estimated_savings': request.form.get('estimated_savings')
+    }
 
-        # Create loan application
-        loan_application = LoanApplication(
-            user_profile_id=user_profile_id,
-            full_name=request.form['full_name'],
-            email=request.form['email'],
-            phone=request.form['phone']
-        )
-
-        db.session.add(loan_application)
-        db.session.commit()
-
-        flash('Thank you for your application! We will contact you soon.', 'success')
+    # Validate required fields
+    if not all([lead_data['name'], lead_data['phone'], lead_data['email']]):
+        flash('Please fill in all required fields', 'error')
         return redirect(url_for('calculator'))
 
-    except Exception as e:
-        logging.error(f"Error submitting loan application: {str(e)}")
-        flash('There was an error submitting your application. Please try again.', 'error')
-        return redirect(url_for('loan_application'))
+    leads.append(lead_data)
+    flash('Thank you! We will contact you soon.', 'success')
+    return redirect(url_for('calculator'))
 
 @app.errorhandler(404)
 def not_found_error(error):
