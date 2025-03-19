@@ -81,6 +81,12 @@ def get_recommendations():
             logging.error(error_msg)
             return jsonify({'error': error_msg}), 400
 
+        # Save calculator data to CSV
+        application_number = session.get('application_number')
+        if application_number:
+            loan_db.save_calculator_data(application_number, user_data)
+            logging.info(f"Saved calculator data for application {application_number}")
+
         result = get_system_recommendations(user_data)
 
         if result.get('success'):
