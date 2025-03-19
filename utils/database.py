@@ -18,6 +18,7 @@ class LoanApplicationLogger:
                 writer.writerow(['Application Number', 'Full Name', 'Email', 'Phone', 'Created At'])
 
     def save_application(self, application_number, name, email, phone):
+        """Save application with proper column alignment"""
         with open(self.csv_path, 'a', newline='') as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow([

@@ -29,7 +29,9 @@ def generate_application_number():
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    # Generate new application number when returning to home
+    session['application_number'] = generate_application_number()
+    return render_template('index.html', application_number=session.get('application_number'))
 
 @app.route('/calculator')
 def calculator():
