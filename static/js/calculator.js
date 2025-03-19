@@ -185,8 +185,7 @@ class SolarCalculator {
                 grid_hours: document.getElementById('grid-hours')?.value || '',
                 monthly_fuel_cost: document.getElementById('generator-fuel')?.value || '',
                 daily_energy: document.getElementById('backup-daily-power')?.textContent || '',
-                maintenance_cost: document.getElementById('generator-maintenance')?.value || '',
-                application_number: document.getElementById('application-number')?.value || ''
+                maintenance_cost: document.getElementById('generator-maintenance')?.value || ''
             };
 
             // Enhanced validation

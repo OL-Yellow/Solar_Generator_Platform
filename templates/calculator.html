@@ -2,13 +2,6 @@
 
 {% block content %}
 <div class="container py-4">
-    <!-- Application Number Display -->
-    <div class="alert alert-info mb-4">
-        <strong>Your Application Number:</strong> {{ application_number }}
-        <br>
-        <small>Please save this number for future reference</small>
-    </div>
-
     <!-- Progress Bar -->
     <div class="progress mb-4">
         <div class="progress-bar" role="progressbar" style="width: 33%;" aria-valuenow="33" aria-valuemin="0" aria-valuemax="100"></div>
@@ -16,8 +9,6 @@
 
     <!-- Calculator Form -->
     <form id="calculator-form" class="needs-validation" novalidate>
-        <input type="hidden" id="application-number" value="{{ application_number }}">
-
         <!-- Step 1: User Type and Location -->
         <div id="step1" class="step-container">
             <h3 class="mb-4">Basic Information</h3>
