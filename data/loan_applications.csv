@@ -1,3 +1,2 @@
-Application Number,Location,Usage Type,Grid Hours,Monthly Fuel Cost,Daily Energy,Maintenance Cost,Full Name,Email,Phone,Created At,Updated At
-SOL-2025-10677,5.5,home,8,65000,1.47,50000,Oscar Liss,oscartest@gmail.com,08006565655,2025-03-19 19:17:21,2025-03-19 19:17:42
-SOL-2025-52660,6.0,dual,12,65000,3.90,50000,eafefv dafgsdf,oscartester@gmail.com,08006565655,2025-03-19 19:18:46,2025-03-19 19:19:12
+Application Number,Location,Usage Type,Grid Hours,Monthly Fuel Cost,Daily Energy,Maintenance Cost,Appliances & Equipment,Full Name,Email,Phone,Created At,Updated At
+SOL-2025-80817,5.5,home,7,65000,7.35,50000,"[{""type"": ""Ceiling Fan"", ""units"": 3, ""hours_per_day"": 6, ""backup_included"": true, ""power_watts"": 75, ""daily_usage_kwh"": 1.35}, {""type"": ""Chest Freezer"", ""units"": 5, ""hours_per_day"": 6, ""backup_included"": true, ""power_watts"": 200, ""daily_usage_kwh"": 6}]",eafefv dafgsdf,oscartest@gmail.com,08006565655,2025-03-19 19:43:51,2025-03-19 19:44:10
