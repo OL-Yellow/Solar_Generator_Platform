@@ -13,12 +13,13 @@
         <div id="step1" class="step-container">
             <h3 class="mb-4">Basic Information</h3>
             <div class="mb-3">
-                <label for="user-type" class="form-label">User Type</label>
-                <select class="form-select" id="user-type" required>
-                    <option value="household" selected>Household</option>
-                    <option value="business">Business</option>
+                <label for="usage-type" class="form-label">Usage Type</label>
+                <select class="form-select" id="usage-type" required>
+                    <option value="home" selected>Home Only</option>
+                    <option value="business">Business Only</option>
+                    <option value="dual">Both Home & Business (Portable System)</option>
                 </select>
-                <div class="invalid-feedback">Please select a user type.</div>
+                <div class="invalid-feedback">Please select your usage type.</div>
             </div>
             <div class="mb-3">
                 <label for="location" class="form-label">Location</label>
@@ -37,15 +38,7 @@
         <!-- Step 2: Current Power Usage -->
         <div id="step2" class="step-container d-none">
             <h3 class="mb-4">Current Power Usage</h3>
-            <div class="mb-3">
-                <label for="usage-type" class="form-label">Usage Type</label>
-                <select class="form-select" id="usage-type" required>
-                    <option value="home">Home Only</option>
-                    <option value="business">Business Only</option>
-                    <option value="dual">Both Home & Business (Portable System)</option>
-                </select>
-                <div class="invalid-feedback">Please select your usage type.</div>
-            </div>
+            
             <div class="mb-3">
                 <label for="grid-hours" class="form-label">Hours of Grid Power per Day</label>
                 <input type="number" class="form-control" id="grid-hours" value="8" required min="0" max="24">

@@ -181,7 +181,7 @@ class SolarCalculator {
         try {
             const userData = {
                 location: document.getElementById('location')?.value || '',
-                user_type: document.getElementById('usage-type')?.value || '',  // Using usage-type for both
+                user_type: document.getElementById('usage-type')?.value || '',
                 grid_hours: document.getElementById('grid-hours')?.value || '',
                 monthly_fuel_cost: document.getElementById('generator-fuel')?.value || '',
                 daily_energy: document.getElementById('backup-daily-power')?.textContent || '',
