@@ -59,12 +59,19 @@ def submit_lead():
         loan_db.save_application(name, email, phone, application_number)
 
         flash('Thank you! We will contact you soon.', 'success')
-        return redirect(url_for('calculator'))
+        return redirect(url_for('thank_you'))
 
     except Exception as e:
         logging.error(f"Error saving loan application: {str(e)}")
         flash('There was an error submitting your application. Please try again.', 'error')
         return redirect(url_for('loan_application'))
+
+@app.route('/thank-you')
+def thank_you():
+    application_number = session.get('application_number')
+    if not application_number:
+        return redirect(url_for('calculator'))
+    return render_template('thank-you.html', application_number=application_number)
 
 @app.route('/get_recommendations', methods=['POST'])
 def get_recommendations():
