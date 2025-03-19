@@ -179,13 +179,30 @@ class SolarCalculator {
 
     async calculateResults() {
         try {
+            // Collect appliance data
+            const appliances = [];
+            document.querySelectorAll('.appliance-item').forEach(item => {
+                const select = item.querySelector('.appliance-select');
+                if (select.value) {  // Only include appliances that have been selected
+                    appliances.push({
+                        type: select.value,
+                        units: parseInt(item.querySelector('.quantity-value').textContent) || 1,
+                        hours: parseInt(item.querySelector('.hours-value').textContent) || 6,
+                        backup: item.querySelector('.backup-toggle').dataset.state === 'yes',
+                        power: parseInt(item.querySelector('.watts-value').textContent) || 0,
+                        daily_usage: parseFloat(item.querySelector('.daily-kwh').textContent) || 0
+                    });
+                }
+            });
+
             const userData = {
                 location: document.getElementById('location')?.value || '',
                 user_type: document.getElementById('usage-type')?.value || '',
                 grid_hours: document.getElementById('grid-hours')?.value || '',
                 monthly_fuel_cost: document.getElementById('generator-fuel')?.value || '',
                 daily_energy: document.getElementById('backup-daily-power')?.textContent || '',
-                maintenance_cost: document.getElementById('generator-maintenance')?.value || ''
+                maintenance_cost: document.getElementById('generator-maintenance')?.value || '',
+                appliances: appliances  // Add appliances data to the request
             };
 
             // Enhanced validation

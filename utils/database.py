@@ -1,5 +1,6 @@
 import csv
 import os
+import json
 from datetime import datetime
 
 class LoanApplicationLogger:
@@ -23,6 +24,7 @@ class LoanApplicationLogger:
                     'Monthly Fuel Cost',
                     'Daily Energy',
                     'Maintenance Cost',
+                    'Appliances & Equipment',  # New column for JSON data
                     'Full Name',
                     'Email',
                     'Phone',
@@ -39,6 +41,19 @@ class LoanApplicationLogger:
         if not isinstance(existing_data, list):
             existing_data = list(existing_data)
 
+        # Format appliances data as JSON
+        appliances_data = calculator_data.get('appliances', [])
+        formatted_appliances = []
+        for appliance in appliances_data:
+            formatted_appliances.append({
+                'type': appliance.get('type', ''),
+                'units': appliance.get('units', 0),
+                'hours_per_day': appliance.get('hours', 0),
+                'backup_included': appliance.get('backup', False),
+                'power_watts': appliance.get('power', 0),
+                'daily_usage_kwh': appliance.get('daily_usage', 0)
+            })
+
         # Create new row if application doesn't exist
         new_row = {
             'Application Number': application_number,
@@ -48,6 +63,7 @@ class LoanApplicationLogger:
             'Monthly Fuel Cost': calculator_data.get('monthly_fuel_cost', ''),
             'Daily Energy': calculator_data.get('daily_energy', ''),
             'Maintenance Cost': calculator_data.get('maintenance_cost', ''),
+            'Appliances & Equipment': json.dumps(formatted_appliances),  # Store as JSON string
             'Full Name': '',
             'Email': '',
             'Phone': '',
@@ -86,7 +102,8 @@ class LoanApplicationLogger:
             fieldnames = [
                 'Application Number', 'Location', 'Usage Type', 'Grid Hours',
                 'Monthly Fuel Cost', 'Daily Energy', 'Maintenance Cost',
-                'Full Name', 'Email', 'Phone', 'Created At', 'Updated At'
+                'Appliances & Equipment', 'Full Name', 'Email', 'Phone',
+                'Created At', 'Updated At'
             ]
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
@@ -115,6 +132,7 @@ class LoanApplicationLogger:
                     'Monthly Fuel Cost': '',
                     'Daily Energy': '',
                     'Maintenance Cost': '',
+                    'Appliances & Equipment': '[]',  # Empty JSON array
                     'Created At': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
                     'Updated At': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 })
