@@ -25,15 +25,15 @@ NIGERIA_LOCATIONS = {
 
 @app.route('/')
 def index():
+    # Clear any existing application number when returning to landing page
+    session.pop('application_number', None)
     return render_template('index.html')
 
 @app.route('/calculator')
 def calculator():
-    # Generate application number if not exists
-    if 'application_number' not in session:
-        # Format: SOL-YYYY-XXXXX where XXXXX is a random 5-digit number
-        application_number = f"SOL-{datetime.now().year}-{str(uuid.uuid4().int)[:5]}"
-        session['application_number'] = application_number
+    # Always generate a new application number when starting calculator
+    application_number = f"SOL-{datetime.now().year}-{str(uuid.uuid4().int)[:5]}"
+    session['application_number'] = application_number
     return render_template('calculator.html', locations=NIGERIA_LOCATIONS, application_number=session.get('application_number'))
 
 @app.route('/loan_application')

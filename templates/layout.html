@@ -23,7 +23,7 @@
         </div>
     </nav>
 
-    {% if session.get('application_number') %}
+    {% if session.get('application_number') and request.endpoint != 'index' %}
     <div class="application-banner py-2 bg-primary text-center">
         <div class="container">
             <p class="mb-0">Your Application Number: <strong>{{ session.get('application_number') }}</strong></p>
