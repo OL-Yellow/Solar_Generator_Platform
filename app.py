@@ -3,8 +3,6 @@ from flask import Flask, render_template, request, session, redirect, url_for, f
 import logging
 # Import local calculator instead of AI
 from utils.system_calculator import get_system_recommendations
-from extensions import db
-from models import LoanApplication
 
 # Configure logging with more details
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -12,16 +10,8 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "dev_key_123")
 
-# Configure the database
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
-app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-    "pool_recycle": 300,
-    "pool_pre_ping": True,
-}
-db.init_app(app)
-
-with app.app_context():
-    db.create_all()
+# In-memory storage for leads
+leads = []
 
 # Nigerian states and average sun hours
 NIGERIA_LOCATIONS = {
@@ -65,11 +55,6 @@ def get_recommendations():
         logging.debug(f"Got recommendations result: {result}")
 
         if result.get('success'):
-            # Store the recommendations in session for the loan application
-            session['system_type'] = result.get('recommendations', {}).get('system_type', {}).get('type', '')
-            session['total_cost'] = result.get('recommendations', {}).get('financial', {}).get('cost_breakdown', {}).get('total', '')
-            session['monthly_savings'] = result.get('recommendations', {}).get('financial', {}).get('monthly_savings', '')
-
             return jsonify(result)
         else:
             logging.error(f"Failed to get recommendations: {result.get('error')}")
@@ -78,44 +63,6 @@ def get_recommendations():
     except Exception as e:
         logging.error(f"Error in get_recommendations: {str(e)}")
         return jsonify({'error': str(e)}), 500
-
-@app.route('/loan_application')
-def loan_application():
-    system_type = session.get('system_type', '')
-    total_cost = session.get('total_cost', '')
-    monthly_savings = session.get('monthly_savings', '')
-
-    if not all([system_type, total_cost, monthly_savings]):
-        flash('Please complete the solar calculator first', 'warning')
-        return redirect(url_for('calculator'))
-
-    return render_template('loan_application.html', 
-                         system_type=system_type,
-                         total_cost=total_cost,
-                         monthly_savings=monthly_savings)
-
-@app.route('/submit_loan_application', methods=['POST'])
-def submit_loan_application():
-    try:
-        application = LoanApplication(
-            full_name=request.form['full_name'],
-            email=request.form['email'],
-            phone=request.form['phone'],
-            system_type=request.form['system_type'],
-            total_cost=float(request.form['total_cost'].replace('₦', '').replace(',', '')),
-            monthly_savings=float(request.form['monthly_savings'].replace('₦', '').replace(',', ''))
-        )
-
-        db.session.add(application)
-        db.session.commit()
-
-        flash('Thank you for your application! We will contact you soon.', 'success')
-        return redirect(url_for('calculator'))
-
-    except Exception as e:
-        logging.error(f"Error submitting loan application: {str(e)}")
-        flash('There was an error submitting your application. Please try again.', 'error')
-        return redirect(url_for('loan_application'))
 
 @app.route('/submit_lead', methods=['POST'])
 def submit_lead():
