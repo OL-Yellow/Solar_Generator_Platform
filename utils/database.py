@@ -15,12 +15,13 @@ class LoanApplicationLogger:
         if not os.path.exists(self.csv_path):
             with open(self.csv_path, 'w', newline='') as csvfile:
                 writer = csv.writer(csvfile)
-                writer.writerow(['Full Name', 'Email', 'Phone', 'Created At'])
+                writer.writerow(['Application Number', 'Full Name', 'Email', 'Phone', 'Created At'])
 
-    def save_application(self, name, email, phone):
+    def save_application(self, name, email, phone, application_number):
         with open(self.csv_path, 'a', newline='') as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow([
+                application_number,
                 name,
                 email,
                 phone,

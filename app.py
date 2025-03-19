@@ -1,4 +1,6 @@
 import os
+import uuid
+from datetime import datetime
 from flask import Flask, render_template, request, session, redirect, url_for, flash, jsonify
 import logging
 # Import local calculator instead of AI
@@ -27,11 +29,19 @@ def index():
 
 @app.route('/calculator')
 def calculator():
-    return render_template('calculator.html', locations=NIGERIA_LOCATIONS)
+    # Generate application number if not exists
+    if 'application_number' not in session:
+        # Format: SOL-YYYY-XXXXX where XXXXX is a random 5-digit number
+        application_number = f"SOL-{datetime.now().year}-{str(uuid.uuid4().int)[:5]}"
+        session['application_number'] = application_number
+    return render_template('calculator.html', locations=NIGERIA_LOCATIONS, application_number=session.get('application_number'))
 
 @app.route('/loan_application')
 def loan_application():
-    return render_template('loan_application.html')
+    if 'application_number' not in session:
+        flash('Please start from the calculator page', 'error')
+        return redirect(url_for('calculator'))
+    return render_template('loan_application.html', application_number=session.get('application_number'))
 
 @app.route('/submit_lead', methods=['POST'])
 def submit_lead():
@@ -39,13 +49,14 @@ def submit_lead():
         name = request.form.get('name')
         email = request.form.get('email')
         phone = request.form.get('phone')
+        application_number = session.get('application_number')
 
-        if not all([name, email, phone]):
+        if not all([name, email, phone, application_number]):
             flash('Please fill in all required fields', 'error')
             return redirect(url_for('loan_application'))
 
-        # Save to SQLite database
-        loan_db.save_application(name, email, phone)
+        # Save to CSV file with application number
+        loan_db.save_application(name, email, phone, application_number)
 
         flash('Thank you! We will contact you soon.', 'success')
         return redirect(url_for('calculator'))

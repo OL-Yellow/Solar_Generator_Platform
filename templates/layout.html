@@ -23,6 +23,14 @@
         </div>
     </nav>
 
+    {% if session.get('application_number') %}
+    <div class="application-banner py-2 bg-primary text-center">
+        <div class="container">
+            <p class="mb-0">Your Application Number: <strong>{{ session.get('application_number') }}</strong></p>
+        </div>
+    </div>
+    {% endif %}
+
     <main>
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
