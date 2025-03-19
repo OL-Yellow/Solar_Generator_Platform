@@ -24,7 +24,8 @@ class LoanApplicationLogger:
                     'Monthly Fuel Cost',
                     'Daily Energy',
                     'Maintenance Cost',
-                    'Appliances & Equipment',  # New column for JSON data
+                    'Appliances & Equipment',  # JSON data
+                    'Recommended Solar Solution',  # New column for recommendation JSON data
                     'Full Name',
                     'Email',
                     'Phone',
@@ -32,7 +33,7 @@ class LoanApplicationLogger:
                     'Updated At'
                 ])
 
-    def save_calculator_data(self, application_number, calculator_data):
+    def save_calculator_data(self, application_number, calculator_data, recommendations_data=None):
         existing_data = self.get_all_applications()
         updated_rows = []
         found = False
@@ -54,6 +55,28 @@ class LoanApplicationLogger:
                 'daily_usage_kwh': appliance.get('daily_usage', 0)
             })
 
+        # Format recommendations data as JSON if provided
+        formatted_recommendations = {}
+        if recommendations_data:
+            formatted_recommendations = {
+                'recommended_system_type': {
+                    'system_type': recommendations_data['system_type']['type'],
+                    'rationale': recommendations_data['system_type']['rationale'],
+                    'configuration': recommendations_data['system_type']['configuration']
+                },
+                'solar_panel_system': {
+                    'total_capacity': recommendations_data['solar_system']['total_capacity'],
+                    'num_panels': recommendations_data['solar_system']['num_panels'],
+                    'panel_type': recommendations_data['solar_system']['panel_type'],
+                    'charge_controller': recommendations_data['solar_system']['charge_controller']
+                },
+                'battery_system': {
+                    'total_capacity': recommendations_data['battery_system']['total_capacity'],
+                    'battery_type': recommendations_data['battery_system']['battery_type'],
+                    'configuration': recommendations_data['battery_system']['configuration']
+                }
+            }
+
         # Create new row if application doesn't exist
         new_row = {
             'Application Number': application_number,
@@ -63,7 +86,8 @@ class LoanApplicationLogger:
             'Monthly Fuel Cost': calculator_data.get('monthly_fuel_cost', ''),
             'Daily Energy': calculator_data.get('daily_energy', ''),
             'Maintenance Cost': calculator_data.get('maintenance_cost', ''),
-            'Appliances & Equipment': json.dumps(formatted_appliances),  # Store as JSON string
+            'Appliances & Equipment': json.dumps(formatted_appliances),
+            'Recommended Solar Solution': json.dumps(formatted_recommendations) if recommendations_data else '{}',
             'Full Name': '',
             'Email': '',
             'Phone': '',
@@ -102,8 +126,8 @@ class LoanApplicationLogger:
             fieldnames = [
                 'Application Number', 'Location', 'Usage Type', 'Grid Hours',
                 'Monthly Fuel Cost', 'Daily Energy', 'Maintenance Cost',
-                'Appliances & Equipment', 'Full Name', 'Email', 'Phone',
-                'Created At', 'Updated At'
+                'Appliances & Equipment', 'Recommended Solar Solution',
+                'Full Name', 'Email', 'Phone', 'Created At', 'Updated At'
             ]
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
@@ -132,7 +156,8 @@ class LoanApplicationLogger:
                     'Monthly Fuel Cost': '',
                     'Daily Energy': '',
                     'Maintenance Cost': '',
-                    'Appliances & Equipment': '[]',  # Empty JSON array
+                    'Appliances & Equipment': '[]',
+                    'Recommended Solar Solution': '{}',
                     'Created At': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
                     'Updated At': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 })
