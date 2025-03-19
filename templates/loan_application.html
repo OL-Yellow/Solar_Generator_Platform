@@ -1,0 +1,58 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title text-center mb-4">Solar System Loan Application</h2>
+                    
+                    <div class="alert alert-info mb-4">
+                        <p class="mb-0">This is a pre-vetting round to find potential customers. We will not share your data, but if you qualify for a loan, we will reach out to you.</p>
+                    </div>
+
+                    <form action="{{ url_for('submit_lead') }}" method="POST" class="needs-validation" novalidate>
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                            <div class="invalid-feedback">Please enter your full name.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email Address</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                            <div class="invalid-feedback">Please enter a valid email address.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Contact Number</label>
+                            <input type="tel" class="form-control" id="phone" name="phone" required pattern="[0-9]{11}" placeholder="e.g., 08012345678">
+                            <div class="invalid-feedback">Please enter a valid Nigerian phone number.</div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="privacyConsent" required>
+                                <label class="form-check-label" for="privacyConsent">
+                                    I agree to the following terms:
+                                </label>
+                            </div>
+                            <ul class="mt-2 text-muted small">
+                                <li>My data will be used only for pre-vetting and qualification purposes</li>
+                                <li>My information will not be shared with third parties</li>
+                                <li>I consent to being contacted if I qualify for the loan</li>
+                            </ul>
+                            <div class="invalid-feedback">You must agree to the privacy terms to proceed.</div>
+                        </div>
+
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-solar btn-lg">Submit Application</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
