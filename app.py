@@ -1,6 +1,5 @@
 import os
 import uuid
-import json
 from datetime import datetime
 from flask import Flask, render_template, request, session, redirect, url_for, flash, jsonify
 import logging
@@ -82,18 +81,15 @@ def get_recommendations():
             logging.error(error_msg)
             return jsonify({'error': error_msg}), 400
 
+        # Save calculator data to CSV
+        application_number = session.get('application_number')
+        if application_number:
+            loan_db.save_calculator_data(application_number, user_data)
+            logging.info(f"Saved calculator data for application {application_number}")
+
         result = get_system_recommendations(user_data)
 
         if result.get('success'):
-            # Save calculator data and recommendations to CSV
-            application_number = session.get('application_number')
-            if application_number:
-                loan_db.save_calculator_data(
-                    application_number, 
-                    user_data,
-                    recommendations_data=json.loads(result['recommendations'])
-                )
-                logging.info(f"Saved calculator data for application {application_number}")
             return jsonify(result)
         else:
             return jsonify({'error': 'Failed to get recommendations', 'details': result.get('error')}), 500
