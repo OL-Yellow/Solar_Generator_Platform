@@ -325,7 +325,7 @@ function addApplianceRow() {
                             </div>
                         </div>
                         <div class="d-flex flex-column align-items-center">
-                            <label class="text-muted mb-1">Hours / Day</label>
+                            <label class="text-muted mb-1">Number Hours per Day in use</label>
                             <div class="btn-group">
                                 <button type="button" class="btn btn-sm btn-outline-secondary hours-btn" data-action="decrease">-</button>
                                 <span class="hours-value mx-2">6</span>
