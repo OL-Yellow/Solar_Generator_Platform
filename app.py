@@ -58,13 +58,8 @@ def submit_lead():
         # Save to CSV file with application number
         loan_db.save_application(name, email, phone, application_number)
 
-        return redirect(url_for('thank_you'))
-
-@app.route('/thank-you')
-def thank_you():
-    if 'application_number' not in session:
+        flash('Thank you! We will contact you soon.', 'success')
         return redirect(url_for('calculator'))
-    return render_template('thank_you.html')
 
     except Exception as e:
         logging.error(f"Error saving loan application: {str(e)}")
