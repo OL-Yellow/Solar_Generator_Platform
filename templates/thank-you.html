@@ -1,3 +1,4 @@
+
 {% extends "layout.html" %}
 
 {% block content %}
@@ -15,9 +16,7 @@
                         <p class="mb-2"><strong>Your Application Number:</strong></p>
                         <p class="h4 mb-0">{{ application_number }}</p>
                     </div>
-                    <div class="text-muted mb-4">
-                        <p>We have received your solar system loan application and will review it shortly.</p>
-                    </div>
+                    <p class="h5 mb-4">We have received your solar system loan application and will review it shortly.</p>
                     <div class="mt-4">
                         <a href="{{ url_for('calculator') }}" class="btn btn-solar btn-lg">
                             Return to Calculator
