@@ -31,6 +31,10 @@ def index():
 def calculator():
     return render_template('calculator.html', locations=NIGERIA_LOCATIONS)
 
+@app.route('/loan_application')
+def loan_application():
+    return render_template('loan_application.html')
+
 @app.route('/get_recommendations', methods=['POST'])
 def get_recommendations():
     try:
