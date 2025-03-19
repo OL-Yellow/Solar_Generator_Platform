@@ -1,7 +1,6 @@
 import os
 from flask import Flask, render_template, request, session, redirect, url_for, flash, jsonify
 import logging
-from datetime import datetime
 # Import local calculator instead of AI
 from utils.system_calculator import get_system_recommendations
 from utils.database import db as loan_db
@@ -22,34 +21,17 @@ NIGERIA_LOCATIONS = {
     "Enugu": 5.6
 }
 
-def generate_application_number():
-    """Generate a unique application number based on timestamp"""
-    timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
-    return f"SOL-{timestamp}"
-
 @app.route('/')
 def index():
-    # Generate new application number when returning to home
-    session['application_number'] = generate_application_number()
-    return render_template('index.html', application_number=session.get('application_number'))
+    return render_template('index.html')
 
 @app.route('/calculator')
 def calculator():
-    # Generate application number if not exists
-    if 'application_number' not in session:
-        session['application_number'] = generate_application_number()
-    return render_template('calculator.html', 
-                         locations=NIGERIA_LOCATIONS,
-                         application_number=session.get('application_number'))
+    return render_template('calculator.html', locations=NIGERIA_LOCATIONS)
 
 @app.route('/loan_application')
 def loan_application():
-    application_number = session.get('application_number')
-    if not application_number:
-        # If somehow the user got here without an application number, generate one
-        application_number = generate_application_number()
-        session['application_number'] = application_number
-    return render_template('loan_application.html', application_number=application_number)
+    return render_template('loan_application.html')
 
 @app.route('/submit_lead', methods=['POST'])
 def submit_lead():
@@ -57,14 +39,13 @@ def submit_lead():
         name = request.form.get('name')
         email = request.form.get('email')
         phone = request.form.get('phone')
-        application_number = session.get('application_number', generate_application_number())
 
         if not all([name, email, phone]):
             flash('Please fill in all required fields', 'error')
             return redirect(url_for('loan_application'))
 
-        # Save to CSV file with application number
-        loan_db.save_application(application_number, name, email, phone)
+        # Save to SQLite database
+        loan_db.save_application(name, email, phone)
 
         flash('Thank you! We will contact you soon.', 'success')
         return redirect(url_for('calculator'))
