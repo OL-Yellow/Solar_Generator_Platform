@@ -542,6 +542,14 @@ def get_html_recommendations(recommendations_data):
             </div>
         </div>
     """
+    # Add loan application button
+    html_recommendations += """
+        <div class="text-center mt-4">
+            <a href="/loan_application" class="btn btn-solar btn-lg">
+                Apply for Solar System Loan
+            </a>
+        </div>
+    """
     return html_recommendations
 
 def get_system_recommendations(user_data):
