@@ -80,11 +80,24 @@
             }
         });
 
-        // Track calculator interactions
-        if (window.location.pathname.includes('calculator')) {
+        // Track specific page views
+        const currentPath = window.location.pathname;
+
+        if (currentPath.includes('calculator')) {
             fbq('track', 'ViewContent', {
                 content_name: 'Solar Calculator',
                 content_type: 'calculator_tool'
+            });
+        } else if (currentPath.includes('results')) {
+            fbq('track', 'ViewContent', {
+                content_name: 'Calculator Results',
+                content_type: 'results_page',
+                status: 'calculation_complete'
+            });
+        } else if (currentPath.includes('thank-you')) {
+            fbq('track', 'CompleteRegistration', {
+                content_name: 'Application Complete',
+                status: 'application_submitted'
             });
         }
     </script>
