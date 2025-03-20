@@ -262,7 +262,8 @@ def calculate_system_cost(daily_energy_kwh, location, backup_days, user_type, ba
             "total_capacity": f"{system_size_kw} kW",
             "num_panels": f"{panel_count}",
             "panel_type": "400 W monocrystalline",
-            "charge_controller": charge_controller_size
+            "charge_controller": charge_controller_size,
+            "inverter_size": inverter_size # Added inverter size
         },
         "battery_system": {
             "total_capacity": f"{battery_size_kwh} kWh",
@@ -344,6 +345,10 @@ def get_html_recommendations(recommendations_data):
                                     <div class="spec-item">
                                         <span class="spec-label">Charge Controller:</span>
                                         <span class="spec-value">{recommendations_data['solar_system']['charge_controller']}</span>
+                                    </div>
+                                    <div class="spec-item">
+                                        <span class="spec-label">Inverter Size:</span>
+                                        <span class="spec-value">{recommendations_data['solar_system']['inverter_size']}</span>
                                     </div>
                                 </div>
                             </div>

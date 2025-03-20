@@ -99,7 +99,7 @@ def submit_lead():
         # Save to CSV file with application number
         loan_db.save_application(name, email, phone, application_number)
 
-        flash('Thank you! We will contact you soon.', 'success')
+        flash('Thank you! We appreciate your time.', 'success')
         return redirect(url_for('thank_you'))
 
     except Exception as e:
