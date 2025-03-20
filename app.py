@@ -1,7 +1,8 @@
 import os
 import uuid
 from datetime import datetime
-from flask import Flask, render_template, request, session, redirect, url_for, flash, jsonify
+from flask import Flask, render_template, request, session, redirect, url_for, flash, jsonify, send_file
+from functools import wraps
 import logging
 # Import local calculator instead of AI
 from utils.system_calculator import get_system_recommendations
@@ -22,6 +23,46 @@ NIGERIA_LOCATIONS = {
     "Ibadan": 5.8,
     "Enugu": 5.6
 }
+
+def check_auth(username, password):
+    """Check if the username / password combination is valid"""
+    return (username == os.environ.get('ADMIN_USERNAME') and 
+            password == os.environ.get('ADMIN_PASSWORD'))
+
+def authenticate():
+    """Send a 401 response that enables basic auth"""
+    return ('Could not verify your access level for that URL.\n'
+            'You have to login with proper credentials', 401,
+            {'WWW-Authenticate': 'Basic realm="Login Required"'})
+
+def requires_auth(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth = request.authorization
+        if not auth or not check_auth(auth.username, auth.password):
+            return authenticate()
+        return f(*args, **kwargs)
+    return decorated
+
+@app.route('/admin/download-applications')
+@requires_auth
+def download_applications():
+    """Secure endpoint to download loan applications CSV"""
+    try:
+        csv_path = 'data/loan_applications.csv'
+        if os.path.exists(csv_path):
+            return send_file(
+                csv_path,
+                mimetype='text/csv',
+                as_attachment=True,
+                download_name=f'loan_applications_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv'
+            )
+        else:
+            logging.error("CSV file not found")
+            return "No applications data available", 404
+    except Exception as e:
+        logging.error(f"Error downloading CSV: {str(e)}")
+        return "Error downloading file", 500
 
 @app.route('/')
 def index():
