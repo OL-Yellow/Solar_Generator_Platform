@@ -37,6 +37,22 @@ body {
     background-color: #ffffff;
     border-radius: 1rem;
     padding: 2rem;
+
+/* Prevent dropdown text truncation */
+.form-select {
+    text-overflow: unset;
+    white-space: normal;
+    word-wrap: break-word;
+    height: auto;
+    min-height: calc(1.5em + 0.75rem + 2px);
+}
+
+.form-select option {
+    white-space: normal;
+    word-wrap: break-word;
+    padding: 0.5rem;
+}
+
     margin-bottom: 2rem;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
