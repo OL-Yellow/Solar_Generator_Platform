@@ -5,6 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nigerian Solar Calculator</title>
 
+    <!-- Meta Pixel Code -->
+    <script>
+        !function(f,b,e,v,n,t,s)
+        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+        n.queue=[];t=b.createElement(e);t.async=!0;
+        t.src=v;s=b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t,s)}(window, document,'script',
+        'https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', '719755792979501');
+        fbq('track', 'PageView');
+    </script>
+    <noscript>
+        <img height="1" width="1" style="display:none"
+        src="https://www.facebook.com/tr?id=719755792979501&ev=PageView&noscript=1"/>
+    </noscript>
+    <!-- End Meta Pixel Code -->
+
     <!-- Bootstrap CSS -->
     <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
     <!-- Custom CSS -->
@@ -51,6 +70,24 @@
             <span class="text-muted">© 2024 Solar Calculator for Nigerian Homes & Businesses</span>
         </div>
     </footer>
+
+    <!-- Custom Meta Pixel Event Tracking -->
+    <script>
+        // Track form submissions
+        document.addEventListener('submit', function(e) {
+            if (e.target.tagName === 'FORM') {
+                fbq('track', 'Lead');
+            }
+        });
+
+        // Track calculator interactions
+        if (window.location.pathname.includes('calculator')) {
+            fbq('track', 'ViewContent', {
+                content_name: 'Solar Calculator',
+                content_type: 'calculator_tool'
+            });
+        }
+    </script>
 
     <!-- Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
