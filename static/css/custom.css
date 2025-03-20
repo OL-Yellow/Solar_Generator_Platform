@@ -40,17 +40,22 @@ body {
 
 /* Prevent dropdown text truncation */
 .form-select {
-    text-overflow: unset;
+    text-overflow: clip;
     white-space: normal;
     word-wrap: break-word;
     height: auto;
     min-height: calc(1.5em + 0.75rem + 2px);
+    max-width: 100%;
+    overflow: visible;
+    -webkit-appearance: menulist;
 }
 
 .form-select option {
     white-space: normal;
     word-wrap: break-word;
     padding: 0.5rem;
+    overflow: visible;
+    text-overflow: clip;
 }
 
     margin-bottom: 2rem;
