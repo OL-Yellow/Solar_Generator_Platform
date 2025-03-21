@@ -1,18 +1,37 @@
 import os
 import uuid
+import csv
+import io
 from datetime import datetime
 from flask import Flask, render_template, request, session, redirect, url_for, flash, jsonify, send_file
 from functools import wraps
 import logging
 # Import local calculator instead of AI
 from utils.system_calculator import get_system_recommendations
-from utils.database import db as loan_db
 
 # Configure logging with more details
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "dev_key_123")
+
+# Configure SQLAlchemy
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+    "pool_recycle": 300,
+    "pool_pre_ping": True,
+}
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+# Import and initialize models
+from models import db, LoanApplication
+db.init_app(app)
+
+with app.app_context():
+    db.create_all()
+
+# Import database utils after initializing SQLAlchemy
+from utils.database import db as loan_db
 
 # Nigerian states and average sun hours
 NIGERIA_LOCATIONS = {
@@ -47,21 +66,64 @@ def requires_auth(f):
 @app.route('/admin/download-applications')
 @requires_auth
 def download_applications():
-    """Secure endpoint to download loan applications CSV"""
+    """Secure endpoint to download loan applications CSV from database"""
     try:
-        csv_path = 'data/loan_applications.csv'
-        if os.path.exists(csv_path):
-            return send_file(
-                csv_path,
-                mimetype='text/csv',
-                as_attachment=True,
-                download_name=f'loan_applications_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv'
-            )
-        else:
-            logging.error("CSV file not found")
+        # Fetch all applications from database
+        applications = LoanApplication.query.all()
+        
+        if not applications:
+            logging.warning("No applications found in database")
             return "No applications data available", 404
+            
+        # Create CSV in memory
+        output = io.StringIO()
+        writer = csv.writer(output)
+        
+        # Write header
+        writer.writerow([
+            'Application Number',
+            'Location',
+            'Usage Type',
+            'Grid Hours',
+            'Monthly Fuel Cost',
+            'Daily Energy',
+            'Maintenance Cost',
+            'Appliances & Equipment',
+            'Full Name',
+            'Email',
+            'Phone',
+            'Created At',
+            'Updated At'
+        ])
+        
+        # Write data rows
+        for app in applications:
+            writer.writerow([
+                app.application_number,
+                app.location,
+                app.usage_type,
+                app.grid_hours,
+                app.monthly_fuel_cost,
+                app.daily_energy,
+                app.maintenance_cost,
+                app.appliances_equipment,
+                app.full_name,
+                app.email,
+                app.phone,
+                app.created_at.strftime('%Y-%m-%d %H:%M:%S') if app.created_at else '',
+                app.updated_at.strftime('%Y-%m-%d %H:%M:%S') if app.updated_at else ''
+            ])
+        
+        # Prepare CSV for download
+        output.seek(0)
+        return send_file(
+            io.BytesIO(output.getvalue().encode('utf-8')),
+            mimetype='text/csv',
+            as_attachment=True,
+            download_name=f'loan_applications_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv'
+        )
     except Exception as e:
-        logging.error(f"Error downloading CSV: {str(e)}")
+        logging.error(f"Error downloading applications: {str(e)}")
         return "Error downloading file", 500
 
 @app.route('/')
