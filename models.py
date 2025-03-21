@@ -2,6 +2,7 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 import json
 
+# Initialize SQLAlchemy without binding to an app yet
 db = SQLAlchemy()
 
 class LoanApplication(db.Model):
