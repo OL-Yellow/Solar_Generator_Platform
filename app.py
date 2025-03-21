@@ -1,18 +1,31 @@
 import os
 import uuid
+from io import BytesIO
 from datetime import datetime
 from flask import Flask, render_template, request, session, redirect, url_for, flash, jsonify, send_file
 from functools import wraps
 import logging
 # Import local calculator instead of AI
 from utils.system_calculator import get_system_recommendations
-from utils.database import db as loan_db
+from models import db, LoanApplication
+from utils.database_pg import db_manager
 
 # Configure logging with more details
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "dev_key_123")
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+db.init_app(app)
+
+# Create database tables if they don't exist
+with app.app_context():
+    try:
+        db.create_all()
+        logging.info("Database tables created successfully")
+    except Exception as e:
+        logging.error(f"Error creating database tables: {str(e)}")
 
 # Nigerian states and average sun hours
 NIGERIA_LOCATIONS = {
@@ -49,16 +62,22 @@ def requires_auth(f):
 def download_applications():
     """Secure endpoint to download loan applications CSV"""
     try:
-        csv_path = 'data/loan_applications.csv'
-        if os.path.exists(csv_path):
+        # Get CSV data from the database manager
+        csv_data = db_manager.export_to_csv()
+        
+        if csv_data:
+            # Create a BytesIO object from the CSV string
+            csv_buffer = BytesIO(csv_data.encode())
+            
+            # Return the CSV as a file attachment
             return send_file(
-                csv_path,
+                csv_buffer,
                 mimetype='text/csv',
                 as_attachment=True,
                 download_name=f'loan_applications_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv'
             )
         else:
-            logging.error("CSV file not found")
+            logging.error("No applications data available")
             return "No applications data available", 404
     except Exception as e:
         logging.error(f"Error downloading CSV: {str(e)}")
@@ -96,8 +115,8 @@ def submit_lead():
             flash('Please fill in all required fields', 'error')
             return redirect(url_for('loan_application'))
 
-        # Save to CSV file with application number
-        loan_db.save_application(name, email, phone, application_number)
+        # Save to database with application number
+        db_manager.save_application(name, email, phone, application_number)
 
         flash('Thank you! We appreciate your time.', 'success')
         return redirect(url_for('thank_you'))
@@ -129,10 +148,10 @@ def get_recommendations():
             logging.error(error_msg)
             return jsonify({'error': error_msg}), 400
 
-        # Save calculator data to CSV
+        # Save calculator data to database
         application_number = session.get('application_number')
         if application_number:
-            loan_db.save_calculator_data(application_number, user_data)
+            db_manager.save_calculator_data(application_number, user_data)
             logging.info(f"Saved calculator data for application {application_number}")
 
         result = get_system_recommendations(user_data)
