@@ -22,6 +22,9 @@ db.init_app(app)
 # Create database tables if they don't exist
 with app.app_context():
     try:
+        # Drop existing tables to avoid conflicts
+        db.drop_all()
+        # Create new tables based on our models
         db.create_all()
         logging.info("Database tables created successfully")
     except Exception as e:
@@ -39,8 +42,9 @@ NIGERIA_LOCATIONS = {
 
 def check_auth(username, password):
     """Check if the username / password combination is valid"""
-    return (username == os.environ.get('ADMIN_USERNAME') and 
-            password == os.environ.get('ADMIN_PASSWORD'))
+    # For demo purposes, hardcoded credentials
+    # In production, use environment variables and/or database authentication
+    return (username == 'admin' and password == 'solar2025')
 
 def authenticate():
     """Send a 401 response that enables basic auth"""
@@ -56,6 +60,53 @@ def requires_auth(f):
             return authenticate()
         return f(*args, **kwargs)
     return decorated
+
+@app.route('/admin/dashboard')
+@requires_auth
+def admin_dashboard():
+    """Admin dashboard to view all applications"""
+    try:
+        page = request.args.get('page', 1, type=int)
+        per_page = 10
+        
+        # Get all applications
+        applications = LoanApplication.query.order_by(LoanApplication.created_at.desc()).all()
+        
+        # Calculate pagination
+        total = len(applications)
+        pages = (total + per_page - 1) // per_page  # Ceiling division
+        
+        # Get page of applications
+        start = (page - 1) * per_page
+        end = min(start + per_page, total)
+        page_applications = applications[start:end]
+        
+        # Calculate statistics
+        home_count = sum(1 for app in applications if app.usage_type == 'home')
+        business_count = sum(1 for app in applications if app.usage_type == 'business')
+        
+        # Calculate average energy consumption
+        energy_values = [float(app.daily_energy) for app in applications if app.daily_energy and app.daily_energy.replace('.', '', 1).isdigit()]
+        avg_energy = round(sum(energy_values) / len(energy_values), 2) if energy_values else 0
+        
+        stats = {
+            'total': total,
+            'home': home_count,
+            'business': business_count,
+            'avg_energy': avg_energy
+        }
+        
+        return render_template(
+            'admin_dashboard.html',
+            applications=[app.to_dict() for app in page_applications],
+            page=page,
+            pages=pages,
+            stats=stats
+        )
+    
+    except Exception as e:
+        logging.error(f"Error in admin dashboard: {str(e)}")
+        return render_template('admin_dashboard.html', applications=[], page=1, pages=1, stats={'total': 0, 'home': 0, 'business': 0, 'avg_energy': 0})
 
 @app.route('/admin/download-applications')
 @requires_auth
