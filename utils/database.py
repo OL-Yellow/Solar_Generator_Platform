@@ -24,7 +24,7 @@ class LoanApplicationLogger:
                 })
 
             # Check if application already exists
-            application = LoanApplication.query.filter_by(application_number=application_number).first()
+            application = SolarLoanApplication.query.filter_by(application_number=application_number).first()
             
             if application:
                 # Update existing application
@@ -38,7 +38,7 @@ class LoanApplicationLogger:
                 application.updated_at = datetime.utcnow()
             else:
                 # Create new application
-                application = LoanApplication(
+                application = SolarLoanApplication(
                     application_number=application_number,
                     location=calculator_data.get('location_name', 'Unknown'),
                     usage_type=calculator_data.get('user_type', ''),
@@ -63,7 +63,7 @@ class LoanApplicationLogger:
     def save_application(self, name, email, phone, application_number):
         try:
             # Check if application already exists
-            application = LoanApplication.query.filter_by(application_number=application_number).first()
+            application = SolarLoanApplication.query.filter_by(application_number=application_number).first()
             
             if application:
                 # Update existing application with personal information
@@ -73,7 +73,7 @@ class LoanApplicationLogger:
                 application.updated_at = datetime.utcnow()
             else:
                 # Create new application with minimal data
-                application = LoanApplication(
+                application = SolarLoanApplication(
                     application_number=application_number,
                     full_name=name,
                     email=email,
@@ -95,7 +95,7 @@ class LoanApplicationLogger:
     def get_all_applications(self):
         try:
             # Get all applications from the database
-            applications = LoanApplication.query.all()
+            applications = SolarLoanApplication.query.all()
             return applications
         except Exception as e:
             logging.error(f"Error retrieving applications from PostgreSQL: {str(e)}")

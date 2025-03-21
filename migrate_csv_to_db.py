@@ -3,7 +3,7 @@ import os
 import json
 import logging
 from datetime import datetime
-from app import app, LoanApplication, db
+from app import app, SolarLoanApplication, db
 
 # Configure logging with more details
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -34,7 +34,7 @@ def migrate_csv_to_database():
                 continue
                 
             # Check if application already exists in database
-            existing = LoanApplication.query.filter_by(application_number=app_number).first()
+            existing = SolarLoanApplication.query.filter_by(application_number=app_number).first()
             if existing:
                 logging.info(f"Application {app_number} already exists in database. Skipping.")
                 continue
@@ -59,7 +59,7 @@ def migrate_csv_to_database():
                 grid_hours = monthly_fuel_cost = daily_energy = maintenance_cost = None
             
             # Create new application
-            new_app = LoanApplication(
+            new_app = SolarLoanApplication(
                 application_number=app_number,
                 location=row.get('Location', ''),
                 usage_type=row.get('Usage Type', ''),
