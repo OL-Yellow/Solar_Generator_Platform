@@ -161,9 +161,10 @@ class LoanApplicationManager:
     def get_application_by_number(self, application_number):
         """Get a specific application by its number"""
         try:
-            application = LoanApplication.query.filter_by(application_number=application_number).first()
+            application = db.session.query(LoanApplication).filter_by(application_number=application_number).first()
             if application:
                 return application.to_dict()
+            logging.debug(f"No application found for number: {application_number}")
             return None
         except Exception as e:
             logging.error(f"Error retrieving application {application_number}: {str(e)}")
