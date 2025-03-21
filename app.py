@@ -24,7 +24,7 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 # Import and initialize models
-from models import db, LoanApplication
+from models import db, SolarLoanApplication
 db.init_app(app)
 
 with app.app_context():
@@ -69,7 +69,7 @@ def download_applications():
     """Secure endpoint to download loan applications CSV from database"""
     try:
         # Fetch all applications from database
-        applications = LoanApplication.query.all()
+        applications = SolarLoanApplication.query.all()
         
         if not applications:
             logging.warning("No applications found in database")

@@ -7,7 +7,9 @@ class Base(DeclarativeBase):
 
 db = SQLAlchemy(model_class=Base)
 
-class LoanApplication(db.Model):
+class SolarLoanApplication(db.Model):
+    __tablename__ = 'solar_loan_applications'
+    
     id = db.Column(db.Integer, primary_key=True)
     application_number = db.Column(db.String(50), unique=True, nullable=False)
     location = db.Column(db.String(50))
@@ -24,4 +26,4 @@ class LoanApplication(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     def __repr__(self):
-        return f'<LoanApplication {self.application_number}>'
+        return f'<SolarLoanApplication {self.application_number}>'

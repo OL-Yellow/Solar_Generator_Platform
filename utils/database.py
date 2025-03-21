@@ -1,7 +1,7 @@
 import json
 import logging
 from datetime import datetime
-from models import db, LoanApplication
+from models import db, SolarLoanApplication
 
 class LoanApplicationLogger:
     def __init__(self):
