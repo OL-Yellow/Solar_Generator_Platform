@@ -25,36 +25,64 @@ class LoanApplicationManager:
                     'daily_usage_kwh': appliance.get('daily_usage', 0)
                 })
             
-            # Check if application already exists
-            application = LoanApplication.query.filter_by(application_number=application_number).first()
+            # Log the data for debugging
+            logging.debug(f"Calculator data: {calculator_data}")
+            logging.debug(f"Formatted appliances: {formatted_appliances}")
             
-            if application:
-                # Update existing application
-                application.location = calculator_data.get('location_name', 'Unknown')
-                application.usage_type = calculator_data.get('user_type', '')
-                application.grid_hours = calculator_data.get('grid_hours', '')
-                application.monthly_fuel_cost = calculator_data.get('monthly_fuel_cost', '')
-                application.daily_energy = calculator_data.get('daily_energy', '')
-                application.maintenance_cost = calculator_data.get('maintenance_cost', '')
-                application.set_appliances(formatted_appliances)
-                application.updated_at = datetime.utcnow()
-            else:
-                # Create new application
+            try:
+                # Check if application already exists using a fresh session
+                application = db.session.query(LoanApplication).filter_by(application_number=application_number).first()
+                
+                if application:
+                    # Update existing application
+                    application.location = calculator_data.get('location_name', 'Unknown')
+                    application.usage_type = calculator_data.get('user_type', '')
+                    application.grid_hours = str(calculator_data.get('grid_hours', ''))
+                    application.monthly_fuel_cost = str(calculator_data.get('monthly_fuel_cost', ''))
+                    application.daily_energy = str(calculator_data.get('daily_energy', ''))
+                    application.maintenance_cost = str(calculator_data.get('maintenance_cost', ''))
+                    application.set_appliances(formatted_appliances)
+                    application.updated_at = datetime.utcnow()
+                    logging.info(f"Updated existing application {application_number}")
+                else:
+                    # Create new application
+                    application = LoanApplication(
+                        application_number=application_number,
+                        location=calculator_data.get('location_name', 'Unknown'),
+                        usage_type=calculator_data.get('user_type', ''),
+                        grid_hours=str(calculator_data.get('grid_hours', '')),
+                        monthly_fuel_cost=str(calculator_data.get('monthly_fuel_cost', '')),
+                        daily_energy=str(calculator_data.get('daily_energy', '')),
+                        maintenance_cost=str(calculator_data.get('maintenance_cost', '')),
+                        appliances=json.dumps(formatted_appliances)
+                    )
+                    db.session.add(application)
+                    logging.info(f"Created new application {application_number}")
+                
+                db.session.commit()
+                logging.info(f"Successfully saved calculator data for application {application_number}")
+                return True
+                
+            except Exception as inner_e:
+                # If we have a connection error, try to reconnect
+                db.session.rollback()
+                logging.error(f"Database operation error: {str(inner_e)}")
+                # Create a new application with a fresh session attempt
                 application = LoanApplication(
                     application_number=application_number,
                     location=calculator_data.get('location_name', 'Unknown'),
                     usage_type=calculator_data.get('user_type', ''),
-                    grid_hours=calculator_data.get('grid_hours', ''),
-                    monthly_fuel_cost=calculator_data.get('monthly_fuel_cost', ''),
-                    daily_energy=calculator_data.get('daily_energy', ''),
-                    maintenance_cost=calculator_data.get('maintenance_cost', ''),
+                    grid_hours=str(calculator_data.get('grid_hours', '')),
+                    monthly_fuel_cost=str(calculator_data.get('monthly_fuel_cost', '')),
+                    daily_energy=str(calculator_data.get('daily_energy', '')),
+                    maintenance_cost=str(calculator_data.get('maintenance_cost', '')),
                     appliances=json.dumps(formatted_appliances)
                 )
                 db.session.add(application)
-            
-            db.session.commit()
-            logging.info(f"Saved calculator data for application {application_number}")
-            return True
+                db.session.commit()
+                logging.info(f"Created application after reconnection attempt: {application_number}")
+                return True
+                
         except Exception as e:
             db.session.rollback()
             logging.error(f"Error saving calculator data: {str(e)}")
@@ -63,17 +91,41 @@ class LoanApplicationManager:
     def save_application(self, name, email, phone, application_number):
         """Save or update personal information for an application"""
         try:
-            # Check if application already exists
-            application = LoanApplication.query.filter_by(application_number=application_number).first()
+            logging.debug(f"Attempting to save personal info for application {application_number}")
             
-            if application:
-                # Update existing application with personal info
-                application.full_name = name
-                application.email = email
-                application.phone = phone
-                application.updated_at = datetime.utcnow()
-            else:
-                # Create new application with minimal data
+            try:
+                # Check if application already exists
+                application = db.session.query(LoanApplication).filter_by(application_number=application_number).first()
+                
+                if application:
+                    # Update existing application with personal info
+                    logging.debug(f"Updating existing application {application_number}")
+                    application.full_name = name
+                    application.email = email
+                    application.phone = phone
+                    application.updated_at = datetime.utcnow()
+                else:
+                    # Create new application with minimal data
+                    logging.debug(f"Creating new application {application_number}")
+                    application = LoanApplication(
+                        application_number=application_number,
+                        full_name=name,
+                        email=email,
+                        phone=phone,
+                        appliances='[]'
+                    )
+                    db.session.add(application)
+                
+                db.session.commit()
+                logging.info(f"Successfully saved personal info for application {application_number}")
+                return True
+                
+            except Exception as inner_e:
+                # If we have a connection error, try to reconnect
+                db.session.rollback()
+                logging.error(f"Database operation error: {str(inner_e)}")
+                
+                # Create a new application with a fresh session attempt
                 application = LoanApplication(
                     application_number=application_number,
                     full_name=name,
@@ -82,10 +134,10 @@ class LoanApplicationManager:
                     appliances='[]'
                 )
                 db.session.add(application)
-            
-            db.session.commit()
-            logging.info(f"Saved personal info for application {application_number}")
-            return True
+                db.session.commit()
+                logging.info(f"Created application after reconnection attempt: {application_number}")
+                return True
+                
         except Exception as e:
             db.session.rollback()
             logging.error(f"Error saving personal info: {str(e)}")
@@ -94,8 +146,14 @@ class LoanApplicationManager:
     def get_all_applications(self):
         """Get all loan applications in dictionary format"""
         try:
-            applications = LoanApplication.query.all()
-            return [app.to_dict() for app in applications]
+            applications = db.session.query(LoanApplication).all()
+            result = []
+            for app in applications:
+                try:
+                    result.append(app.to_dict())
+                except Exception as app_e:
+                    logging.error(f"Error converting application to dict: {str(app_e)}")
+            return result
         except Exception as e:
             logging.error(f"Error retrieving applications: {str(e)}")
             return []

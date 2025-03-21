@@ -22,11 +22,9 @@ db.init_app(app)
 # Create database tables if they don't exist
 with app.app_context():
     try:
-        # Drop existing tables to avoid conflicts
-        db.drop_all()
-        # Create new tables based on our models
+        # Create tables if they don't exist (don't drop existing data)
         db.create_all()
-        logging.info("Database tables created successfully")
+        logging.info("Database tables created/verified successfully")
     except Exception as e:
         logging.error(f"Error creating database tables: {str(e)}")
 
