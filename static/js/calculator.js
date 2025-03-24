@@ -131,12 +131,39 @@ class SolarCalculator {
     }
 
     updateProgress() {
+        // Update progress bar
         const progressBar = document.querySelector('.progress-bar');
         if (progressBar) {
             const progress = (this.currentStep / this.totalSteps) * 100;
             progressBar.style.width = `${progress}%`;
             progressBar.setAttribute('aria-valuenow', progress);
         }
+        
+        // Update step indicators
+        document.querySelectorAll('.progress-step').forEach((step, index) => {
+            const stepNumber = index + 1;
+            
+            // Remove all status classes first
+            step.classList.remove('active', 'completed');
+            
+            // Add appropriate class based on current step
+            if (stepNumber === this.currentStep) {
+                step.classList.add('active');
+            } else if (stepNumber < this.currentStep) {
+                step.classList.add('completed');
+                // Add check icon for completed steps
+                step.innerHTML = '<i class="fas fa-check"></i>';
+            } else {
+                // Reset to step number for future steps
+                step.textContent = stepNumber;
+            }
+        });
+        
+        // Update step labels
+        document.querySelectorAll('.progress-label').forEach((label, index) => {
+            const stepNumber = index + 1;
+            label.classList.toggle('active', stepNumber === this.currentStep);
+        });
     }
 
     handleBackupToggle(button) {

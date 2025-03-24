@@ -2,9 +2,51 @@
 
 {% block content %}
 <div class="container py-4">
-    <!-- Progress Bar -->
-    <div class="progress mb-4">
-        <div class="progress-bar" role="progressbar" style="width: 33%;" aria-valuenow="33" aria-valuemin="0" aria-valuemax="100"></div>
+    <!-- Introduction Section -->
+    <div class="intro-section mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title mb-3">Nigerian Solar System Calculator</h2>
+                <p class="card-text">Discover how much you can save by switching from generators to solar power. Follow these simple steps to get your personalized solar system recommendation:</p>
+                <div class="steps-guide">
+                    <div class="step-item">
+                        <div class="step-number">1</div>
+                        <div class="step-text">Enter your location and usage type</div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">2</div>
+                        <div class="step-text">Tell us about your current power situation</div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">3</div>
+                        <div class="step-text">Add the appliances you want to power</div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">4</div>
+                        <div class="step-text">Get your personalized solar recommendation</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress Bar with Steps -->
+    <div class="progress-container mb-4">
+        <div class="progress-steps">
+            <div class="progress-step active" data-step="1">1</div>
+            <div class="progress-step" data-step="2">2</div>
+            <div class="progress-step" data-step="3">3</div>
+            <div class="progress-step" data-step="4">4</div>
+        </div>
+        <div class="progress">
+            <div class="progress-bar" role="progressbar" style="width: 25%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+        <div class="progress-labels">
+            <span class="progress-label active">Location</span>
+            <span class="progress-label">Power Usage</span>
+            <span class="progress-label">Appliances</span>
+            <span class="progress-label">Results</span>
+        </div>
     </div>
 
     <!-- Calculator Form -->
