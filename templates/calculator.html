@@ -54,85 +54,148 @@
         <!-- Step 1: User Type and Location -->
         <div id="step1" class="step-container">
             <h3 class="mb-4">Basic Information</h3>
-            <div class="mb-3">
+            <p class="mb-4">Let's start by understanding your location and how you plan to use solar power.</p>
+            
+            <div class="mb-4">
                 <label for="usage-type" class="form-label">Usage Type</label>
-                <select class="form-select" id="usage-type" required>
+                <select class="form-select touch-friendly" id="usage-type" required>
                     <option value="" selected disabled>Select usage type</option>
                     <option value="home">Home Only</option>
                     <option value="business">Business Only</option>
                     <option value="dual">Both Home & Business (Portable System)</option>
                 </select>
+                <div class="form-text">Choose how you plan to use your solar system</div>
                 <div class="invalid-feedback">Please select your usage type.</div>
             </div>
-            <div class="mb-3">
-                <label for="location" class="form-label">Location</label>
-                <select class="form-select" id="location" required>
+            
+            <div class="mb-4">
+                <label for="location" class="form-label">Your Location in Nigeria</label>
+                <select class="form-select touch-friendly" id="location" required>
                     {% for location, hours in locations.items() %}
                     <option value="{{ hours }}">{{ location }}</option>
                     {% endfor %}
                 </select>
+                <div class="form-text">This helps us calculate solar intensity in your region</div>
                 <div class="invalid-feedback">Please select your location.</div>
             </div>
-            <div class="d-flex justify-content-end">
-                <button type="button" class="btn btn-solar btn-next">Next <i class="fas fa-arrow-right"></i></button>
+            
+            <div class="d-flex justify-content-end mt-4">
+                <button type="button" class="btn btn-solar btn-next btn-lg">
+                    Next <i class="fas fa-arrow-right ms-2"></i>
+                </button>
             </div>
         </div>
 
         <!-- Step 2: Current Power Usage -->
         <div id="step2" class="step-container d-none">
             <h3 class="mb-4">Current Power Usage</h3>
+            <p class="mb-4">Tell us about your current power situation to help us calculate your potential savings.</p>
 
-            <div class="mb-3">
+            <div class="mb-4">
                 <label for="grid-hours" class="form-label">Hours of Grid Power per Day</label>
-                <input type="number" class="form-control" id="grid-hours" placeholder="Enter hours per day" required min="0" max="24">
-                <div class="invalid-feedback">Please enter valid hours (0-24).</div>
+                <div class="input-group touch-friendly mb-2">
+                    <select class="form-select" id="grid-hours" required>
+                        <option value="" disabled>Select hours</option>
+                        <option value="0">0 hours (No grid power)</option>
+                        <option value="2">1-3 hours</option>
+                        <option value="6">4-8 hours</option>
+                        <option value="12" selected>8-16 hours</option>
+                        <option value="20">16-24 hours</option>
+                    </select>
+                    <span class="input-group-text">hours</span>
+                </div>
+                <div class="form-text">Select the average number of hours you have grid power in a day</div>
+                <div class="invalid-feedback">Please select your grid power availability.</div>
             </div>
-            <div class="mb-3">
+            
+            <div class="mb-4">
                 <label for="generator-fuel" class="form-label">Monthly Fuel Cost (NGN)</label>
-                <input type="number" class="form-control" id="generator-fuel" placeholder="Enter monthly cost" required min="0">
-                <div class="invalid-feedback">Please enter your monthly fuel cost.</div>
+                <div class="input-group touch-friendly mb-2">
+                    <span class="input-group-text">₦</span>
+                    <select class="form-select" id="generator-fuel" required>
+                        <option value="" disabled>Select range</option>
+                        <option value="10000">Less than ₦10,000</option>
+                        <option value="20000">₦10,000 - ₦30,000</option>
+                        <option value="40000" selected>₦30,000 - ₦50,000</option>
+                        <option value="75000">₦50,000 - ₦100,000</option>
+                        <option value="150000">More than ₦100,000</option>
+                    </select>
+                </div>
+                <div class="form-text">Select how much you spend on generator fuel each month</div>
+                <div class="invalid-feedback">Please select your monthly fuel cost.</div>
             </div>
-            <div class="mb-3">
+            
+            <div class="mb-4">
                 <label for="generator-maintenance" class="form-label">Annual Maintenance Cost (NGN)</label>
-                <input type="number" class="form-control" id="generator-maintenance" placeholder="Enter yearly cost" required min="0">
-                <div class="invalid-feedback">Please enter maintenance cost.</div>
+                <div class="input-group touch-friendly mb-2">
+                    <span class="input-group-text">₦</span>
+                    <select class="form-select" id="generator-maintenance" required>
+                        <option value="" disabled>Select range</option>
+                        <option value="15000">Less than ₦15,000</option>
+                        <option value="30000" selected>₦15,000 - ₦45,000</option>
+                        <option value="60000">₦45,000 - ₦75,000</option>
+                        <option value="100000">More than ₦75,000</option>
+                    </select>
+                </div>
+                <div class="form-text">Select how much you spend on generator maintenance yearly</div>
+                <div class="invalid-feedback">Please select your maintenance cost.</div>
             </div>
-            <div class="d-flex justify-content-between">
-                <button type="button" class="btn btn-secondary btn-prev"><i class="fas fa-arrow-left"></i> Previous</button>
-                <button type="button" class="btn btn-solar btn-next">Next <i class="fas fa-arrow-right"></i></button>
+            
+            <div class="d-flex justify-content-between mt-4">
+                <button type="button" class="btn btn-outline-secondary btn-prev btn-lg">
+                    <i class="fas fa-arrow-left me-2"></i> Previous
+                </button>
+                <button type="button" class="btn btn-solar btn-next btn-lg">
+                    Next <i class="fas fa-arrow-right ms-2"></i>
+                </button>
             </div>
         </div>
 
         <!-- Step 3: Appliances -->
         <div id="step3" class="step-container d-none">
             <h3 class="mb-4">Appliances & Equipment</h3>
-            <p class="mb-4 appliance-instruction">Select the appliances you want to power during outages. The hours specified will determine your backup duration.</p>
+            <div class="alert alert-info mb-4">
+                <i class="fas fa-info-circle me-2"></i>
+                <strong>We've pre-filled some common appliances for you.</strong> You can edit these or add more as needed.
+            </div>
+            <p class="mb-4 appliance-instruction">Select all appliances you want to power with solar. For backup during outages, select "Yes" in the backup column.</p>
 
             <div class="appliance-list">
-                <button type="button" class="btn-add-appliance" onclick="addApplianceRow()">
-                    <i class="fas fa-plus me-2"></i>Add Appliance
+                <!-- Appliances will be added here by JavaScript -->
+                
+                <button type="button" class="btn-add-appliance mt-4" onclick="addApplianceRow()">
+                    <i class="fas fa-plus me-2"></i>Add Another Appliance
                 </button>
+                
                 <div class="total-power mt-4">
-                    <div class="d-flex flex-column">
-                        <div class="power-summary">
-                            <div class="d-flex justify-content-between mb-2">
-                                <span class="power-label">Total Daily Power:</span>
-                                <span class="power-value"><span id="total-daily-power">0.00</span> kWh</span>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <span class="power-label">Backup Power Required:</span>
-                                <span class="power-value"><span id="backup-daily-power">0.00</span> kWh</span>
+                    <h4 class="mb-3">Power Summary</h4>
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex flex-column">
+                                <div class="power-summary">
+                                    <div class="d-flex justify-content-between mb-3">
+                                        <span class="power-label">Total Daily Power Consumption:</span>
+                                        <span class="power-value"><span id="total-daily-power" class="value-highlight">0.00</span> kWh</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <span class="power-label">Backup Power Required:</span>
+                                        <span class="power-value"><span id="backup-daily-power" class="value-highlight">0.00</span> kWh</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
+                    </div>
+                    <div class="form-text mt-2">
+                        <i class="fas fa-lightbulb me-1 text-warning"></i> The backup power is what your solar system will need to provide during grid outages
                     </div>
                 </div>
             </div>
 
-            <div class="d-flex justify-content-between mt-4">
-                <button type="button" class="btn btn-secondary btn-prev">
+            <div class="d-flex justify-content-between mt-5">
+                <button type="button" class="btn btn-outline-secondary btn-prev btn-lg">
                     <i class="fas fa-arrow-left me-2"></i>Previous
                 </button>
-                <button type="button" class="btn btn-solar" id="calculate-btn">
+                <button type="button" class="btn btn-solar btn-lg" id="calculate-btn">
                     Calculate Results<i class="fas fa-calculator ms-2"></i>
                 </button>
             </div>
@@ -140,13 +203,51 @@
 
         <!-- Step 4: Results -->
         <div id="step4" class="step-container d-none">
-            <h3 class="mb-4">Recommended Solar Solution</h3>
-            <div id="results-section"></div>
-            <div class="d-flex justify-content-between mt-4">
-                <button type="button" class="btn btn-secondary btn-prev">
-                    <i class="fas fa-arrow-left me-2"></i>Previous
+            <div class="results-header mb-4">
+                <h3 class="mb-2">Your Personalized Solar Solution</h3>
+                <p class="text-muted">Based on your power needs and location in Nigeria</p>
+            </div>
+            
+            <div id="results-section" class="mb-4"></div>
+            
+            <div class="apply-section mt-5 p-4 bg-light rounded">
+                <h4 class="mb-3">Get A Free Consultation</h4>
+                <p>Leave your contact information to receive a detailed quote and speak with one of our solar experts about your custom solution.</p>
+                
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="full-name" placeholder="Your Full Name" required>
+                            <label for="full-name">Your Full Name</label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-floating">
+                            <input type="email" class="form-control" id="email" placeholder="Your Email" required>
+                            <label for="email">Your Email</label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-floating">
+                            <input type="tel" class="form-control" id="phone" placeholder="Your Phone Number" required>
+                            <label for="phone">Your Phone Number</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-3">
+                    <button type="button" id="submit-lead-btn" class="btn btn-solar btn-lg btn-cta">
+                        <span class="cta-text">Get My Free Quote</span>
+                        <i class="fas fa-paper-plane ms-2"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="d-flex justify-content-between mt-5">
+                <button type="button" class="btn btn-outline-secondary btn-prev btn-lg">
+                    <i class="fas fa-arrow-left me-2"></i>Review Appliances
                 </button>
-                <button type="button" class="btn btn-solar" onclick="window.location.reload()">
+                <button type="button" class="btn btn-outline-primary btn-lg" onclick="window.location.reload()">
                     Start New Calculation<i class="fas fa-redo ms-2"></i>
                 </button>
             </div>

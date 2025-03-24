@@ -114,10 +114,68 @@ class SolarCalculator {
 
     nextStep() {
         if (this.currentStep < this.totalSteps) {
+            // Basic form validation for current step
+            const currentStepElement = document.getElementById(`step${this.currentStep}`);
+            let isValid = true;
+            
+            // Get required fields in the current step
+            currentStepElement.querySelectorAll('input[required], select[required]').forEach(field => {
+                if (!field.value) {
+                    field.classList.add('is-invalid');
+                    isValid = false;
+                    
+                    // Add shake animation for visual feedback
+                    field.classList.add('shake-animation');
+                    setTimeout(() => {
+                        field.classList.remove('shake-animation');
+                    }, 500);
+                    
+                    // Focus on the first invalid field
+                    if (isValid === false) {
+                        field.focus();
+                    }
+                } else {
+                    field.classList.remove('is-invalid');
+                }
+            });
+            
+            if (!isValid) {
+                // Show validation message
+                let errorMessage = currentStepElement.querySelector('.validation-message');
+                if (!errorMessage) {
+                    errorMessage = document.createElement('div');
+                    errorMessage.className = 'validation-message alert alert-danger mt-3';
+                    errorMessage.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i>Please fill out all required fields before proceeding.';
+                    currentStepElement.appendChild(errorMessage);
+                    
+                    // Remove message after 3 seconds
+                    setTimeout(() => {
+                        errorMessage.remove();
+                    }, 3000);
+                }
+                return;
+            }
+            
+            // Transition to next step
             document.getElementById(`step${this.currentStep}`).classList.add('d-none');
             this.currentStep++;
-            document.getElementById(`step${this.currentStep}`).classList.remove('d-none');
+            
+            const nextStepElement = document.getElementById(`step${this.currentStep}`);
+            nextStepElement.classList.remove('d-none');
+            
+            // Highlight the active step
+            nextStepElement.classList.add('highlight-step');
+            setTimeout(() => {
+                nextStepElement.classList.remove('highlight-step');
+            }, 500);
+            
             this.updateProgress();
+            
+            // Scroll to top of form
+            window.scrollTo({
+                top: document.getElementById('calculator-form').offsetTop - 20,
+                behavior: 'smooth'
+            });
         }
     }
 
@@ -125,8 +183,23 @@ class SolarCalculator {
         if (this.currentStep > 1) {
             document.getElementById(`step${this.currentStep}`).classList.add('d-none');
             this.currentStep--;
-            document.getElementById(`step${this.currentStep}`).classList.remove('d-none');
+            
+            const prevStepElement = document.getElementById(`step${this.currentStep}`);
+            prevStepElement.classList.remove('d-none');
+            
+            // Highlight the active step
+            prevStepElement.classList.add('highlight-step');
+            setTimeout(() => {
+                prevStepElement.classList.remove('highlight-step');
+            }, 500);
+            
             this.updateProgress();
+            
+            // Scroll to top of form
+            window.scrollTo({
+                top: document.getElementById('calculator-form').offsetTop - 20,
+                behavior: 'smooth'
+            });
         }
     }
 
@@ -288,6 +361,9 @@ class SolarCalculator {
 // Initialize calculator when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     window.calculator = new SolarCalculator();
+    
+    // Add common pre-filled appliances for Nigerian households
+    addPrefilledAppliances();
 });
 
 // Function to add event listeners to appliance rows
@@ -405,6 +481,50 @@ function addApplianceRow() {
     const newRow = template.firstElementChild;
     applianceList.insertBefore(newRow, addButton);
     initializeApplianceRow(newRow);
+}
+
+// Function to add pre-filled common appliances for Nigerian households
+function addPrefilledAppliances() {
+    // Only add pre-filled appliances if there are no existing ones
+    if (document.querySelectorAll('.appliance-item').length === 0) {
+        // Common appliances for Nigerian homes with their default settings
+        const commonAppliances = [
+            { name: 'LED Lights', quantity: 5, hours: 8, backup: true },
+            { name: 'Ceiling Fan', quantity: 2, hours: 12, backup: true },
+            { name: 'TV (32-inch LED)', quantity: 1, hours: 6, backup: true },
+            { name: 'Smartphone Charger', quantity: 2, hours: 3, backup: true }
+        ];
+        
+        // Add each common appliance
+        commonAppliances.forEach(appliance => {
+            // Add new row
+            addApplianceRow();
+            
+            // Configure the last added row with the appliance data
+            const newRow = document.querySelector('.appliance-list .appliance-item:last-of-type');
+            
+            // Set the appliance type
+            const select = newRow.querySelector('.appliance-select');
+            select.value = appliance.name;
+            
+            // Set the quantity
+            const quantitySpan = newRow.querySelector('.quantity-value');
+            quantitySpan.textContent = appliance.quantity;
+            
+            // Set the hours
+            const hoursSpan = newRow.querySelector('.hours-value');
+            hoursSpan.textContent = appliance.hours;
+            
+            // Set backup status
+            const backupToggle = newRow.querySelector('.backup-toggle');
+            backupToggle.dataset.state = appliance.backup ? 'yes' : 'no';
+            backupToggle.textContent = appliance.backup ? 'Yes' : 'No';
+            backupToggle.classList.toggle('active', appliance.backup);
+            
+            // Update calculations
+            window.calculator.updateAppliancePower(newRow);
+        });
+    }
 }
 
 // Initialize existing appliance rows
