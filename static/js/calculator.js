@@ -368,10 +368,14 @@ class SolarCalculator {
 
 // Initialize calculator when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    window.calculator = new SolarCalculator();
-    
-    // Add common pre-filled appliances for Nigerian households
-    addPrefilledAppliances();
+    try {
+        window.calculator = new SolarCalculator();
+        
+        // Add common pre-filled appliances for Nigerian households
+        addPrefilledAppliances();
+    } catch (error) {
+        console.error('Error initializing calculator:', error);
+    }
 });
 
 // Function to add event listeners to appliance rows
@@ -427,7 +431,12 @@ function addApplianceRow() {
     }
 
     const applianceList = document.querySelector('.appliance-list');
-    const addButton = applianceList.querySelector('button[onclick="addApplianceRow()"]');
+    if (!applianceList) {
+        console.error('Appliance list container not found');
+        return;
+    }
+    
+    const addButton = applianceList.querySelector('.btn-add-appliance');
     const template = document.createElement('div');
 
     template.innerHTML = `
