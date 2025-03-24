@@ -466,14 +466,14 @@ function addApplianceRow() {
 
     template.innerHTML = `
         <div class="appliance-item">
-            <div class="d-flex justify-content-between align-items-start mb-2">
+            <div class="d-flex justify-content-between align-items-center mb-2">
                 <select class="form-select appliance-select mb-3" required>
                     <option value="">Select Appliance</option>
                     ${Object.keys(APPLIANCES).map(appliance =>
                         `<option value="${appliance}">${appliance}</option>`
                     ).join('')}
                 </select>
-                <button type="button" class="btn btn-sm btn-outline-danger delete-appliance" title="Remove appliance">
+                <button type="button" class="btn btn-sm btn-outline-danger delete-appliance ms-2" title="Remove appliance">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
