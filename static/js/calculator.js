@@ -368,57 +368,82 @@ class SolarCalculator {
 
 // Initialize calculator when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    try {
-        window.calculator = new SolarCalculator();
-        
-        // Add common pre-filled appliances for Nigerian households
-        addPrefilledAppliances();
-    } catch (error) {
-        console.error('Error initializing calculator:', error);
+    // Only initialize calculator if we're on the calculator page
+    if (document.getElementById('calculator-form')) {
+        try {
+            window.calculator = new SolarCalculator();
+            
+            // Add common pre-filled appliances for Nigerian households
+            addPrefilledAppliances();
+        } catch (error) {
+            console.error('Error initializing calculator:', error);
+        }
     }
 });
 
 // Function to add event listeners to appliance rows
 function initializeApplianceRow(applianceRow) {
+    if (!applianceRow) {
+        console.error('Invalid appliance row element');
+        return;
+    }
+    
     const calculator = window.calculator;
+    if (!calculator) {
+        console.error('Calculator not initialized');
+        return;
+    }
 
-    applianceRow.querySelector('.appliance-select').addEventListener('change', () =>
-        calculator.updateAppliancePower(applianceRow)
-    );
+    const selectElement = applianceRow.querySelector('.appliance-select');
+    if (selectElement) {
+        selectElement.addEventListener('change', () =>
+            calculator.updateAppliancePower(applianceRow)
+        );
+    }
 
     applianceRow.querySelectorAll('.quantity-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             const value = applianceRow.querySelector('.quantity-value');
-            if (btn.dataset.action === 'increase') {
-                value.textContent = parseInt(value.textContent) + 1;
-            } else {
-                value.textContent = Math.max(1, parseInt(value.textContent) - 1);
+            if (value) {
+                if (btn.dataset.action === 'increase') {
+                    value.textContent = parseInt(value.textContent) + 1;
+                } else {
+                    value.textContent = Math.max(1, parseInt(value.textContent) - 1);
+                }
+                calculator.updateAppliancePower(applianceRow);
             }
-            calculator.updateAppliancePower(applianceRow);
         });
     });
 
     applianceRow.querySelectorAll('.hours-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             const value = applianceRow.querySelector('.hours-value');
-            if (btn.dataset.action === 'increase') {
-                value.textContent = Math.min(24, parseInt(value.textContent) + 1);
-            } else {
-                value.textContent = Math.max(1, parseInt(value.textContent) - 1);
+            if (value) {
+                if (btn.dataset.action === 'increase') {
+                    value.textContent = Math.min(24, parseInt(value.textContent) + 1);
+                } else {
+                    value.textContent = Math.max(1, parseInt(value.textContent) - 1);
+                }
+                calculator.updateAppliancePower(applianceRow);
             }
-            calculator.updateAppliancePower(applianceRow);
         });
     });
 
-    applianceRow.querySelector('.backup-toggle').addEventListener('click', (e) => {
-        calculator.handleBackupToggle(e.target);
-        calculator.updateAppliancePower(applianceRow);
-    });
+    const backupToggle = applianceRow.querySelector('.backup-toggle');
+    if (backupToggle) {
+        backupToggle.addEventListener('click', (e) => {
+            calculator.handleBackupToggle(e.target);
+            calculator.updateAppliancePower(applianceRow);
+        });
+    }
 
-    applianceRow.querySelector('.delete-appliance').addEventListener('click', () => {
-        applianceRow.remove();
-        calculator.updateTotalPower();
-    });
+    const deleteBtn = applianceRow.querySelector('.delete-appliance');
+    if (deleteBtn) {
+        deleteBtn.addEventListener('click', () => {
+            applianceRow.remove();
+            calculator.updateTotalPower();
+        });
+    }
 
     calculator.updateAppliancePower(applianceRow);
 }
