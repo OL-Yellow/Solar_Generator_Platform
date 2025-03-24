@@ -9,22 +9,12 @@
                 <h2 class="card-title mb-3">Nigerian Solar System Calculator</h2>
                 <p class="card-text">Discover how much you can save by switching from generators to solar power. Follow these simple steps to get your personalized solar system recommendation:</p>
                 <div class="steps-guide">
-                    <div class="step-item">
-                        <div class="step-number">1</div>
-                        <div class="step-text">Enter your location and usage type</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-number">2</div>
-                        <div class="step-text">Tell us about your current power situation</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-number">3</div>
-                        <div class="step-text">Add the appliances you want to power</div>
-                    </div>
-                    <div class="step-item">
-                        <div class="step-number">4</div>
-                        <div class="step-text">Get your personalized solar recommendation</div>
-                    </div>
+                    <ol class="step-list">
+                        <li>Enter your location and usage type</li>
+                        <li>Tell us about your current power situation</li>
+                        <li>Add the appliances you want to power</li>
+                        <li>Get your personalized solar recommendation</li>
+                    </ol>
                 </div>
             </div>
         </div>
@@ -99,7 +89,8 @@
                         <option value="0">0 hours (No grid power)</option>
                         <option value="2">1-3 hours</option>
                         <option value="6">4-8 hours</option>
-                        <option value="12" selected>8-16 hours</option>
+                        <option value="10">8-12 hours</option>
+                        <option value="14" selected>12-16 hours</option>
                         <option value="20">16-24 hours</option>
                     </select>
                     <span class="input-group-text">hours</span>
@@ -131,10 +122,10 @@
                     <span class="input-group-text">₦</span>
                     <select class="form-select" id="generator-maintenance" required>
                         <option value="" disabled>Select range</option>
-                        <option value="15000">Less than ₦15,000</option>
+                        <option value="5000">Less than ₦5,000</option>
+                        <option value="10000">₦5,000 - ₦15,000</option>
                         <option value="30000" selected>₦15,000 - ₦45,000</option>
-                        <option value="60000">₦45,000 - ₦75,000</option>
-                        <option value="100000">More than ₦75,000</option>
+                        <option value="60000">More than ₦45,000</option>
                     </select>
                 </div>
                 <div class="form-text">Select how much you spend on generator maintenance yearly</div>
@@ -211,8 +202,8 @@
             <div id="results-section" class="mb-4"></div>
             
             <div class="apply-section mt-5 p-4 bg-light rounded">
-                <h4 class="mb-3">Get A Free Consultation</h4>
-                <p>Leave your contact information to receive a detailed quote and speak with one of our solar experts about your custom solution.</p>
+                <h4 class="mb-3">Save Your Results</h4>
+                <p>Leave your contact information to save these results for future reference.</p>
                 
                 <div class="row g-3">
                     <div class="col-md-4">
@@ -237,8 +228,8 @@
                 
                 <div class="mt-3">
                     <button type="button" id="submit-lead-btn" class="btn btn-solar btn-lg btn-cta">
-                        <span class="cta-text">Get My Free Quote</span>
-                        <i class="fas fa-paper-plane ms-2"></i>
+                        <span class="cta-text">Save My Results</span>
+                        <i class="fas fa-save ms-2"></i>
                     </button>
                 </div>
             </div>
