@@ -235,6 +235,18 @@ body {
     transform: translateY(-1px);
 }
 
+/* Special styling for the start calculator button */
+a.btn-solar.pulse-button {
+    background-color: #000000;
+    color: var(--solar-primary);
+    font-weight: 700;
+}
+
+a.btn-solar.pulse-button:hover {
+    background-color: #222222;
+    color: var(--solar-primary);
+}
+
 .results-card {
     background-color: #ffffff;
     border: 1px solid var(--border-color);
@@ -456,45 +468,29 @@ body {
 
 /* Steps Guide */
 .steps-guide {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
     margin-top: 1.5rem;
 }
 
-.step-item {
-    display: flex;
-    align-items: center;
-    background-color: #f8f9fa;
-    padding: 0.75rem 1rem;
-    border-radius: 0.5rem;
-    flex: 1 1 calc(50% - 0.5rem);
-    min-width: 250px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    transition: transform 0.2s ease;
-}
-
-.step-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.step-number {
-    background-color: var(--solar-primary);
+.step-list {
+    padding-left: 2rem;
+    margin-bottom: 0;
     color: var(--text-color);
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    margin-right: 0.75rem;
 }
 
-.step-text {
-    color: var(--text-color);
+.step-list li {
+    margin-bottom: 0.75rem;
+    padding-left: 0.5rem;
     font-weight: 500;
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+/* For mobile devices, adjust font size */
+@media (max-width: 768px) {
+    .step-list li {
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+    }
 }
 
 /* Progress Steps */
@@ -639,6 +635,12 @@ body {
     color: var(--text-color);
     font-weight: 500;
     margin-bottom: 0.5rem;
+}
+
+/* Make form-text dark grey instead of muted */
+.form-text {
+    color: var(--dark-grey) !important;
+    font-weight: 500;
 }
 
 .invalid-feedback {

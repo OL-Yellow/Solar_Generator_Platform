@@ -498,9 +498,9 @@ function addPrefilledAppliances() {
         // Common appliances for Nigerian homes with their default settings
         const commonAppliances = [
             { name: 'LED Lights', quantity: 5, hours: 8, backup: true },
-            { name: 'Ceiling Fan', quantity: 2, hours: 12, backup: true },
+            { name: 'Laptop', quantity: 1, hours: 6, backup: true },
             { name: 'TV (32-inch LED)', quantity: 1, hours: 6, backup: true },
-            { name: 'Smartphone Charger', quantity: 2, hours: 3, backup: true }
+            { name: 'Standing Fan', quantity: 1, hours: 8, backup: true }
         ];
         
         // Add each common appliance
