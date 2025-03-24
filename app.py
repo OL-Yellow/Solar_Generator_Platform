@@ -155,25 +155,49 @@ def loan_application():
 @app.route('/submit_lead', methods=['POST'])
 def submit_lead():
     try:
-        name = request.form.get('name')
-        email = request.form.get('email')
-        phone = request.form.get('phone')
-        application_number = session.get('application_number')
+        # Check if the request is JSON (from JavaScript) or form (from HTML form)
+        if request.is_json:
+            data = request.get_json()
+            name = data.get('full_name')
+            email = data.get('email')
+            phone = data.get('phone')
+            application_number = data.get('application_number') or session.get('application_number')
+            
+            if not all([name, email, phone]):
+                return jsonify({'success': False, 'error': 'Missing required fields'}), 400
+                
+            # Save to database with application number
+            db_manager.save_application(name, email, phone, application_number)
+            
+            return jsonify({
+                'success': True, 
+                'message': 'Thank you! Your information has been submitted.',
+                'application_number': application_number
+            })
+        else:
+            # Handle traditional form submission
+            name = request.form.get('name')
+            email = request.form.get('email')
+            phone = request.form.get('phone')
+            application_number = session.get('application_number')
 
-        if not all([name, email, phone, application_number]):
-            flash('Please fill in all required fields', 'error')
-            return redirect(url_for('loan_application'))
+            if not all([name, email, phone, application_number]):
+                flash('Please fill in all required fields', 'error')
+                return redirect(url_for('loan_application'))
 
-        # Save to database with application number
-        db_manager.save_application(name, email, phone, application_number)
+            # Save to database with application number
+            db_manager.save_application(name, email, phone, application_number)
 
-        flash('Thank you! We appreciate your time.', 'success')
-        return redirect(url_for('thank_you'))
+            flash('Thank you! We appreciate your time.', 'success')
+            return redirect(url_for('thank_you'))
 
     except Exception as e:
-        logging.error(f"Error saving loan application: {str(e)}")
-        flash('There was an error submitting your application. Please try again.', 'error')
-        return redirect(url_for('loan_application'))
+        logging.error(f"Error saving lead data: {str(e)}")
+        if request.is_json:
+            return jsonify({'success': False, 'error': str(e)}), 500
+        else:
+            flash('There was an error submitting your application. Please try again.', 'error')
+            return redirect(url_for('loan_application'))
 
 @app.route('/thank-you')
 def thank_you():
@@ -203,9 +227,20 @@ def get_recommendations():
             db_manager.save_calculator_data(application_number, user_data)
             logging.info(f"Saved calculator data for application {application_number}")
 
+        # Generate a new application number if one doesn't exist
+        if not application_number:
+            application_number = str(uuid.uuid4())[:8].upper()
+            session['application_number'] = application_number
+            
+            # Initial save with just the application number
+            db_manager.save_calculator_data(application_number, user_data)
+            logging.info(f"Created new application {application_number}")
+            
         result = get_system_recommendations(user_data)
 
         if result.get('success'):
+            # Include application number in the response
+            result['application_number'] = application_number
             return jsonify(result)
         else:
             return jsonify({'error': 'Failed to get recommendations', 'details': result.get('error')}), 500

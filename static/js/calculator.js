@@ -342,12 +342,20 @@ class SolarCalculator {
             console.log('Received response:', data);
 
             if (data.success) {
+                // Store application number for later use in lead submission
+                if (data.application_number) {
+                    localStorage.setItem('applicationNumber', data.application_number);
+                }
+                
                 // Navigate to results step
                 document.getElementById(`step${this.currentStep}`).classList.add('d-none');
                 this.currentStep = 4; // Set to results step
                 document.getElementById('step4').classList.remove('d-none');
                 document.getElementById('results-section').innerHTML = data.recommendations;
                 this.updateProgress();
+                
+                // Scroll to top of results
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             } else {
                 throw new Error(data.error || 'Failed to get recommendations');
             }
@@ -527,5 +535,61 @@ function addPrefilledAppliances() {
     }
 }
 
+// Handle lead submission from the results page
+function setupLeadSubmission() {
+    const submitLeadBtn = document.getElementById('submit-lead-btn');
+    if (submitLeadBtn) {
+        submitLeadBtn.addEventListener('click', async function() {
+            const fullName = document.getElementById('full-name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            
+            // Basic validation
+            if (!fullName || !email || !phone) {
+                alert('Please fill in all contact information fields.');
+                return;
+            }
+            
+            // Email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                alert('Please enter a valid email address.');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/submit_lead', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        full_name: fullName,
+                        email: email,
+                        phone: phone,
+                        application_number: localStorage.getItem('applicationNumber') || ''
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    // Redirect to thank you page
+                    window.location.href = '/thank-you';
+                } else {
+                    throw new Error(data.error || 'Failed to submit information');
+                }
+            } catch (error) {
+                console.error('Error submitting lead:', error);
+                alert('There was a problem submitting your information. Please try again.');
+            }
+        });
+    }
+}
+
 // Initialize existing appliance rows
 document.querySelectorAll('.appliance-item').forEach(initializeApplianceRow);
+
+// Set up lead submission when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    setupLeadSubmission();
+});
