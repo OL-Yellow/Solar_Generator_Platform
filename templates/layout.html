@@ -21,7 +21,7 @@
     </script>
     <noscript>
         <img height="1" width="1" style="display:none"
-        src="https://www.facebook.com/tr?id=719755792979501&ev=PageView&noscript=1"/>
+        src="https://www.facebook.com/tr?id=1322681718968569&ev=PageView&noscript=1"/>
     </noscript>
     <!-- End Meta Pixel Code -->
 
@@ -78,6 +78,37 @@
         document.addEventListener('submit', function(e) {
             if (e.target.tagName === 'FORM') {
                 fbq('track', 'Lead');
+                console.log('Meta Pixel: Lead event tracked');
+            }
+        });
+
+        // Track calculator button clicks
+        document.addEventListener('click', function(e) {
+            // Calculate Results button
+            if (e.target.id === 'calculate-btn' || e.target.closest('#calculate-btn')) {
+                fbq('track', 'InitiateCheckout', {
+                    content_name: 'Calculate Results',
+                    content_category: 'Solar Calculator'
+                });
+                console.log('Meta Pixel: Calculate Results button clicked');
+            }
+            
+            // Save Lead button
+            if (e.target.id === 'submit-lead-btn' || e.target.closest('#submit-lead-btn')) {
+                fbq('track', 'SubmitApplication', {
+                    content_name: 'Save Results',
+                    content_category: 'Lead Capture'
+                });
+                console.log('Meta Pixel: Save Lead button clicked');
+            }
+            
+            // CTA button on homepage
+            if (e.target.classList.contains('btn-cta') || e.target.closest('.btn-cta')) {
+                fbq('track', 'StartCalculator', {
+                    content_name: 'Start Calculator',
+                    content_category: 'Homepage CTA'
+                });
+                console.log('Meta Pixel: Homepage CTA clicked');
             }
         });
 
@@ -89,17 +120,26 @@
                 content_name: 'Solar Calculator',
                 content_type: 'calculator_tool'
             });
+            console.log('Meta Pixel: Calculator page view tracked');
         } else if (currentPath.includes('results')) {
             fbq('track', 'ViewContent', {
                 content_name: 'Calculator Results',
                 content_type: 'results_page',
                 status: 'calculation_complete'
             });
+            console.log('Meta Pixel: Results page view tracked');
         } else if (currentPath.includes('thank-you')) {
             fbq('track', 'CompleteRegistration', {
                 content_name: 'Application Complete',
                 status: 'application_submitted'
             });
+            console.log('Meta Pixel: Thank you page view tracked');
+        } else if (currentPath === '/' || currentPath === '/index') {
+            fbq('track', 'ViewContent', {
+                content_name: 'Homepage',
+                content_type: 'landing_page'
+            });
+            console.log('Meta Pixel: Homepage view tracked');
         }
     </script>
 

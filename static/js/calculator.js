@@ -279,6 +279,17 @@ class SolarCalculator {
 
     async calculateResults() {
         try {
+            // Track this calculation event to Meta Pixel if available
+            if (typeof fbq === 'function') {
+                fbq('track', 'CalculateResults', {
+                    content_name: 'System Calculation',
+                    content_category: 'Solar Calculator',
+                    value: parseFloat(document.getElementById('total-daily-power').textContent) || 0,
+                    currency: 'NGN'
+                });
+                console.log('Meta Pixel: Calculation event tracked');
+            }
+            
             // Collect appliance data
             const appliances = [];
             document.querySelectorAll('.appliance-item').forEach(item => {
@@ -589,6 +600,16 @@ function setupLeadSubmission() {
             if (!emailRegex.test(email)) {
                 alert('Please enter a valid email address.');
                 return;
+            }
+            
+            // Track this lead submission event to Meta Pixel if available
+            if (typeof fbq === 'function') {
+                fbq('track', 'Lead', {
+                    content_name: 'Lead Submission',
+                    content_category: 'Form Submit',
+                    status: 'form_submitted'
+                });
+                console.log('Meta Pixel: Lead submission event tracked');
             }
             
             try {
