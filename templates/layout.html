@@ -103,12 +103,13 @@
             }
             
             // CTA button on homepage
-            if (e.target.classList.contains('btn-cta') || e.target.closest('.btn-cta')) {
-                fbq('track', 'StartCalculator', {
+            if (e.target.classList.contains('btn-cta') || e.target.closest('.btn-cta') || 
+                e.target.classList.contains('pulse-button') || e.target.closest('.pulse-button')) {
+                fbq('trackCustom', 'CalculatorStarted', {
                     content_name: 'Start Calculator',
                     content_category: 'Homepage CTA'
                 });
-                console.log('Meta Pixel: Homepage CTA clicked');
+                console.log('Meta Pixel: Calculator started');
             }
         });
 

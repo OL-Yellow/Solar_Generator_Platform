@@ -328,7 +328,7 @@ class SolarCalculator {
         try {
             // Track this calculation event to Meta Pixel if available
             if (typeof fbq === 'function') {
-                fbq('track', 'CalculateResults', {
+                fbq('trackCustom', 'CalculateResults', {
                     content_name: 'System Calculation',
                     content_category: 'Solar Calculator',
                     value: parseFloat(document.getElementById('total-daily-power').textContent) || 0,
