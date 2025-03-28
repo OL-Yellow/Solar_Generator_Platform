@@ -156,6 +156,27 @@ class SolarCalculator {
                 return;
             }
             
+            // Track step completion with Meta Pixel
+            if (typeof fbq === 'function') {
+                // Track specific step completion
+                fbq('trackCustom', `CompleteStep${this.currentStep}`, {
+                    content_name: `Step ${this.currentStep} Complete`,
+                    content_category: 'Calculator Step',
+                    step_number: this.currentStep,
+                    total_steps: this.totalSteps
+                });
+                console.log(`Meta Pixel: Completed Step ${this.currentStep} tracked`);
+                
+                // Track next button click for the current step
+                fbq('trackCustom', `ClickNextStep${this.currentStep}`, {
+                    content_name: `Next Button - Step ${this.currentStep}`,
+                    content_category: 'Calculator Navigation',
+                    step_number: this.currentStep,
+                    total_steps: this.totalSteps
+                });
+                console.log(`Meta Pixel: Next button click for Step ${this.currentStep} tracked`);
+            }
+            
             // Transition to next step
             document.getElementById(`step${this.currentStep}`).classList.add('d-none');
             this.currentStep++;
@@ -181,6 +202,18 @@ class SolarCalculator {
 
     previousStep() {
         if (this.currentStep > 1) {
+            // Track going back to previous step with Meta Pixel
+            if (typeof fbq === 'function') {
+                fbq('trackCustom', `BackToStep${this.currentStep-1}`, {
+                    content_name: `Back Button - From Step ${this.currentStep}`,
+                    content_category: 'Calculator Navigation',
+                    from_step: this.currentStep,
+                    to_step: this.currentStep-1,
+                    total_steps: this.totalSteps
+                });
+                console.log(`Meta Pixel: Back to Step ${this.currentStep-1} tracked`);
+            }
+            
             document.getElementById(`step${this.currentStep}`).classList.add('d-none');
             this.currentStep--;
             
@@ -252,6 +285,20 @@ class SolarCalculator {
         const quantity = parseInt(item.querySelector('.quantity-value').textContent) || 1;
         const hours = parseInt(item.querySelector('.hours-value').textContent) || 6;
         const kwh = (watts * quantity * hours) / 1000;
+
+        // Track appliance changes with Meta Pixel
+        if (typeof fbq === 'function' && select.value) {
+            fbq('trackCustom', 'ApplianceConfigured', {
+                content_name: 'Appliance Configuration',
+                content_category: 'Appliance Selection',
+                appliance_type: select.value,
+                quantity: quantity,
+                hours: hours,
+                power_usage: kwh.toFixed(2),
+                step_number: this.currentStep
+            });
+            console.log(`Meta Pixel: Appliance ${select.value} configured`);
+        }
 
         item.querySelector('.watts-value').textContent = watts;
         item.querySelector('.daily-kwh').textContent = kwh.toFixed(2);
@@ -470,6 +517,16 @@ function addApplianceRow() {
     if (!applianceList) {
         console.error('Appliance list container not found');
         return;
+    }
+    
+    // Track adding a new appliance with Meta Pixel
+    if (typeof fbq === 'function') {
+        fbq('trackCustom', 'AddAppliance', {
+            content_name: 'Add New Appliance',
+            content_category: 'Appliance Selection',
+            step_number: window.calculator.currentStep
+        });
+        console.log('Meta Pixel: Add appliance tracked');
     }
     
     const addButton = applianceList.querySelector('.btn-add-appliance');
